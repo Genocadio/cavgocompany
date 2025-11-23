@@ -1,6 +1,6 @@
 "use client"
 
-import { Bus, BarChart3, Users, UserCheck, Home, LogOut, Navigation, Calendar } from "lucide-react"
+import { Bus, BarChart3, Users, UserCheck, Home, LogOut, Navigation, Calendar, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/components/auth-provider"
@@ -18,8 +18,14 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const menuItems = [
   {
@@ -48,11 +54,6 @@ const menuItems = [
     icon: UserCheck,
   },
   {
-    title: "Workers",
-    url: "/workers",
-    icon: Users,
-  },
-  {
     title: "Ticketing",
     url: "/ticketing",
     icon: BarChart3,
@@ -64,13 +65,22 @@ export function AppSidebar() {
   const { user, logout } = useAuth()
 
   const getInitials = (name: string) => {
-    return (
-      name
-        ?.split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase() || "U"
-    )
+    if (!name) return "U"
+    
+    const nameParts = name.trim().split(" ").filter((part) => part.length > 0)
+    
+    if (nameParts.length >= 2) {
+      // Two or more names: first letter of first name + first letter of last name
+      return (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+    } else if (nameParts.length === 1) {
+      // Single name: first 2 letters
+      const singleName = nameParts[0]
+      return singleName.length >= 2 
+        ? singleName.substring(0, 2).toUpperCase()
+        : singleName[0].toUpperCase() + singleName[0].toUpperCase()
+    }
+    
+    return "U"
   }
 
   return (
@@ -81,8 +91,8 @@ export function AppSidebar() {
             <Bus className="h-4 w-4" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">TransitAdmin</span>
-            <span className="text-xs text-muted-foreground">Metro Bus Co.</span>
+            <span className="text-sm font-semibold">cavgoadmin</span>
+            <span className="text-xs text-muted-foreground">{user?.companyName || "Company"}</span>
           </div>
         </div>
       </SidebarHeader>
@@ -112,19 +122,46 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="flex items-center gap-2 px-2 py-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback>{getInitials(user?.name || "")}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col flex-1">
-                <span className="text-sm font-medium">{user?.name || "User"}</span>
-                <span className="text-xs text-muted-foreground">{user?.role || "Admin"}</span>
-              </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={logout} title="Logout">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  type="button"
+                  className="flex items-center gap-3 w-full p-2 rounded-md hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[44px]"
+                  aria-label="User menu"
+                >
+                  <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-background shadow-sm">
+                    <AvatarImage src="/placeholder-user.jpg" alt={user?.name || user?.username || "User"} />
+                    <AvatarFallback className="text-sm font-semibold bg-primary text-primary-foreground border-2 border-primary/20">
+                      {getInitials(user?.name || user?.username || "User")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col items-start flex-1 min-w-0">
+                    <span className="text-sm font-medium truncate w-full">
+                      {user?.name || user?.username || "User"}
+                    </span>
+                    <span className="text-xs text-muted-foreground truncate w-full">
+                      {user?.email || user?.role || ""}
+                    </span>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56" side="top">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium">{user?.name || user?.username || "User"}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email || ""}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>View Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

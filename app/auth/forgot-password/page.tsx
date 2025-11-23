@@ -174,7 +174,7 @@ export default function ForgotPasswordPage() {
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500">
-          <p>© 2024 TransitAdmin. All rights reserved.</p>
+          <p>© 2025 cavgoadmin. All rights reserved.</p>
         </div>
       </div>
     </div>

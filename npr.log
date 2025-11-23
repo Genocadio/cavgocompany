@@ -1,0 +1,1978 @@
+[0;36m[INFO][0m Detected pnpm (pnpm-lock.yaml found)
+[0;36m[INFO][0m Using package manager: pnpm
+[0;36m[INFO][0m Executing: pnpm install
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +427
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 427, reused 289, downloaded 7, added 0
+Progress: resolved 427, reused 289, downloaded 38, added 326
+Progress: resolved 427, reused 289, downloaded 47, added 336
+Progress: resolved 427, reused 289, downloaded 57, added 346
+Progress: resolved 427, reused 289, downloaded 63, added 352
+ WARN  Tarball download average speed 36 KiB/s (size 71 KiB) is below 50 KiB/s: https://registry.npmjs.org/@eslint/config-array/-/config-array-0.20.1.tgz (GET)
+Progress: resolved 427, reused 289, downloaded 73, added 362
+Progress: resolved 427, reused 289, downloaded 90, added 379
+Progress: resolved 427, reused 289, downloaded 104, added 393
+ WARN  Tarball download average speed 15 KiB/s (size 21 KiB) is below 50 KiB/s: https://registry.npmjs.org/doctrine/-/doctrine-2.1.0.tgz (GET)
+ WARN  Tarball download average speed 25 KiB/s (size 54 KiB) is below 50 KiB/s: https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.35.0.tgz (GET)
+Progress: resolved 427, reused 289, downloaded 121, added 410
+Progress: resolved 427, reused 289, downloaded 133, added 422
+Progress: resolved 427, reused 289, downloaded 134, added 423
+ WARN  Tarball download average speed 17 KiB/s (size 37 KiB) is below 50 KiB/s: https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz (GET)
+Progress: resolved 427, reused 289, downloaded 136, added 425
+Progress: resolved 427, reused 289, downloaded 137, added 425
+Progress: resolved 427, reused 289, downloaded 137, added 426
+Progress: resolved 427, reused 289, downloaded 138, added 426
+Progress: resolved 427, reused 289, downloaded 138, added 427, done
+
+dependencies:
++ @radix-ui/react-avatar 1.1.10
++ @radix-ui/react-checkbox 1.3.2
++ @radix-ui/react-dialog 1.1.14
++ @radix-ui/react-dropdown-menu 2.1.15
++ @radix-ui/react-label 2.1.7
++ @radix-ui/react-progress 1.1.7
++ @radix-ui/react-select 2.2.5
++ @radix-ui/react-separator 1.1.7
++ @radix-ui/react-slot 1.2.3
++ @radix-ui/react-switch 1.2.5
++ @radix-ui/react-tabs 1.1.12
++ @radix-ui/react-tooltip 1.2.7
++ class-variance-authority 0.7.1
++ clsx 2.1.1
++ lucide-react 0.524.0
++ next 15.3.4
++ react 19.1.0
++ react-dom 19.1.0
++ recharts 3.0.2
++ sonner 2.0.5
++ tailwind-merge 3.3.1
+
+devDependencies:
++ @eslint/eslintrc 3.3.1
++ @tailwindcss/postcss 4.1.11
++ @types/node 20.19.1
++ @types/react 19.1.8
++ @types/react-dom 19.1.6
++ @typescript-eslint/eslint-plugin 8.35.0
++ @typescript-eslint/parser 8.35.0
++ eslint 9.29.0
++ eslint-config-next 15.3.4
++ tailwindcss 4.1.11
++ tw-animate-css 1.3.4
++ typescript 5.8.3
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @tailwindcss/oxide, sharp, unrs-resolver.           │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 25s using pnpm v10.22.0
+[0;36m[INFO][0m Detected pnpm (pnpm-lock.yaml found)
+[0;36m[INFO][0m Using package manager: pnpm
+[0;36m[INFO][0m No arguments provided, running 'dev' script...
+[0;36m[INFO][0m Running script: dev
+[0;36m[INFO][0m Executing: pnpm run dev
+
+> cavgocompany@0.1.0 dev /Users/pro/projects/frontend/cavgocompany
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.132:3000
+
+ ✓ Starting...
+ ✓ Compiled middleware in 89ms
+ ✓ Ready in 920ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 17.6s
+ GET /auth/login?redirect=%2F 200 in 17812ms
+ GET /auth/login?redirect=%2F 200 in 49ms
+ GET /auth/login?redirect=%2F 200 in 46ms
+ GET /auth/login?redirect=%2F 200 in 85ms
+ GET /auth/login?redirect=%2F 200 in 62ms
+ GET /auth/login?redirect=%2F 200 in 78ms
+ ✓ Compiled /favicon.ico in 486ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 820ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 262ms
+[0;36m[INFO][0m Detected pnpm (pnpm-lock.yaml found)
+[0;36m[INFO][0m Using package manager: pnpm
+[0;36m[INFO][0m No arguments provided, running 'dev' script...
+[0;36m[INFO][0m Running script: dev
+[0;36m[INFO][0m Executing: pnpm run dev
+
+> cavgocompany@0.1.0 dev /Users/pro/projects/frontend/cavgocompany
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.132:3000
+
+ ✓ Starting...
+ ✓ Compiled middleware in 118ms
+ ✓ Ready in 1077ms
+   Reload env: .env.local
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 23s
+ GET /auth/login?redirect=%2F 200 in 3321ms
+ GET /auth/login?redirect=%2F 200 in 23269ms
+ ✓ Compiled in 145ms
+ ✓ Compiled in 128ms
+ ✓ Compiled in 127ms
+ GET /auth/login?redirect=%2F 200 in 97ms
+ ✓ Compiled in 131ms
+ GET /auth/login?redirect=%2F 200 in 98ms
+ ⚠ Fast Refresh had to perform a full reload when ./components/auth-provider.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload when ./components/auth-provider.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 141ms
+ GET /auth/login?redirect=%2F 200 in 283ms
+ GET /auth/login?redirect=%2F 200 in 72ms
+ ○ Compiling / ...
+ ✓ Compiled / in 716ms
+ GET / 200 in 753ms
+ GET / 200 in 87ms
+ GET / 200 in 34ms
+ GET / 200 in 104ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 1181ms
+ GET /placeholder-user.jpg 404 in 1232ms
+ GET /placeholder-user.jpg 404 in 52ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 732ms
+ ✓ Compiled in 132ms
+ GET / 200 in 81ms
+ GET /placeholder-user.jpg 404 in 57ms
+ ⚠ Fast Refresh had to perform a full reload when ./components/auth-provider.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload when ./components/auth-provider.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload when ./components/auth-provider.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 104ms
+ GET / 200 in 161ms
+ GET / 200 in 66ms
+ GET / 200 in 141ms
+ GET /placeholder-user.jpg 404 in 144ms
+ GET /placeholder-user.jpg 404 in 88ms
+ GET /placeholder-user.jpg 404 in 84ms
+ ✓ Compiled in 141ms
+ ✓ Compiled in 118ms
+ ✓ Compiled in 115ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 303ms
+ GET /auth/login?redirect=%2F 200 in 185ms
+ GET /auth/login?redirect=%2F 200 in 97ms
+ GET /auth/login?redirect=%2F 200 in 214ms
+ GET / 200 in 155ms
+ GET / 200 in 138ms
+ GET / 200 in 139ms
+ GET /placeholder-user.jpg 404 in 133ms
+ GET / 200 in 109ms
+ GET / 200 in 131ms
+ GET / 200 in 79ms
+ GET /placeholder-user.jpg 404 in 142ms
+ GET /placeholder-user.jpg 404 in 118ms
+ GET /placeholder-user.jpg 404 in 138ms
+ GET /placeholder-user.jpg 404 in 46ms
+[0;36m[INFO][0m Detected pnpm (pnpm-lock.yaml found)
+[0;36m[INFO][0m Using package manager: pnpm
+[0;36m[INFO][0m No arguments provided, running 'dev' script...
+[0;36m[INFO][0m Running script: dev
+[0;36m[INFO][0m Executing: pnpm run dev
+
+> cavgocompany@0.1.0 dev /Users/pro/projects/frontend/cavgocompany
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.132:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 101ms
+ ✓ Ready in 943ms
+   Reload env: .env.local
+ ✓ Compiled /favicon.ico in 407ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 893ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 265ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.9s
+ ⨯ ./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ ✓ Compiled /_error in 476ms
+ GET /favicon.ico?favicon.45db1c09.ico 500 in 24ms
+ GET /favicon.ico?favicon.45db1c09.ico 500 in 198ms
+ ⨯ ./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET / 500 in 135ms
+ ⨯ ./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET / 500 in 156ms
+ GET /favicon.ico 500 in 39ms
+ GET /favicon.ico 500 in 127ms
+ GET /favicon.ico 500 in 161ms
+ GET /favicon.ico?favicon.45db1c09.ico 500 in 35ms
+ GET /favicon.ico?favicon.45db1c09.ico 500 in 107ms
+ ⨯ ./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET / 500 in 43ms
+ ⨯ ./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./components/apollo-provider.tsx:3:1
+Export ApolloProvider doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export ApolloProvider was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import ApolloClient?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET / 500 in 50ms
+ GET /favicon.ico 500 in 120ms
+ GET /favicon.ico 500 in 74ms
+ GET /favicon.ico 500 in 25ms
+ ⨯ ./components/apollo-provider.tsx:3:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider'
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:3:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider'
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:3:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider'
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:3:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider'
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:3:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider.js'
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m [36mas[39m [33mApolloProviderBase[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider.js"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:3:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider.js'
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m [36mas[39m [33mApolloProviderBase[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider.js"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:3:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider.js'
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m [36mas[39m [33mApolloProviderBase[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider.js"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:3:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider.js'
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mApolloProvider[39m [36mas[39m [33mApolloProviderBase[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider.js"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { apolloClient } [36mfrom[39m [32m"@/lib/apollo-client"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
+[0m [90m 6 |[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:8:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider'
+[0m [90m  6 |[39m [90m// Import ApolloProvider from the react subpath[39m[0m
+[0m [90m  7 |[39m [90m// In Apollo Client v4, React components are in the react subpath[39m[0m
+[0m[31m[1m>[22m[39m[90m  8 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider"[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m  9 |[39m[0m
+[0m [90m 10 |[39m [36mexport[39m [36mfunction[39m [33mApolloProviderWrapper[39m({ children }[33m:[39m { children[33m:[39m [33mReact[39m[33m.[39m[33mReactNode[39m }) {[0m
+[0m [90m 11 |[39m   [36mreturn[39m [33m<[39m[33mApolloProvider[39m client[33m=[39m{apolloClient}[33m>[39m{children}[33m<[39m[33m/[39m[33mApolloProvider[39m[33m>[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:8:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider'
+[0m [90m  6 |[39m [90m// Import ApolloProvider from the react subpath[39m[0m
+[0m [90m  7 |[39m [90m// In Apollo Client v4, React components are in the react subpath[39m[0m
+[0m[31m[1m>[22m[39m[90m  8 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider"[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m  9 |[39m[0m
+[0m [90m 10 |[39m [36mexport[39m [36mfunction[39m [33mApolloProviderWrapper[39m({ children }[33m:[39m { children[33m:[39m [33mReact[39m[33m.[39m[33mReactNode[39m }) {[0m
+[0m [90m 11 |[39m   [36mreturn[39m [33m<[39m[33mApolloProvider[39m client[33m=[39m{apolloClient}[33m>[39m{children}[33m<[39m[33m/[39m[33mApolloProvider[39m[33m>[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:8:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider'
+[0m [90m  6 |[39m [90m// Import ApolloProvider from the react subpath[39m[0m
+[0m [90m  7 |[39m [90m// In Apollo Client v4, React components are in the react subpath[39m[0m
+[0m[31m[1m>[22m[39m[90m  8 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider"[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m  9 |[39m[0m
+[0m [90m 10 |[39m [36mexport[39m [36mfunction[39m [33mApolloProviderWrapper[39m({ children }[33m:[39m { children[33m:[39m [33mReact[39m[33m.[39m[33mReactNode[39m }) {[0m
+[0m [90m 11 |[39m   [36mreturn[39m [33m<[39m[33mApolloProvider[39m client[33m=[39m{apolloClient}[33m>[39m{children}[33m<[39m[33m/[39m[33mApolloProvider[39m[33m>[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./components/apollo-provider.tsx:8:1
+Module not found: Can't resolve '@apollo/client/react/context/ApolloProvider'
+[0m [90m  6 |[39m [90m// Import ApolloProvider from the react subpath[39m[0m
+[0m [90m  7 |[39m [90m// In Apollo Client v4, React components are in the react subpath[39m[0m
+[0m[31m[1m>[22m[39m[90m  8 |[39m [36mimport[39m { [33mApolloProvider[39m } [36mfrom[39m [32m"@apollo/client/react/context/ApolloProvider"[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m  9 |[39m[0m
+[0m [90m 10 |[39m [36mexport[39m [36mfunction[39m [33mApolloProviderWrapper[39m({ children }[33m:[39m { children[33m:[39m [33mReact[39m[33m.[39m[33mReactNode[39m }) {[0m
+[0m [90m 11 |[39m   [36mreturn[39m [33m<[39m[33mApolloProvider[39m client[33m=[39m{apolloClient}[33m>[39m{children}[33m<[39m[33m/[39m[33mApolloProvider[39m[33m>[39m[0m
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET / 500 in 206ms
+ ⨯ ./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET / 500 in 47ms
+ GET /favicon.ico 500 in 22ms
+[0;36m[INFO][0m Detected pnpm (pnpm-lock.yaml found)
+[0;36m[INFO][0m Using package manager: pnpm
+[0;36m[INFO][0m No arguments provided, running 'dev' script...
+[0;36m[INFO][0m Running script: dev
+[0;36m[INFO][0m Executing: pnpm run dev
+
+> cavgocompany@0.1.0 dev /Users/pro/projects/frontend/cavgocompany
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.173:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 101ms
+ ✓ Ready in 965ms
+ ○ Compiling / ...
+ ✓ Compiled / in 4s
+ ⨯ ./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 509ms
+ GET / 500 in 4665ms
+ ⨯ ./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-client] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+
+./hooks/use-company-dashboard.ts:3:1
+Export useQuery doesn't exist in target module
+[0m [90m 1 |[39m [32m"use client"[39m[0m
+[0m [90m 2 |[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { useQuery } [36mfrom[39m [32m"@apollo/client"[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mGET_COMPANY_DASHBOARD[39m } [36mfrom[39m [32m"@/graphql/queries"[39m[0m
+[0m [90m 5 |[39m [36mimport[39m type { [33mGetCompanyDashboardResponse[39m } [36mfrom[39m [32m"@/types"[39m[0m
+[0m [90m 6 |[39m[0m
+
+The export useQuery was not found in module [project]/node_modules/.pnpm/@apollo+client@4.0.9_graphql@16.12.0_react-dom@19.1.0_react@19.1.0__react@19.1.0_rxjs@7.8.2/node_modules/@apollo/client/core/index.js [app-ssr] (ecmascript) <exports>.
+Did you mean to import isReference?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET / 500 in 34ms
+ ⨯ ./app/page.tsx:10:1
+Module not found: Can't resolve '@/hooks/use-company-dashboard'
+[0m [90m  8 |[39m [36mimport[39m { [33mSkeleton[39m } [36mfrom[39m [32m"@/components/ui/skeleton"[39m[0m
+[0m [90m  9 |[39m [36mimport[39m { useAuth } [36mfrom[39m [32m"@/components/auth-provider"[39m[0m
+[0m[31m[1m>[22m[39m[90m 10 |[39m [36mimport[39m { useCompanyDashboard } [36mfrom[39m [32m"@/hooks/use-company-dashboard"[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 11 |[39m[0m
+[0m [90m 12 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mDashboard[39m() {[0m
+[0m [90m 13 |[39m   [36mconst[39m { user } [33m=[39m useAuth()[0m
+
+Import map: aliased to relative './hooks/use-company-dashboard' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./app/page.tsx:10:1
+Module not found: Can't resolve '@/hooks/use-company-dashboard'
+[0m [90m  8 |[39m [36mimport[39m { [33mSkeleton[39m } [36mfrom[39m [32m"@/components/ui/skeleton"[39m[0m
+[0m [90m  9 |[39m [36mimport[39m { useAuth } [36mfrom[39m [32m"@/components/auth-provider"[39m[0m
+[0m[31m[1m>[22m[39m[90m 10 |[39m [36mimport[39m { useCompanyDashboard } [36mfrom[39m [32m"@/hooks/use-company-dashboard"[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 11 |[39m[0m
+[0m [90m 12 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mDashboard[39m() {[0m
+[0m [90m 13 |[39m   [36mconst[39m { user } [33m=[39m useAuth()[0m
+
+Import map: aliased to relative './hooks/use-company-dashboard' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./app/page.tsx:10:1
+Module not found: Can't resolve '@/hooks/use-company-dashboard'
+[0m [90m  8 |[39m [36mimport[39m { [33mSkeleton[39m } [36mfrom[39m [32m"@/components/ui/skeleton"[39m[0m
+[0m [90m  9 |[39m [36mimport[39m { useAuth } [36mfrom[39m [32m"@/components/auth-provider"[39m[0m
+[0m[31m[1m>[22m[39m[90m 10 |[39m [36mimport[39m { useCompanyDashboard } [36mfrom[39m [32m"@/hooks/use-company-dashboard"[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 11 |[39m[0m
+[0m [90m 12 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mDashboard[39m() {[0m
+[0m [90m 13 |[39m   [36mconst[39m { user } [33m=[39m useAuth()[0m
+
+Import map: aliased to relative './hooks/use-company-dashboard' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ⨯ ./app/page.tsx:10:1
+Module not found: Can't resolve '@/hooks/use-company-dashboard'
+[0m [90m  8 |[39m [36mimport[39m { [33mSkeleton[39m } [36mfrom[39m [32m"@/components/ui/skeleton"[39m[0m
+[0m [90m  9 |[39m [36mimport[39m { useAuth } [36mfrom[39m [32m"@/components/auth-provider"[39m[0m
+[0m[31m[1m>[22m[39m[90m 10 |[39m [36mimport[39m { useCompanyDashboard } [36mfrom[39m [32m"@/hooks/use-company-dashboard"[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 11 |[39m[0m
+[0m [90m 12 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mDashboard[39m() {[0m
+[0m [90m 13 |[39m   [36mconst[39m { user } [33m=[39m useAuth()[0m
+
+Import map: aliased to relative './hooks/use-company-dashboard' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ ✓ Compiled in 211ms
+ ✓ Compiled / in 135ms
+ GET / 200 in 444ms
+ GET / 200 in 56ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 561ms
+ GET /placeholder-user.jpg 404 in 592ms
+ GET /placeholder-user.jpg 404 in 36ms
+   Reload env: .env.local
+ GET / 200 in 88ms
+ GET / 200 in 51ms
+ ✓ Compiled / in 20ms
+ GET / 200 in 232ms
+ GET / 200 in 45ms
+ GET / 200 in 57ms
+ GET / 200 in 56ms
+ ✓ Compiled in 1169ms
+ ✓ Compiled in 355ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 696ms
+ GET /auth/login?redirect=%2F 500 in 725ms
+ ✓ Compiled /favicon.ico in 338ms
+ GET /favicon.ico 500 in 351ms
+ ✓ Compiled in 136ms
+ GET /auth/login?redirect=%2F 200 in 204ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 258ms
+ ✓ Compiled / in 18ms
+ GET / 200 in 88ms
+ ✓ Compiled /_not-found/page in 48ms
+ GET /placeholder-user.jpg 404 in 174ms
+ GET / 200 in 33ms
+ GET / 200 in 125ms
+ GET /placeholder-user.jpg 404 in 41ms
+ ✓ Compiled in 118ms
+ ✓ Compiled in 130ms
+ ○ Compiling /buses ...
+ ✓ Compiled /buses in 888ms
+ GET /buses 200 in 919ms
+ GET /buses 200 in 63ms
+ GET / 200 in 126ms
+ ✓ Compiled in 136ms
+ GET /buses 200 in 44ms
+ GET /auth/login?redirect=%2F 200 in 62ms
+ GET /favicon.ico 200 in 40ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 235ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 228ms
+ GET /auth/login?redirect=%2F 200 in 62ms
+ GET / 200 in 125ms
+ GET /placeholder-user.jpg 404 in 43ms
+ GET / 200 in 48ms
+ GET /buses 200 in 42ms
+ GET /auth/login?redirect=%2F 200 in 60ms
+ GET / 200 in 45ms
+ ○ Compiling /live-tracking ...
+ ✓ Compiled /live-tracking in 805ms
+ GET /live-tracking 200 in 842ms
+ GET /buses 200 in 49ms
+ GET /live-tracking 200 in 41ms
+ ○ Compiling /trips ...
+ ✓ Compiled /trips in 876ms
+ GET /trips 200 in 940ms
+ GET /live-tracking 200 in 50ms
+ ✓ Compiled in 110ms
+ ✓ Compiled in 171ms
+ GET /live-tracking 200 in 38ms
+ ✓ Compiled in 105ms
+ ✓ Compiled in 170ms
+ ✓ Compiled in 158ms
+ ✓ Compiled in 188ms
+ GET /live-tracking 200 in 33ms
+ ✓ Compiled in 91ms
+ ✓ Compiled in 119ms
+ ✓ Compiled /live-tracking in 16ms
+ GET /live-tracking 200 in 105ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 361ms
+ GET /live-tracking 200 in 250ms
+ GET /placeholder-user.jpg 404 in 46ms
+ ✓ Compiled in 112ms
+ ✓ Compiled /buses in 20ms
+ GET /buses 200 in 112ms
+ GET /live-tracking 200 in 106ms
+ GET /buses 200 in 50ms
+ GET /live-tracking 200 in 64ms
+ GET /buses 200 in 44ms
+ GET /live-tracking 200 in 42ms
+ ✓ Compiled in 111ms
+ ✓ Compiled /live-tracking in 16ms
+ GET /live-tracking 200 in 98ms
+ ✓ Compiled in 202ms
+ GET /live-tracking 200 in 183ms
+ GET /placeholder-user.jpg 404 in 44ms
+ GET /buses 200 in 41ms
+ GET /live-tracking 200 in 57ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 53ms
+ GET /live-tracking 200 in 60ms
+ GET /favicon.ico 200 in 46ms
+ GET /placeholder-user.jpg 404 in 49ms
+ GET /live-tracking 200 in 74ms
+ GET /favicon.ico 200 in 40ms
+ GET /placeholder-user.jpg 404 in 53ms
+ GET /buses 200 in 47ms
+ ○ Compiling /buses/[id] ...
+ ✓ Compiled /buses/[id] in 856ms
+ ⨯ ./app/buses/[id]/page.tsx:381:6
+Parsing ecmascript source code failed
+[0m [90m 379 |[39m[0m
+[0m [90m 380 |[39m   [36mreturn[39m ([0m
+[0m[31m[1m>[22m[39m[90m 381 |[39m     [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-col"[39m[33m>[39m[0m
+[0m [90m     |[39m      [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 382 |[39m       [33m<[39m[33mheader[39m className[33m=[39m[32m"flex h-16 shrink-0 items-center gap-2 border-b px-4"[39m[33m>[39m[0m
+[0m [90m 383 |[39m         [33m<[39m[33mSidebarTrigger[39m className[33m=[39m[32m"-ml-1"[39m [33m/[39m[33m>[39m[0m
+[0m [90m 384 |[39m         [33m<[39m[33mButton[39m variant[33m=[39m[32m"ghost"[39m size[33m=[39m[32m"sm"[39m onClick[33m=[39m{() [33m=>[39m router[33m.[39mback()}[33m>[39m[0m
+
+Unexpected token `div`. Expected jsx identifier
+
+
+ GET /buses/2 500 in 891ms
+ ⨯ ./app/buses/[id]/page.tsx:381:6
+Parsing ecmascript source code failed
+[0m [90m 379 |[39m[0m
+[0m [90m 380 |[39m   [36mreturn[39m ([0m
+[0m[31m[1m>[22m[39m[90m 381 |[39m     [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-col"[39m[33m>[39m[0m
+[0m [90m     |[39m      [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 382 |[39m       [33m<[39m[33mheader[39m className[33m=[39m[32m"flex h-16 shrink-0 items-center gap-2 border-b px-4"[39m[33m>[39m[0m
+[0m [90m 383 |[39m         [33m<[39m[33mSidebarTrigger[39m className[33m=[39m[32m"-ml-1"[39m [33m/[39m[33m>[39m[0m
+[0m [90m 384 |[39m         [33m<[39m[33mButton[39m variant[33m=[39m[32m"ghost"[39m size[33m=[39m[32m"sm"[39m onClick[33m=[39m{() [33m=>[39m router[33m.[39mback()}[33m>[39m[0m
+
+Unexpected token `div`. Expected jsx identifier
+
+
+ GET /buses/2 500 in 45ms
+ GET /favicon.ico 500 in 28ms
+ GET /buses 500 in 74ms
+ GET /live-tracking 500 in 96ms
+ GET /buses 500 in 62ms
+ GET /live-tracking 500 in 42ms
+ GET /buses 500 in 41ms
+ GET /live-tracking 500 in 44ms
+ GET /buses 500 in 44ms
+ GET /live-tracking 500 in 41ms
+[0;36m[INFO][0m Detected pnpm (pnpm-lock.yaml found)
+[0;36m[INFO][0m Using package manager: pnpm
+[0;36m[INFO][0m No arguments provided, running 'dev' script...
+[0;36m[INFO][0m Running script: dev
+[0;36m[INFO][0m Executing: pnpm run dev
+
+> cavgocompany@0.1.0 dev /Users/pro/projects/frontend/cavgocompany
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.173:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 94ms
+ ✓ Ready in 912ms
+ ○ Compiling /live-tracking ...
+ ✓ Compiled /live-tracking in 4s
+ GET /live-tracking 200 in 3829ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 1226ms
+ GET /placeholder-user.jpg 404 in 1260ms
+ ○ Compiling /buses ...
+ ✓ Compiled /buses in 734ms
+ GET /buses 200 in 758ms
+ GET /buses 200 in 22ms
+ GET /live-tracking 200 in 52ms
+ GET /buses 200 in 52ms
+ GET /live-tracking 200 in 56ms
+ ○ Compiling /trips ...
+ ✓ Compiled /trips in 696ms
+ GET /trips 200 in 740ms
+ GET /live-tracking 200 in 46ms
+ GET /trips 200 in 59ms
+ GET /live-tracking 200 in 50ms
+ GET /buses 200 in 50ms
+ GET /live-tracking 200 in 44ms
+ ✓ Compiled in 129ms
+ ✓ Compiled in 193ms
+ GET /trips 200 in 60ms
+ GET /live-tracking 200 in 106ms
+ GET /trips 200 in 42ms
+ GET /live-tracking 200 in 47ms
+ ✓ Compiled in 157ms
+ GET /live-tracking 200 in 233ms
+ GET /placeholder-user.jpg 404 in 45ms
+ ✓ Compiled in 140ms
+ ✓ Compiled in 110ms
+ ✓ Compiled /live-tracking in 12ms
+ GET /live-tracking 200 in 87ms
+ ✓ Compiled in 113ms
+ ✓ Compiled in 162ms
+ ✓ Compiled in 136ms
+ ✓ Compiled in 128ms
+ ✓ Compiled in 106ms
+ ✓ Compiled in 119ms
+ ✓ Compiled in 98ms
+ ✓ Compiled in 97ms
+ ✓ Compiled in 140ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /placeholder-user.jpg 404 in 58ms
+ GET /live-tracking 200 in 173ms
+ GET /placeholder-user.jpg 404 in 52ms
+ ✓ Compiled in 107ms
+ ✓ Compiled in 166ms
+ ✓ Compiled in 269ms
+ GET /live-tracking 200 in 108ms
+ ✓ Compiled in 161ms
+ ✓ Compiled in 160ms
+ GET /trips 200 in 69ms
+ ✓ Compiled in 105ms
+ ○ Compiling /drivers ...
+ ✓ Compiled /drivers in 918ms
+ GET /drivers 200 in 945ms
+ GET /placeholder-user.jpg 404 in 54ms
+ ✓ Compiled in 114ms
+ ✓ Compiled in 114ms
+ GET /drivers 200 in 35ms
+ ✓ Compiled in 123ms
+ ✓ Compiled in 147ms
+ ✓ Compiled in 101ms
+ ✓ Compiled in 103ms
+ ✓ Compiled in 98ms
+ ✓ Compiled in 210ms
+ ✓ Compiled in 96ms
+ ✓ Compiled in 218ms
+ GET /drivers 200 in 36ms
+ ✓ Compiled in 126ms
+ ✓ Compiled /trips in 24ms
+ GET /trips 200 in 149ms
+ GET /drivers 200 in 49ms
+ GET /placeholder-user.jpg 404 in 45ms
+ GET /trips 200 in 59ms
+ ○ Compiling / ...
+ ✓ Compiled / in 907ms
+ GET / 200 in 946ms
+ GET /trips 200 in 53ms
+ GET /drivers 200 in 54ms
+ GET /placeholder-user.jpg 404 in 38ms
+ ○ Compiling /workers ...
+ ✓ Compiled /workers in 878ms
+ GET /workers 200 in 901ms
+ GET /placeholder-user.jpg 404 in 47ms
+ ○ Compiling /ticketing ...
+ ✓ Compiled /ticketing in 1320ms
+ GET /ticketing 200 in 1350ms
+ GET /ticketing 200 in 138ms
+ GET /trips 200 in 50ms
+ GET /trips 200 in 200ms
+ GET /placeholder-user.jpg 404 in 37ms
+ GET /trips 200 in 106ms
+ GET /placeholder-user.jpg 404 in 50ms
+ ✓ Compiled /favicon.ico in 274ms
+ ✓ Compiled in 122ms
+ ✓ Compiled in 127ms
+ ✓ Compiled in 179ms
+ ✓ Compiled in 127ms
+ ✓ Compiled in 208ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 108ms
+ GET /trips 200 in 326ms
+ GET /placeholder-user.jpg 404 in 39ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 118ms
+ GET /trips 200 in 210ms
+ GET /placeholder-user.jpg 404 in 42ms
+ ✓ Compiled in 109ms
+ ✓ Compiled in 110ms
+ GET /drivers 200 in 44ms
+ GET /placeholder-user.jpg 404 in 41ms
+ GET /trips 200 in 130ms
+ GET /drivers 200 in 53ms
+ GET /placeholder-user.jpg 404 in 35ms
+ ✓ Compiled /buses in 46ms
+ GET /buses 200 in 121ms
+ ○ Compiling /buses/[id] ...
+ ✓ Compiled /buses/[id] in 960ms
+ ⨯ ./app/buses/[id]/page.tsx:381:6
+Parsing ecmascript source code failed
+[0m [90m 379 |[39m[0m
+[0m [90m 380 |[39m   [36mreturn[39m ([0m
+[0m[31m[1m>[22m[39m[90m 381 |[39m     [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-col"[39m[33m>[39m[0m
+[0m [90m     |[39m      [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 382 |[39m       [33m<[39m[33mheader[39m className[33m=[39m[32m"flex h-16 shrink-0 items-center gap-2 border-b px-4"[39m[33m>[39m[0m
+[0m [90m 383 |[39m         [33m<[39m[33mSidebarTrigger[39m className[33m=[39m[32m"-ml-1"[39m [33m/[39m[33m>[39m[0m
+[0m [90m 384 |[39m         [33m<[39m[33mButton[39m variant[33m=[39m[32m"ghost"[39m size[33m=[39m[32m"sm"[39m onClick[33m=[39m{() [33m=>[39m router[33m.[39mback()}[33m>[39m[0m
+
+Unexpected token `div`. Expected jsx identifier
+
+
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 761ms
+ GET /buses/1 500 in 1959ms
+ ⨯ ./app/buses/[id]/page.tsx:381:6
+Parsing ecmascript source code failed
+[0m [90m 379 |[39m[0m
+[0m [90m 380 |[39m   [36mreturn[39m ([0m
+[0m[31m[1m>[22m[39m[90m 381 |[39m     [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-col"[39m[33m>[39m[0m
+[0m [90m     |[39m      [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 382 |[39m       [33m<[39m[33mheader[39m className[33m=[39m[32m"flex h-16 shrink-0 items-center gap-2 border-b px-4"[39m[33m>[39m[0m
+[0m [90m 383 |[39m         [33m<[39m[33mSidebarTrigger[39m className[33m=[39m[32m"-ml-1"[39m [33m/[39m[33m>[39m[0m
+[0m [90m 384 |[39m         [33m<[39m[33mButton[39m variant[33m=[39m[32m"ghost"[39m size[33m=[39m[32m"sm"[39m onClick[33m=[39m{() [33m=>[39m router[33m.[39mback()}[33m>[39m[0m
+
+Unexpected token `div`. Expected jsx identifier
+
+
+ GET /buses/1 500 in 59ms
+ GET /favicon.ico 500 in 32ms
+ GET /buses 500 in 72ms
+ GET /favicon.ico 500 in 28ms
+ ✓ Compiled in 362ms
+ ✓ Compiled in 312ms
+ GET /buses 200 in 258ms
+ GET /placeholder-user.jpg 404 in 50ms
+ ✓ Compiled /drivers in 33ms
+ GET /drivers 200 in 209ms
+ GET /buses 200 in 74ms
+ GET /favicon.ico 200 in 55ms
+ GET /placeholder-user.jpg 404 in 74ms
+ GET /buses 200 in 47ms
+ ✓ Compiled /buses/[id] in 38ms
+ GET /buses/1 200 in 584ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 168ms
+ GET /buses/1 200 in 249ms
+ GET /placeholder-user.jpg 404 in 57ms
+ GET /buses/1 200 in 69ms
+ GET /placeholder-user.jpg 404 in 60ms
+ GET /buses/1 200 in 61ms
+ GET /placeholder-user.jpg 404 in 178ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 132ms
+ GET /buses/1 200 in 200ms
+ GET /placeholder-user.jpg 404 in 87ms
+ ✓ Compiled in 138ms
+ ✓ Compiled in 132ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 133ms
+ GET /buses/1 200 in 281ms
+ GET /placeholder-user.jpg 404 in 59ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 172ms
+ GET /buses/1 200 in 163ms
+ GET /placeholder-user.jpg 404 in 81ms
+ ✓ Compiled in 128ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 189ms
+ GET /buses/1 200 in 241ms
+ GET /placeholder-user.jpg 404 in 65ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 147ms
+ GET /buses/1 200 in 239ms
+ GET /placeholder-user.jpg 404 in 68ms
+ ✓ Compiled in 116ms
+ ✓ Compiled in 124ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 113ms
+ GET /buses/1 200 in 264ms
+ GET /placeholder-user.jpg 404 in 60ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 126ms
+ GET /buses/1 200 in 156ms
+ GET /placeholder-user.jpg 404 in 62ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 146ms
+ GET /buses/1 200 in 198ms
+ GET /placeholder-user.jpg 404 in 68ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 149ms
+ GET /buses/1 200 in 191ms
+ GET /placeholder-user.jpg 404 in 70ms
+ ✓ Compiled in 129ms
+ ✓ Compiled in 140ms
+ ✓ Compiled in 139ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 160ms
+ GET /buses/1 200 in 278ms
+ GET /placeholder-user.jpg 404 in 69ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 146ms
+ GET /buses/1 200 in 172ms
+ GET /placeholder-user.jpg 404 in 59ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 120ms
+ GET /buses/1 200 in 211ms
+ GET /placeholder-user.jpg 404 in 66ms
+ ✓ Compiled in 113ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /buses/1 200 in 186ms
+ GET /placeholder-user.jpg 404 in 72ms
+ ✓ Compiled in 112ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /buses/1 200 in 191ms
+ GET /placeholder-user.jpg 404 in 58ms
+ ✓ Compiled in 132ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /buses/1 200 in 145ms
+ GET /placeholder-user.jpg 404 in 69ms
+ ✓ Compiled in 110ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /buses/1 200 in 199ms
+ GET /placeholder-user.jpg 404 in 70ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 130ms
+ GET /buses/1 200 in 223ms
+ GET /placeholder-user.jpg 404 in 61ms
+ GET / 200 in 131ms
+ GET /buses 200 in 94ms
+ GET /buses/1 200 in 56ms
+ GET /buses/installHook.js.map 200 in 102ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 1263ms
+ GET /auth/login?redirect=%2Fbuses%2F1 200 in 1375ms
+ GET /buses/1 200 in 58ms
+ ✓ Compiled in 164ms
+ ✓ Compiled in 114ms
+ ✓ Compiled in 171ms
+ ✓ Compiled in 76ms
+ ✓ Compiled in 121ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /buses/1 200 in 506ms
+ GET /placeholder-user.jpg 404 in 188ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 114ms
+ GET /buses/1 200 in 175ms
+ GET /placeholder-user.jpg 404 in 210ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 148ms
+ GET /buses/1 200 in 183ms
+ GET /placeholder-user.jpg 404 in 172ms
+ GET /buses 200 in 134ms
+ GET /buses/1 200 in 49ms
+ GET /buses/installHook.js.map 200 in 78ms
+ ✓ Compiled in 150ms
+ ✓ Compiled in 106ms
+ ✓ Compiled in 142ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 141ms
+ GET /buses/1 200 in 384ms
+ GET /placeholder-user.jpg 404 in 133ms
+ ✓ Compiled in 131ms
+ ✓ Compiled in 121ms
+ GET /buses 200 in 141ms
+ GET /live-tracking 200 in 107ms
+ GET / 200 in 112ms
+ GET /live-tracking 200 in 58ms
+ GET /buses 200 in 63ms
+ GET / 200 in 58ms
+ GET /buses 200 in 80ms
+ GET /workers 200 in 72ms
+ GET /placeholder-user.jpg 404 in 57ms
+ GET /ticketing 200 in 112ms
+ ✓ Compiled in 156ms
+ ✓ Compiled in 134ms
+ ✓ Compiled in 148ms
+ ✓ Compiled in 119ms
+ ✓ Compiled in 116ms
+ ✓ Compiled in 106ms
+ ✓ Compiled in 117ms
+ ✓ Compiled in 479ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 192ms
+ GET /ticketing 200 in 454ms
+ GET /placeholder-user.jpg 404 in 64ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 112ms
+ GET /ticketing 200 in 305ms
+ GET /placeholder-user.jpg 404 in 66ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 107ms
+ GET /ticketing 200 in 213ms
+ GET /placeholder-user.jpg 404 in 61ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 128ms
+ GET /ticketing 200 in 326ms
+ GET /placeholder-user.jpg 404 in 69ms
+ ✓ Compiled in 201ms
+ ✓ Compiled in 100ms
+ GET /workers 200 in 85ms
+ GET /placeholder-user.jpg 404 in 67ms
+ GET /placeholder-user.jpg 404 in 70ms
+ GET /placeholder-user.jpg 404 in 83ms
+ GET /placeholder-user.jpg 404 in 53ms
+ GET /ticketing 200 in 93ms
+ GET / 200 in 71ms
+ GET /buses 200 in 138ms
+ GET / 200 in 49ms
+ ✓ Compiled in 1061ms
+ GET / 200 in 357ms
+ GET / 200 in 367ms
+ GET /placeholder-user.jpg 404 in 184ms
+ ✓ Compiled /buses in 66ms
+ GET /buses 200 in 142ms
+ ✓ Compiled /live-tracking in 23ms
+ GET /live-tracking 200 in 97ms
+ ✓ Compiled /trips in 67ms
+ GET /trips 200 in 158ms
+ ✓ Compiled /drivers in 49ms
+ GET /drivers 200 in 146ms
+ GET / 200 in 65ms
+ GET /buses 200 in 68ms
+ GET / 200 in 59ms
+ GET /buses 200 in 64ms
+ GET / 200 in 64ms
+ GET /buses 200 in 64ms
+ GET /auth/login?redirect=%2Fbuses 200 in 226ms
+ ✓ Compiled in 152ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 121ms
+ GET /buses 200 in 255ms
+ GET /placeholder-user.jpg 404 in 66ms
+ ✓ Compiled in 120ms
+ ✓ Compiled in 111ms
+ ✓ Compiled in 110ms
+ ✓ Compiled in 115ms
+ ✓ Compiled in 161ms
+ ✓ Compiled in 113ms
+ GET /live-tracking 200 in 71ms
+ GET / 200 in 50ms
+ GET /buses 200 in 96ms
+ ✓ Compiled in 123ms
+ GET /live-tracking 200 in 158ms
+ ✓ Compiled in 137ms
+ GET /live-tracking 200 in 58ms
+ ✓ Compiled in 130ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 144ms
+ GET /live-tracking 200 in 309ms
+ GET /placeholder-user.jpg 404 in 69ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 215ms
+ GET /live-tracking 200 in 214ms
+ GET /placeholder-user.jpg 404 in 87ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 108ms
+ GET /live-tracking 200 in 191ms
+ GET /placeholder-user.jpg 404 in 86ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 162ms
+ GET /live-tracking 200 in 216ms
+ GET /placeholder-user.jpg 404 in 102ms
+ GET /trips 200 in 175ms
+ ✓ Compiled in 121ms
+ ✓ Compiled in 189ms
+ ✓ Compiled in 105ms
+ GET /drivers 200 in 70ms
+ ✓ Compiled in 108ms
+ ✓ Compiled in 112ms
+ ✓ Compiled in 176ms
+ ✓ Compiled in 107ms
+ ✓ Compiled in 165ms
+ ✓ Compiled in 234ms
+ GET /ticketing 200 in 165ms
+ GET /auth/login 200 in 67ms
+ ✓ Compiled /auth/login in 134ms
+ GET /auth/login?redirect=%2Fticketing 200 in 458ms
+ GET /ticketing 200 in 140ms
+ GET /placeholder-user.jpg 404 in 253ms
+ GET /ticketing 200 in 55ms
+ ✓ Compiled in 174ms
+ ✓ Compiled in 135ms
+ ✓ Compiled in 149ms
+ ✓ Compiled in 123ms
+ ✓ Compiled in 181ms
+ ✓ Compiled /ticketing in 41ms
+ GET /ticketing 200 in 187ms
+ ✓ Compiled in 236ms
+ GET /drivers 200 in 115ms
+ ✓ Compiled in 111ms
+ GET /trips 200 in 285ms
+ GET / 200 in 130ms
+ GET /buses 200 in 115ms
+ GET /live-tracking 200 in 123ms
+ GET /trips 200 in 96ms
+ GET /drivers 200 in 66ms
+ GET /ticketing 200 in 102ms
+ GET /drivers 200 in 125ms
+ GET /trips 200 in 82ms
+ GET /live-tracking 200 in 66ms
+ GET /buses 200 in 58ms
+ GET / 200 in 65ms
+ GET /ticketing 200 in 79ms
+ GET /drivers 200 in 54ms
+ GET /live-tracking 200 in 74ms
+ GET /trips 200 in 71ms
+ GET /buses 200 in 57ms
+ GET / 200 in 75ms
+ ✓ Compiled in 546ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 160ms
+ GET / 200 in 324ms
+ ✓ Compiled / in 273ms
+ GET / 200 in 558ms
+ GET /placeholder-user.jpg 404 in 227ms
+ GET / 200 in 127ms
+ GET /favicon.ico 200 in 32ms
+ GET /placeholder-user.jpg 404 in 85ms
+ ✓ Compiled in 142ms
+ ✓ Compiled in 132ms
+ ✓ Compiled in 148ms
+ ✓ Compiled /live-tracking in 34ms
+ GET /live-tracking 200 in 130ms
+ GET /live-tracking 200 in 65ms
+ ✓ Compiled /trips in 71ms
+ GET /trips 200 in 188ms
+ ✓ Compiled /drivers in 53ms
+ GET /drivers 200 in 130ms
+ ✓ Compiled /ticketing in 58ms
+ GET /ticketing 200 in 137ms
+ GET /drivers 200 in 128ms
+ GET /drivers 200 in 95ms
+ GET /trips 200 in 94ms
+ GET /drivers 200 in 74ms
+ ✓ Compiled /buses in 137ms
+ GET /buses 200 in 262ms
+ GET /live-tracking 200 in 64ms
+ GET /live-tracking 200 in 259ms
+ GET /placeholder-user.jpg 404 in 131ms
+ GET /buses 200 in 79ms
+ GET /trips 200 in 97ms
+ GET / 200 in 78ms
+ GET /buses 200 in 81ms
+ GET /buses 200 in 71ms
+ GET /live-tracking 200 in 68ms
+ GET /trips 200 in 83ms
+[?25h
+[0;36m[INFO][0m Detected pnpm (pnpm-lock.yaml found)
+[0;36m[INFO][0m Using package manager: pnpm
+[0;36m[INFO][0m No arguments provided, running 'dev' script...
+[0;36m[INFO][0m Running script: dev
+[0;36m[INFO][0m Executing: pnpm run dev
+
+> cavgocompany@0.1.0 dev /Users/pro/projects/frontend/cavgocompany
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.3:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 160ms
+ ✓ Ready in 1410ms
+ ○ Compiling /trips ...
+ ✓ Compiled /trips in 2.2s
+ GET /trips 200 in 2471ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 1066ms
+ GET /placeholder-user.jpg 404 in 1130ms
+ ○ Compiling /buses ...
+ ✓ Compiled /buses in 865ms
+ GET /buses 200 in 889ms
+ ○ Compiling /live-tracking ...
+ ✓ Compiled /live-tracking in 866ms
+ GET /live-tracking 200 in 901ms
+ GET /trips 200 in 44ms
+ GET /buses 200 in 36ms
+ ○ Compiling /buses/[id] ...
+ ✓ Compiled /buses/[id] in 1392ms
+ GET /buses/4 200 in 1858ms
+ GET /buses 200 in 43ms
+ GET /live-tracking 200 in 35ms
+ ○ Compiling /drivers ...
+ ✓ Compiled /drivers in 919ms
+ GET /drivers 200 in 946ms
+ GET /trips 200 in 43ms
+ GET /drivers 200 in 42ms
+ GET /trips 200 in 52ms
+ GET /trips 200 in 138ms
+ GET /drivers 200 in 51ms
+ GET /trips 200 in 52ms
+ GET /trips 200 in 63ms
+ GET /placeholder-user.jpg 404 in 77ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 783ms
+ GET /live-tracking 200 in 45ms
+ GET /live-tracking 200 in 73ms
+ GET /favicon.ico 200 in 40ms
+ GET /placeholder-user.jpg 404 in 35ms
+ GET /trips 200 in 55ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 1120ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 1157ms
+ GET /trips 200 in 90ms
+ GET /favicon.ico 200 in 68ms
+ GET /placeholder-user.jpg 404 in 83ms
+ GET /live-tracking 200 in 49ms
+ GET /live-tracking 200 in 48ms
+ GET /favicon.ico 200 in 107ms
+ GET /placeholder-user.jpg 404 in 68ms
+ GET /buses 200 in 39ms
+ GET /buses/4 200 in 50ms
+ GET /trips 200 in 54ms
+ ○ Compiling / ...
+ GET /buses 200 in 32ms
+ ✓ Compiled / in 1808ms
+ GET / 200 in 1842ms
+ GET /react_devtools_backend_compact.js.map 404 in 242ms
+ GET /live-tracking 200 in 34ms
+ GET /trips 200 in 60ms
+ GET /drivers 200 in 38ms
+ ○ Compiling /ticketing ...
+ ✓ Compiled /ticketing in 2.6s
+ GET /ticketing 200 in 2634ms
+ GET /drivers 200 in 43ms
+ GET /trips 200 in 61ms
+ GET /drivers 200 in 68ms
+ GET /trips 200 in 51ms
+ GET /live-tracking 200 in 34ms
+ GET /installHook.js.map 404 in 69ms
+ GET /trips 200 in 76ms
+ GET /trips 200 in 75ms
+ GET /favicon.ico 200 in 51ms
+ GET /placeholder-user.jpg 404 in 60ms
+ GET /drivers 200 in 43ms
+ GET /trips 200 in 46ms
+ GET /live-tracking 200 in 43ms
+ GET /trips 200 in 52ms
+ GET /trips 200 in 89ms
+ GET /live-tracking 200 in 40ms
+ GET /trips 200 in 64ms
+ GET /trips 200 in 74ms
+ GET /favicon.ico 200 in 72ms
+ GET /placeholder-user.jpg 404 in 64ms
+ GET /trips 200 in 64ms
+ GET /favicon.ico 200 in 68ms
+ GET /placeholder-user.jpg 404 in 48ms
+ GET /trips 200 in 71ms
+ GET /favicon.ico 200 in 52ms
+ GET /placeholder-user.jpg 404 in 44ms
+ GET /trips 200 in 77ms
+ GET /favicon.ico 200 in 58ms
+ GET /placeholder-user.jpg 404 in 60ms
+ GET /trips 200 in 58ms
+ GET /favicon.ico 200 in 58ms
+ GET /placeholder-user.jpg 404 in 42ms
+ GET /trips 200 in 116ms
+ GET /trips 200 in 83ms
+ GET /favicon.ico 200 in 82ms
+ GET /placeholder-user.jpg 404 in 55ms
+ GET /trips 200 in 76ms
+ GET /favicon.ico 200 in 60ms
+ GET /placeholder-user.jpg 404 in 48ms
+ GET /trips 200 in 71ms
+ GET /favicon.ico 200 in 61ms
+ GET /placeholder-user.jpg 404 in 64ms
+ GET /trips 200 in 78ms
+ GET /favicon.ico 200 in 67ms
+ GET /placeholder-user.jpg 404 in 52ms
+ GET /trips 200 in 78ms
+ GET /favicon.ico 200 in 52ms
+ GET /placeholder-user.jpg 404 in 56ms
+ GET /trips 200 in 107ms
+ GET /trips 200 in 88ms
+ GET /favicon.ico 200 in 100ms
+ GET /placeholder-user.jpg 404 in 51ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 127ms
+ GET /trips 200 in 291ms
+ GET /placeholder-user.jpg 404 in 39ms
+ ✓ Compiled in 111ms
+ ✓ Compiled /trips in 86ms
+ GET /trips 200 in 357ms
+ GET /trips 200 in 358ms
+ GET /placeholder-user.jpg 404 in 169ms
+ GET /trips 200 in 88ms
+ GET /favicon.ico 200 in 61ms
+ GET /placeholder-user.jpg 404 in 63ms
+ GET /trips 200 in 82ms
+ GET /favicon.ico 200 in 60ms
+ GET /placeholder-user.jpg 404 in 65ms
+ GET /trips 200 in 124ms
+ GET /trips 200 in 85ms
+ GET /favicon.ico 200 in 61ms
+ GET /placeholder-user.jpg 404 in 67ms
+ GET /trips 200 in 108ms
+ GET /favicon.ico 200 in 53ms
+ GET /placeholder-user.jpg 404 in 59ms
+ GET /trips 200 in 126ms
+ GET /trips 200 in 165ms
+ GET /trips 200 in 129ms
+ GET /favicon.ico 200 in 81ms
+ GET /placeholder-user.jpg 404 in 78ms
+ ✓ Compiled /live-tracking in 97ms
+ GET /live-tracking 200 in 203ms
+ GET /live-tracking 200 in 498ms
+ GET /placeholder-user.jpg 404 in 70ms
+ GET /live-tracking 200 in 73ms
+ GET /favicon.ico 200 in 40ms
+ GET /placeholder-user.jpg 404 in 74ms
+[0;36m[INFO][0m Detected pnpm (pnpm-lock.yaml found)
+[0;36m[INFO][0m Using package manager: pnpm
+[0;36m[INFO][0m No arguments provided, running 'dev' script...
+[0;36m[INFO][0m Running script: dev
+[0;36m[INFO][0m Executing: pnpm run dev
+
+> cavgocompany@0.1.0 dev /Users/pro/projects/frontend/cavgocompany
+> next dev --turbopack
+
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.83:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 147ms
+ ✓ Ready in 1194ms
+ ○ Compiling /live-tracking ...
+ ✓ Compiled /live-tracking in 4.2s
+ GET /live-tracking 200 in 4578ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 1608ms
+ GET /placeholder-user.jpg 404 in 1658ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 1154ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 1215ms
+ ✓ Compiled in 204ms
+ ✓ Compiled in 137ms
+ ✓ Compiled in 156ms
+ ✓ Compiled in 127ms
+ ✓ Compiled in 102ms
+ ✓ Compiled in 124ms
+ ✓ Compiled in 101ms
+ ✓ Compiled in 170ms
+ ✓ Compiled in 192ms
+ ✓ Compiled in 124ms
+ ✓ Compiled in 138ms
+ ✓ Compiled in 151ms
+ ✓ Compiled in 115ms
+ ✓ Compiled in 128ms
+ ✓ Compiled in 115ms
+ ✓ Compiled in 136ms
+ ✓ Compiled in 103ms
+ ✓ Compiled in 156ms
+ ✓ Compiled in 109ms
+ GET /live-tracking 200 in 217ms
+ GET /placeholder-user.jpg 404 in 48ms
+ ○ Compiling /buses ...
+ ✓ Compiled /buses in 1123ms
+ GET /buses 200 in 1156ms
+ GET /live-tracking 200 in 40ms
+ ○ Compiling /trips ...
+ ✓ Compiled /trips in 1193ms
+ GET /trips 200 in 1296ms
+ GET /trips 200 in 351ms
+ ✓ Compiled in 128ms
+ GET /live-tracking 200 in 118ms
+ ✓ Compiled in 174ms
+ ✓ Compiled in 106ms
+ ✓ Compiled in 159ms
+ GET /buses 200 in 44ms
+ GET /live-tracking 200 in 114ms
+ GET /live-tracking 200 in 224ms
+ GET /placeholder-user.jpg 404 in 82ms
+ ✓ Compiled in 207ms
+ ✓ Compiled in 170ms
+ GET /trips 200 in 168ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 82ms
+ ✓ Compiled in 156ms
+ ✓ Compiled in 146ms
+ ✓ Compiled in 255ms
+ ✓ Compiled in 164ms
+ ✓ Compiled in 200ms
+ ✓ Compiled in 172ms
+ ✓ Compiled in 182ms
+ ✓ Compiled in 173ms
+ ✓ Compiled in 233ms
+ ✓ Compiled in 188ms
+ ✓ Compiled in 195ms
+ ✓ Compiled in 172ms
+ ✓ Compiled in 143ms
+ ○ Compiling /drivers ...
+ ✓ Compiled /drivers in 2.3s
+ GET /drivers 200 in 2404ms
+ GET /drivers 200 in 871ms
+ ✓ Compiled /favicon.ico in 482ms
+ GET /live-tracking 200 in 127ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1415ms
+ GET / 200 in 1446ms
+ GET /buses 200 in 59ms
+ ✓ Compiled in 1296ms
+ ✓ Compiled in 103ms
+ ✓ Compiled in 143ms
+ GET /live-tracking 200 in 96ms
+ GET /trips 200 in 112ms
+ ✓ Compiled in 410ms
+ ✓ Compiled in 142ms
+ ✓ Compiled in 136ms
+ ✓ Compiled in 146ms
+ ✓ Compiled in 133ms
+ ✓ Compiled in 125ms
+ ✓ Compiled in 140ms
+ ✓ Compiled in 110ms
+ ✓ Compiled in 134ms
+ GET /live-tracking 200 in 47ms
+ GET /trips 200 in 106ms
+ GET /buses 200 in 84ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 71ms
+ ○ Compiling /buses/[id] ...
+ ✓ Compiled /buses/[id] in 1107ms
+ GET /buses/18 200 in 1622ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 62ms
+ ✓ Compiled in 206ms
+ ✓ Compiled in 137ms
+ ✓ Compiled /buses/[id] in 15ms
+ GET /buses/18 200 in 105ms
+ ✓ Compiled in 195ms
+ GET /buses/installHook.js.map 200 in 308ms
+ ✓ Compiled in 163ms
+ ✓ Compiled in 131ms
+ ✓ Compiled in 125ms
+ ✓ Compiled in 118ms
+ ✓ Compiled in 122ms
+ GET /buses 200 in 214ms
+ GET /placeholder-user.jpg 404 in 56ms
+ GET /buses/4 200 in 71ms
+ ✓ Compiled in 152ms
+ ✓ Compiled in 117ms
+ ✓ Compiled in 118ms
+ ✓ Compiled in 114ms
+ GET /buses/4 200 in 207ms
+ GET /placeholder-user.jpg 404 in 70ms
+ ✓ Compiled in 146ms
+ GET /buses 200 in 94ms
+ GET /buses/4 200 in 85ms
+ GET /auth/login?redirect=%2Fbuses%2F4 200 in 79ms
+ GET /buses 200 in 128ms
+ GET /placeholder-user.jpg 404 in 47ms
+ GET /buses 200 in 53ms
+ GET /live-tracking 200 in 113ms
+ GET /buses 200 in 39ms
+ GET /live-tracking 200 in 27ms
+ GET /buses 200 in 25ms
+ GET /trips 200 in 49ms
+ GET /live-tracking 200 in 43ms
+ GET /buses 200 in 41ms
+ GET /live-tracking 200 in 61ms
+ ○ Compiling /ticketing ...
+ ✓ Compiled /ticketing in 2.3s
+ GET /ticketing 200 in 2377ms
+ GET /ticketing 200 in 373ms
+ GET /ticketing 200 in 43ms
+ GET /live-tracking 200 in 48ms
+ GET /live-tracking 200 in 202ms
+ GET /placeholder-user.jpg 404 in 75ms
+ GET /live-tracking 200 in 86ms
+ GET /favicon.ico 200 in 44ms
+ GET /placeholder-user.jpg 404 in 65ms
+ GET /trips 200 in 67ms
+ GET /trips 200 in 287ms
+ GET /placeholder-user.jpg 404 in 81ms
+ GET /trips 200 in 124ms
+ GET /favicon.ico 200 in 53ms
+ GET /placeholder-user.jpg 404 in 57ms
+ GET /drivers 200 in 121ms
+ GET /ticketing 200 in 58ms
+ GET /live-tracking 200 in 45ms
+ GET / 200 in 109ms
+ GET /installHook.js.map 404 in 111ms
+ GET / 200 in 231ms
+ GET /placeholder-user.jpg 404 in 82ms
+ GET / 200 in 57ms
+ GET /favicon.ico 200 in 49ms
+ GET /placeholder-user.jpg 404 in 70ms
+ GET / 200 in 104ms
+ GET /favicon.ico 200 in 63ms
+ GET /placeholder-user.jpg 404 in 86ms
+ GET / 200 in 64ms
+ GET /favicon.ico 200 in 53ms
+ GET /placeholder-user.jpg 404 in 97ms
+ ✓ Compiled in 281ms
+ ✓ Compiled in 134ms
+ ✓ Compiled in 113ms
+ GET / 200 in 277ms
+ GET /placeholder-user.jpg 404 in 82ms
+ GET /buses 200 in 52ms
+ GET / 200 in 47ms
+ GET /buses 200 in 52ms
+ GET / 200 in 45ms
+ GET /buses 200 in 50ms
+ GET / 200 in 47ms
+ GET /trips 200 in 71ms
+ GET /trips 200 in 223ms
+ GET /favicon.ico 200 in 79ms
+ GET /placeholder-user.jpg 404 in 99ms
+ GET / 200 in 55ms
+ GET /buses 200 in 57ms
+ GET /live-tracking 200 in 68ms
+ GET /live-tracking 200 in 62ms
+ GET /favicon.ico 200 in 51ms
+ GET /placeholder-user.jpg 404 in 61ms
+ GET /live-tracking 200 in 79ms
+ GET /favicon.ico 200 in 71ms
+ GET /placeholder-user.jpg 404 in 83ms
+ GET /live-tracking 200 in 67ms
+ GET /favicon.ico 200 in 50ms
+ GET /placeholder-user.jpg 404 in 68ms
+ GET /trips 200 in 77ms
+ GET /trips 200 in 169ms
+ GET /favicon.ico 200 in 35ms
+ GET /placeholder-user.jpg 404 in 76ms
+ GET /buses 200 in 37ms
+ GET /buses/4 200 in 50ms
+ GET /live-tracking 200 in 54ms
+ GET /trips 200 in 60ms
+ GET /trips 200 in 121ms
+ GET /favicon.ico 200 in 47ms
+ GET /placeholder-user.jpg 404 in 55ms
+ GET /trips 200 in 181ms
+ GET /favicon.ico 200 in 56ms
+ GET /placeholder-user.jpg 404 in 86ms
+ GET /buses 200 in 42ms
+ GET /live-tracking 200 in 57ms
+ GET /trips 200 in 69ms
+ GET /live-tracking 200 in 51ms
+ ✓ Compiled in 157ms
+ ✓ Compiled in 218ms
+ ✓ Compiled in 247ms
+ ✓ Compiled in 119ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /placeholder-user.jpg 404 in 65ms
+ GET /live-tracking 200 in 284ms
+ GET /placeholder-user.jpg 404 in 56ms
+ ✓ Compiled in 163ms
+ ✓ Compiled in 219ms
+ ✓ Compiled in 334ms
+ ✓ Compiled in 185ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 119ms
+ ✓ Compiled in 128ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 131ms
+ GET /trips 200 in 191ms
+ GET /live-tracking 200 in 108ms
+ GET /trips 200 in 70ms
+ GET /live-tracking 200 in 60ms
+ GET /drivers 200 in 154ms
+ GET /ticketing 200 in 145ms
+ GET /live-tracking 200 in 94ms
+ GET /live-tracking 200 in 294ms
+ GET /placeholder-user.jpg 404 in 88ms
+ GET /live-tracking 200 in 47ms
+ GET /buses 200 in 143ms
+ ✓ Compiled in 242ms
+ ✓ Compiled in 210ms
+ ✓ Compiled in 118ms
+ ✓ Compiled in 222ms
+ GET /live-tracking 200 in 62ms
+ GET /trips 200 in 77ms
+ GET /drivers 200 in 70ms
+ GET /auth/login?redirect=%2Flive-tracking 200 in 105ms
+ GET /drivers 200 in 294ms
+ GET /placeholder-user.jpg 404 in 101ms
+ ✓ Compiled in 1637ms
+ GET /drivers 200 in 264ms

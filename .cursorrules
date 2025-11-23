@@ -1,0 +1,32 @@
+# Cursor Project Rules for CavGo Company Frontend
+
+## Currency Formatting
+- **ALWAYS use RWF (Rwandan Franc) as the currency** throughout the entire application
+- **NEVER use USD ($) or any other currency symbol**
+- Use the following format for all currency displays:
+  ```typescript
+  new Intl.NumberFormat("en-RW", {
+    style: "currency",
+    currency: "RWF",
+  }).format(amount)
+  ```
+- This applies to:
+  - All revenue displays
+  - All fare displays
+  - All payment amounts
+  - All financial statistics
+  - All dashboard metrics
+  - All trip details
+  - All passenger information
+
+## General Guidelines
+- All currency values must be formatted using RWF currency code
+- Use "en-RW" locale for number formatting
+- Never hardcode currency symbols like $, €, £, etc.
+- Always use the Intl.NumberFormat API for consistent currency formatting
+
+
+
+
+
+

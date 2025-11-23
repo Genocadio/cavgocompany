@@ -168,7 +168,7 @@ export default function RegisterPage() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600">Join TransitAdmin to manage your fleet</p>
+          <p className="text-gray-600">Join cavgoadmin to manage your fleet</p>
         </div>
 
         {/* Registration Form */}
@@ -441,7 +441,7 @@ export default function RegisterPage() {
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500">
-          <p>© 2024 TransitAdmin. All rights reserved.</p>
+          <p>© 2025 cavgoadmin. All rights reserved.</p>
         </div>
       </div>
     </div>

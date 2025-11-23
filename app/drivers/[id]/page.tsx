@@ -492,8 +492,18 @@ export default function DriverDetailPage() {
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${driver.drivingStats.totalRevenue.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Today: ${driver.drivingStats.todayRevenue}</p>
+              <div className="text-2xl font-bold">
+                {new Intl.NumberFormat("en-RW", {
+                  style: "currency",
+                  currency: "RWF",
+                }).format(driver.drivingStats.totalRevenue)}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Today: {new Intl.NumberFormat("en-RW", {
+                  style: "currency",
+                  currency: "RWF",
+                }).format(driver.drivingStats.todayRevenue)}
+              </p>
             </CardContent>
           </Card>
 
@@ -503,7 +513,12 @@ export default function DriverDetailPage() {
               <Fuel className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${driver.drivingStats.totalFuelCost.toFixed(0)}</div>
+                  <div className="text-2xl font-bold">
+                    {new Intl.NumberFormat("en-RW", {
+                      style: "currency",
+                      currency: "RWF",
+                    }).format(driver.drivingStats.totalFuelCost)}
+                  </div>
               <p className="text-xs text-muted-foreground">{driver.drivingStats.totalFuelUsed} consumed</p>
             </CardContent>
           </Card>
@@ -635,19 +650,39 @@ export default function DriverDetailPage() {
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total Revenue:</span>
-                    <span className="font-medium">${driver.drivingStats.totalRevenue.toLocaleString()}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(driver.drivingStats.totalRevenue)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Monthly Revenue:</span>
-                    <span className="font-medium">${driver.drivingStats.monthlyRevenue.toLocaleString()}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(driver.drivingStats.monthlyRevenue)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Weekly Revenue:</span>
-                    <span className="font-medium">${driver.drivingStats.weeklyRevenue.toLocaleString()}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(driver.drivingStats.weeklyRevenue)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Today&apos;s Revenue:</span>
-                    <span className="font-medium">${driver.drivingStats.todayRevenue}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(driver.drivingStats.todayRevenue)}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -663,15 +698,30 @@ export default function DriverDetailPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total Fuel Cost:</span>
-                    <span className="font-medium">${driver.drivingStats.totalFuelCost.toFixed(2)}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(driver.drivingStats.totalFuelCost)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Cost per Trip:</span>
-                    <span className="font-medium">${driver.drivingStats.averageFuelCostPerTrip.toFixed(2)}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(driver.drivingStats.averageFuelCostPerTrip)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Cost per KM:</span>
-                    <span className="font-medium">${driver.drivingStats.fuelCostPerKm.toFixed(2)}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(driver.drivingStats.fuelCostPerKm)}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -764,7 +814,12 @@ export default function DriverDetailPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm font-medium">${trip.revenue}</div>
+                          <div className="text-sm font-medium">
+                            {new Intl.NumberFormat("en-RW", {
+                              style: "currency",
+                              currency: "RWF",
+                            }).format(trip.revenue)}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">{trip.fuelUsed}</div>
@@ -800,7 +855,12 @@ export default function DriverDetailPage() {
                   <CardTitle className="text-sm">Total Fuel Cost</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">${driver.drivingStats.totalFuelCost.toFixed(2)}</div>
+                  <div className="text-2xl font-bold">
+                    {new Intl.NumberFormat("en-RW", {
+                      style: "currency",
+                      currency: "RWF",
+                    }).format(driver.drivingStats.totalFuelCost)}
+                  </div>
                   <p className="text-xs text-muted-foreground">All time expenses</p>
                 </CardContent>
               </Card>
@@ -810,7 +870,12 @@ export default function DriverDetailPage() {
                   <CardTitle className="text-sm">Avg Cost per Trip</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">${driver.drivingStats.averageFuelCostPerTrip.toFixed(2)}</div>
+                  <div className="text-2xl font-bold">
+                    {new Intl.NumberFormat("en-RW", {
+                      style: "currency",
+                      currency: "RWF",
+                    }).format(driver.drivingStats.averageFuelCostPerTrip)}
+                  </div>
                   <p className="text-xs text-muted-foreground">Per trip average</p>
                 </CardContent>
               </Card>
@@ -828,15 +893,9 @@ export default function DriverDetailPage() {
 
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Driver&apos;s Fueling History</CardTitle>
-                    <CardDescription>Complete record of fuel transactions by this driver</CardDescription>
-                  </div>
-                  <Button onClick={() => setShowAddFuelDialog(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Fuel Record
-                  </Button>
+                <div>
+                  <CardTitle>Driver&apos;s Fueling History</CardTitle>
+                  <CardDescription>Complete record of fuel transactions by this driver</CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
@@ -876,10 +935,20 @@ export default function DriverDetailPage() {
                           <div className="text-sm font-medium">{record.liters}L</div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm">${record.pricePerLiter}</div>
+                          <div className="text-sm">
+                            {new Intl.NumberFormat("en-RW", {
+                              style: "currency",
+                              currency: "RWF",
+                            }).format(record.pricePerLiter)}
+                          </div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm font-medium">${record.totalCost.toFixed(2)}</div>
+                          <div className="text-sm font-medium">
+                            {new Intl.NumberFormat("en-RW", {
+                              style: "currency",
+                              currency: "RWF",
+                            }).format(record.totalCost)}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">{record.odometer.toLocaleString()} km</div>
@@ -948,7 +1017,12 @@ export default function DriverDetailPage() {
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Revenue per Hour:</span>
-                    <span className="font-medium">${driver.performanceMetrics.revenuePerHour}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(driver.performanceMetrics.revenuePerHour)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Trips per Day:</span>

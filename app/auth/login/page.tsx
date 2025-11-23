@@ -9,18 +9,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Bus, Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from "lucide-react"
+import { Bus, Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/components/auth-provider"
+import { useLogin } from "@/hooks/use-login"
 
 type LoginFormData = {
-  email: string;
+  emailOrPhone: string;
   password: string;
   rememberMe: boolean;
 };
 
 type LoginErrors = {
-  email?: string;
+  emailOrPhone?: string;
   password?: string;
   general?: string;
 };
@@ -29,14 +30,16 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login, isAuthenticated } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
+  const { login: loginApi, isLoading: isApiLoading } = useLogin()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
+    emailOrPhone: "",
     password: "",
     rememberMe: false,
   })
   const [errors, setErrors] = useState<LoginErrors>({})
+
+  const isLoading = isApiLoading
 
   // Get redirect URL from search params
   const redirectUrl = searchParams.get("redirect") || "/"
@@ -51,10 +54,16 @@ export default function LoginPage() {
   const validateForm = () => {
     const newErrors: LoginErrors = {}
 
-    if (!formData.email) {
-      newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address"
+    if (!formData.emailOrPhone) {
+      newErrors.emailOrPhone = "Email or phone number is required"
+    } else {
+      // Validate as email or phone
+      const isEmail = /\S+@\S+\.\S+/.test(formData.emailOrPhone)
+      const isPhone = /^[\d\s\-\+\(\)]+$/.test(formData.emailOrPhone) && formData.emailOrPhone.replace(/\D/g, "").length >= 10
+
+      if (!isEmail && !isPhone) {
+        newErrors.emailOrPhone = "Please enter a valid email address or phone number"
+      }
     }
 
     if (!formData.password) {
@@ -75,53 +84,40 @@ export default function LoginPage() {
       return
     }
 
-    setIsLoading(true)
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Demo credentials check
-      if (formData.email === "admin@buscompany.com" && formData.password === "admin123") {
-        // Create user data
-        const userData = {
-          name: "John Doe",
-          role: "admin",
-          email: formData.email,
-        }
-
-        // Use the login function from AuthProvider
-        login("demo-token-12345", userData)
-
-        toast.success("Welcome back to TransitAdmin!", {
-          description: "Login successful",
-        })
-
-        // Small delay to show the toast before redirect
-        setTimeout(() => {
-          router.push(redirectUrl)
-        }, 500)
-      } else {
-        setErrors({ general: "Invalid email or password. Try admin@buscompany.com / admin123" })
-        toast.error("Login failed", {
-          description: "Invalid email or password",
-        })
-      }
-    } catch {
-      setErrors({ general: "Login failed. Please try again." })
-      toast.error("Login failed", {
-        description: "Something went wrong. Please try again.",
+      const authResponse = await loginApi({
+        emailOrPhone: formData.emailOrPhone,
+        password: formData.password,
       })
-    } finally {
-      setIsLoading(false)
+
+      // Use the login function from AuthProvider with full auth response
+      login(authResponse)
+
+      toast.success("Welcome back!", {
+        description: "Login successful",
+      })
+
+      // Small delay to show the toast before redirect
+      setTimeout(() => {
+        router.push(redirectUrl)
+      }, 500)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Login failed. Please try again."
+      setErrors({ general: errorMessage })
+      toast.error("Login failed", {
+        description: errorMessage,
+      })
     }
   }
 
   const handleInputChange = (field: keyof LoginFormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    // Only clear errors for email and password
-    if ((field === "email" || field === "password") && errors[field]) {
+    // Clear errors when user starts typing
+    if ((field === "emailOrPhone" || field === "password") && errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }))
+    }
+    if (errors.general) {
+      setErrors((prev) => ({ ...prev, general: undefined }))
     }
   }
 
@@ -148,7 +144,7 @@ export default function LoginPage() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your TransitAdmin account</p>
+          <p className="text-gray-600">Sign in to your cavgoadmin account</p>
           {redirectUrl !== "/" && <p className="text-sm text-blue-600">You&apos;ll be redirected after login</p>}
         </div>
 
@@ -168,22 +164,22 @@ export default function LoginPage() {
                 </Alert>
               )}
 
-              {/* Email Field */}
+              {/* Email or Phone Field */}
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="emailOrPhone">Email or Phone Number</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="admin@buscompany.com"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
+                    id="emailOrPhone"
+                    type="text"
+                    placeholder="Enter your email or phone number"
+                    value={formData.emailOrPhone}
+                    onChange={(e) => handleInputChange("emailOrPhone", e.target.value)}
+                    className={`pl-10 ${errors.emailOrPhone ? "border-red-500" : ""}`}
                     disabled={isLoading}
                   />
                 </div>
-                {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
+                {errors.emailOrPhone && <p className="text-sm text-red-600">{errors.emailOrPhone}</p>}
               </div>
 
               {/* Password Field */}
@@ -249,18 +245,6 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Demo Credentials */}
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-start space-x-2">
-                <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-blue-900">Demo Credentials:</p>
-                  <p className="text-blue-700">Email: admin@buscompany.com</p>
-                  <p className="text-blue-700">Password: admin123</p>
-                </div>
-              </div>
-            </div>
-
             {/* Register Link */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
@@ -275,7 +259,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500">
-          <p>© 2024 TransitAdmin. All rights reserved.</p>
+          <p>© 2025 cavgoadmin. All rights reserved.</p>
         </div>
       </div>
     </div>

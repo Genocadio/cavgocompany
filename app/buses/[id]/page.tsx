@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -16,379 +16,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { BusDetails, FuelRecord, Trip, FuelFormData, TripFormData } from "@/types"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useCar } from "@/hooks/use-car"
+import { useBookingsByTrip } from "@/hooks/use-bookings-by-trip"
+import { LocationAddress } from "@/components/location-address"
+import type { FuelRecord, Trip, FuelFormData, TripFormData } from "@/types"
 
-// Sample detailed bus data with fueling history and upcoming trips
-const getBusDetails = (id: string): BusDetails => ({
-  id,
-  licensePlate: "ABC-1234",
-  model: "Mercedes Sprinter 2023",
-  capacity: 45,
-  driver: {
-    name: "John Smith",
-    id: "D-001",
-    phone: "+1 (555) 123-4567",
-    rating: 4.8,
-    experience: "5 years",
-  },
-  currentTrip: {
-    id: "T-001",
-    route: "Route A",
-    startTime: "08:30",
-    estimatedEnd: "09:45",
-    currentLocation: "Downtown Terminal",
-    nextStop: "Central Mall",
-    progress: 65,
-    ticketsSold: 32,
-    revenue: 160,
-    passengers: [
-      {
-        id: "P-001",
-        name: "Alice Johnson",
-        pickup: "Downtown Terminal",
-        dropoff: "Central Mall",
-        fare: 5,
-        paymentMethod: "Card",
-        boardingTime: "08:32",
-      },
-      {
-        id: "P-002",
-        name: "Bob Wilson",
-        pickup: "First Avenue",
-        dropoff: "University",
-        fare: 7,
-        paymentMethod: "Cash",
-        boardingTime: "08:35",
-      },
-      {
-        id: "P-003",
-        name: "Carol Davis",
-        pickup: "Second Street",
-        dropoff: "Hospital",
-        fare: 6,
-        paymentMethod: "Mobile",
-        boardingTime: "08:38",
-      },
-    ],
-  },
-  upcomingTrips: [
-    {
-      id: "T-201",
-      route: "Route A",
-      scheduledStart: "2024-01-16 10:00",
-      scheduledEnd: "2024-01-16 11:15",
-      estimatedDuration: "1h 15m",
-      status: "scheduled",
-      bookedSeats: 28,
-      estimatedRevenue: 140,
-      revenue: 140,
-      departureLocation: "Central Terminal",
-      arrivalLocation: "University Campus",
-      driver: "John Smith",
-    },
-    {
-      id: "T-202",
-      route: "Route A",
-      scheduledStart: "2024-01-16 12:30",
-      scheduledEnd: "2024-01-16 13:45",
-      estimatedDuration: "1h 15m",
-      status: "scheduled",
-      bookedSeats: 35,
-      estimatedRevenue: 175,
-      revenue: 175,
-      departureLocation: "University Campus",
-      arrivalLocation: "Central Terminal",
-      driver: "John Smith",
-    },
-    {
-      id: "T-203",
-      route: "Route B",
-      scheduledStart: "2024-01-16 15:00",
-      scheduledEnd: "2024-01-16 16:30",
-      estimatedDuration: "1h 30m",
-      status: "scheduled",
-      bookedSeats: 22,
-      estimatedRevenue: 110,
-      revenue: 110,
-      departureLocation: "Downtown Hub",
-      arrivalLocation: "Airport Terminal",
-      driver: "Sarah Johnson",
-    },
-    {
-      id: "T-204",
-      route: "Route A",
-      scheduledStart: "2024-01-16 17:15",
-      scheduledEnd: "2024-01-16 18:30",
-      estimatedDuration: "1h 15m",
-      status: "scheduled",
-      bookedSeats: 40,
-      estimatedRevenue: 200,
-      revenue: 200,
-      departureLocation: "Central Terminal",
-      arrivalLocation: "University Campus",
-      driver: "John Smith",
-    },
-  ],
-  tripHistory: [
-    {
-      id: "T-100",
-      date: "2024-01-15",
-      route: "Route A",
-      startTime: "06:00",
-      endTime: "07:15",
-      duration: "1h 15m",
-      estimatedDuration: "1h 15m",
-      ticketsSold: 28,
-      revenue: 140,
-      distance: "25 km",
-      status: "completed",
-      driver: "John Smith",
-      fuelUsed: "8.5L",
-      averageSpeed: "20 km/h",
-      maxOccupancy: 35,
-      totalStops: 12,
-      scheduledStart: "2024-01-15 06:00",
-      scheduledEnd: "2024-01-15 07:15",
-      departureLocation: "Central Terminal",
-      arrivalLocation: "University Campus",
-    },
-    {
-      id: "T-101",
-      date: "2024-01-15",
-      route: "Route A",
-      startTime: "07:30",
-      endTime: "08:45",
-      duration: "1h 15m",
-      estimatedDuration: "1h 15m",
-      ticketsSold: 35,
-      revenue: 175,
-      distance: "25 km",
-      status: "completed",
-      driver: "John Smith",
-      fuelUsed: "8.2L",
-      averageSpeed: "22 km/h",
-      maxOccupancy: 42,
-      totalStops: 12,
-      scheduledStart: "2024-01-15 07:30",
-      scheduledEnd: "2024-01-15 08:45",
-      departureLocation: "Central Terminal",
-      arrivalLocation: "University Campus",
-    },
-    {
-      id: "T-102",
-      date: "2024-01-15",
-      route: "Route A",
-      startTime: "09:00",
-      endTime: "10:15",
-      duration: "1h 15m",
-      estimatedDuration: "1h 15m",
-      ticketsSold: 22,
-      revenue: 110,
-      distance: "25 km",
-      status: "completed",
-      driver: "John Smith",
-      fuelUsed: "8.8L",
-      averageSpeed: "18 km/h",
-      maxOccupancy: 28,
-      totalStops: 12,
-      scheduledStart: "2024-01-15 09:00",
-      scheduledEnd: "2024-01-15 10:15",
-      departureLocation: "Central Terminal",
-      arrivalLocation: "University Campus",
-    },
-    {
-      id: "T-103",
-      date: "2024-01-14",
-      route: "Route A",
-      startTime: "06:00",
-      endTime: "07:20",
-      duration: "1h 20m",
-      estimatedDuration: "1h 20m",
-      ticketsSold: 31,
-      revenue: 155,
-      distance: "25 km",
-      status: "completed",
-      driver: "John Smith",
-      fuelUsed: "9.1L",
-      averageSpeed: "19 km/h",
-      maxOccupancy: 38,
-      totalStops: 12,
-      scheduledStart: "2024-01-14 06:00",
-      scheduledEnd: "2024-01-14 07:20",
-      departureLocation: "Central Terminal",
-      arrivalLocation: "University Campus",
-    },
-    {
-      id: "T-104",
-      date: "2024-01-14",
-      route: "Route A",
-      startTime: "07:45",
-      endTime: "09:00",
-      duration: "1h 15m",
-      estimatedDuration: "1h 15m",
-      ticketsSold: 40,
-      revenue: 200,
-      distance: "25 km",
-      status: "completed",
-      driver: "John Smith",
-      fuelUsed: "8.0L",
-      averageSpeed: "23 km/h",
-      maxOccupancy: 45,
-      totalStops: 12,
-      scheduledStart: "2024-01-14 07:45",
-      scheduledEnd: "2024-01-14 09:00",
-      departureLocation: "Central Terminal",
-      arrivalLocation: "University Campus",
-    },
-    {
-      id: "T-105",
-      date: "2024-01-13",
-      route: "Route B",
-      startTime: "14:00",
-      endTime: "15:30",
-      duration: "1h 30m",
-      estimatedDuration: "1h 30m",
-      ticketsSold: 26,
-      revenue: 130,
-      distance: "30 km",
-      status: "completed",
-      driver: "Sarah Johnson",
-      fuelUsed: "10.2L",
-      averageSpeed: "20 km/h",
-      maxOccupancy: 32,
-      totalStops: 15,
-      scheduledStart: "2024-01-13 14:00",
-      scheduledEnd: "2024-01-13 15:30",
-      departureLocation: "Downtown Hub",
-      arrivalLocation: "Airport Terminal",
-    },
-  ],
-  // Enhanced vehicle statistics with fuel tracking
-  vehicleStats: {
-    totalTrips: 156,
-    totalRevenue: 7840,
-    totalDistance: "3900 km",
-    totalFuelUsed: "1320L",
-    totalFuelCost: 1848, // $1.40 per liter average
-    averageOccupancy: 68,
-    totalDrivingHours: "195h 30m",
-    maintenanceHours: "24h",
-    downtime: "8h 45m",
-    lastMaintenance: "2024-01-10",
-    nextMaintenance: "2024-02-10",
-    fuelEfficiency: "2.95 km/L", // 3900km / 1320L
-    averageFuelCostPerKm: 0.47, // $1848 / 3900km
-  },
-  todayStats: {
-    totalTrips: 4,
-    totalRevenue: 640,
-    totalPassengers: 117,
-    averageOccupancy: 78,
-    fuelConsumption: "45L",
-    fuelCost: 63, // $1.40 per liter
-    distanceCovered: "100 km",
-    drivingHours: "5h 15m",
-  },
-  // Comprehensive fueling history
-  fuelingHistory: [
-    {
-      id: "F-001",
-      date: "2024-01-15",
-      time: "14:30",
-      location: "Shell Station - Downtown",
-      driver: "John Smith",
-      driverId: "D-001",
-      liters: 45.5,
-      pricePerLiter: 1.42,
-      totalCost: 64.61,
-      odometer: 45230,
-      fuelType: "Diesel",
-      paymentMethod: "Company Card",
-      receiptNumber: "SH-789456",
-      notes: "Regular refuel after morning shift",
-    },
-    {
-      id: "F-002",
-      date: "2024-01-14",
-      time: "16:45",
-      location: "BP Station - Main Street",
-      driver: "John Smith",
-      driverId: "D-001",
-      liters: 42.8,
-      pricePerLiter: 1.38,
-      totalCost: 59.06,
-      odometer: 45105,
-      fuelType: "Diesel",
-      paymentMethod: "Company Card",
-      receiptNumber: "BP-456123",
-      notes: "End of shift refuel",
-    },
-    {
-      id: "F-003",
-      date: "2024-01-13",
-      time: "08:15",
-      location: "Texaco Station - Highway",
-      driver: "Sarah Johnson",
-      driverId: "D-002",
-      liters: 48.2,
-      pricePerLiter: 1.45,
-      totalCost: 69.89,
-      odometer: 44980,
-      fuelType: "Diesel",
-      paymentMethod: "Company Card",
-      receiptNumber: "TX-321789",
-      notes: "Pre-shift refuel, tank was low",
-    },
-    {
-      id: "F-004",
-      date: "2024-01-12",
-      time: "13:20",
-      location: "Shell Station - Downtown",
-      driver: "John Smith",
-      driverId: "D-001",
-      liters: 41.3,
-      pricePerLiter: 1.4,
-      totalCost: 57.82,
-      odometer: 44850,
-      fuelType: "Diesel",
-      paymentMethod: "Company Card",
-      receiptNumber: "SH-654987",
-      notes: "Mid-day refuel",
-    },
-    {
-      id: "F-005",
-      date: "2024-01-11",
-      time: "17:30",
-      location: "Mobil Station - Airport Road",
-      driver: "Mike Wilson",
-      driverId: "D-003",
-      liters: 46.7,
-      pricePerLiter: 1.43,
-      totalCost: 66.78,
-      odometer: 44720,
-      fuelType: "Diesel",
-      paymentMethod: "Company Card",
-      receiptNumber: "MB-987321",
-      notes: "Evening shift refuel",
-    },
-    {
-      id: "F-006",
-      date: "2024-01-10",
-      time: "09:45",
-      location: "BP Station - Main Street",
-      driver: "Lisa Brown",
-      driverId: "D-004",
-      liters: 44.1,
-      pricePerLiter: 1.39,
-      totalCost: 61.3,
-      odometer: 44590,
-      fuelType: "Diesel",
-      paymentMethod: "Company Card",
-      receiptNumber: "BP-147258",
-      notes: "Morning refuel before route start",
-    },
-  ],
-})
+// Remove dummy getBusDetails function - using real data from GraphQL
 
 interface AddFuelRecordDialogProps {
   busId: string
@@ -660,13 +294,33 @@ export default function BusDetailPage() {
   const params = useParams()
   const router = useRouter()
   const busId = params.id as string
-  const bus = getBusDetails(busId)
+  
+  // Fetch car data
+  const { car, loading: carLoading, error: carError } = useCar(busId)
+  
+  // Get tripId from car data
+  const tripId = useMemo(() => car?.activeTrip?.id, [car?.activeTrip?.id])
+  
+  // Fetch bookings separately when we have tripId
+  const { bookings, loading: bookingsLoading } = useBookingsByTrip(tripId)
+  
+  const displayBookings = bookings || []
+  const loading = carLoading || bookingsLoading
+  const error = carError
   const [activeTab, setActiveTab] = useState("overview")
   const [showAddFuelDialog, setShowAddFuelDialog] = useState(false)
-  const [fuelingHistory, setFuelingHistory] = useState<FuelRecord[]>(bus.fuelingHistory)
-  const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>(bus.upcomingTrips)
+  const [fuelingHistory, setFuelingHistory] = useState<FuelRecord[]>([]) // Not available in GraphQL response
+  const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]) // Not available in GraphQL response
+  const [tripHistory, setTripHistory] = useState<Trip[]>([]) // Not available in GraphQL response
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null)
   const [showEditTripDialog, setShowEditTripDialog] = useState(false)
+
+  // If driver is null and activeTab is driver-info, switch to overview
+  useEffect(() => {
+    if (!car?.driver && activeTab === "driver-info") {
+      setActiveTab("overview")
+    }
+  }, [car?.driver, activeTab])
 
   const addFuelRecord = (newRecord: FuelRecord) => {
     setFuelingHistory([newRecord, ...fuelingHistory])
@@ -681,6 +335,90 @@ export default function BusDetailPage() {
     setUpcomingTrips(upcomingTrips.map((trip) => (trip.id === updatedTrip.id ? updatedTrip : trip)))
   }
 
+  if (loading) {
+    return (
+      <div className="flex flex-col">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <div className="flex flex-1 items-center justify-between">
+            <div>
+              <Skeleton className="h-6 w-48 mb-2" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 space-y-6 p-6">
+          <div className="grid gap-4 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <Skeleton className="h-4 w-24" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-8 w-16" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (error) {
+    console.error("Error loading bus details:", error)
+    return (
+      <div className="flex flex-col">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </header>
+        <main className="flex-1 space-y-6 p-6">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+            <p className="text-sm text-red-800">Error loading bus details. Please try again later.</p>
+            {error.message && <p className="text-xs text-red-600 mt-2">{error.message}</p>}
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!car) {
+    return (
+      <div className="flex flex-col">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </header>
+        <main className="flex-1 space-y-6 p-6">
+          <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+            <p className="text-sm text-yellow-800">Bus not found. Please check the bus ID and try again.</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // Map car data for display
+  const occupancy = car.activeTrip ? car.capacity - car.activeTrip.remainingSeats : 0
+  const nextStop = car.activeTrip?.waypoints?.find((wp) => !wp.passed)?.placename ||
+                  car.activeTrip?.destination?.placename ||
+                  "N/A"
+  const totalWaypoints = car.activeTrip?.waypoints?.length || 0
+  const passedWaypoints = car.activeTrip?.waypoints?.filter((wp) => wp.passed).length || 0
+  const progress = totalWaypoints > 0 ? Math.round((passedWaypoints / totalWaypoints) * 100) : 0
+  const revenue = car.activeTrip?.waypoints?.reduce((sum, wp) => sum + (wp.fare || 0), 0) || 0
+
   return (
     <div className="flex flex-col">
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -692,69 +430,92 @@ export default function BusDetailPage() {
         <div className="flex flex-1 items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold">
-              Bus {bus.id} - {bus.licensePlate}
+              Bus {car.id} - {car.plate}
             </h1>
-            <p className="text-sm text-muted-foreground">{bus.model}</p>
+            <p className="text-sm text-muted-foreground">{car.make} {car.model}</p>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge variant="default">Active</Badge>
-            <Button variant="outline" size="sm">
+            <Badge variant={car.isOnline && (car.operationalStatus === "ACTIVE" || car.operationalStatus === "WORKING") ? "default" : "secondary"}>
+              {car.operationalStatus}
+            </Badge>
+            {car.driver && (
+              <Button variant="outline" size="sm" asChild>
+                <a href={`tel:${car.driver.phone}`}>
               <Phone className="mr-2 h-4 w-4" />
               Contact Driver
+                </a>
             </Button>
+            )}
           </div>
         </div>
       </header>
 
       <main className="flex-1 space-y-6 p-6">
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+            <p className="text-sm text-red-800">Error loading bus details. Please try again later.</p>
+          </div>
+        )}
         {/* Quick Stats */}
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today&apos;s Trips</CardTitle>
-              <Car className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{bus.todayStats.totalTrips}</div>
-              <p className="text-xs text-muted-foreground">{bus.todayStats.distanceCovered} covered</p>
-            </CardContent>
-          </Card>
+        <div className={`grid gap-4 ${car.activeTrip ? "md:grid-cols-4" : "md:grid-cols-2"}`}>
+          {car.activeTrip && (
+            <>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Today&apos;s Trips</CardTitle>
+                  <Car className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{car.capacity}</div>
+                  <p className="text-xs text-muted-foreground">Total seats</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Current Occupancy</CardTitle>
+                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{occupancy}</div>
+                  <p className="text-xs text-muted-foreground">On trip</p>
+                </CardContent>
+              </Card>
+            </>
+          )}
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today&apos;s Revenue</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${bus.todayStats.totalRevenue}</div>
-              <p className="text-xs text-muted-foreground">{bus.todayStats.totalPassengers} passengers</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today&apos;s Fuel Cost</CardTitle>
+              <CardTitle className="text-sm font-medium">Current Speed</CardTitle>
               <Fuel className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${bus.todayStats.fuelCost}</div>
-              <p className="text-xs text-muted-foreground">{bus.todayStats.fuelConsumption} consumed</p>
+              <div className="text-2xl font-bold">{car.currentLocation?.speed || 0} km/h</div>
+              <p className="text-xs text-muted-foreground">
+                <LocationAddress
+                  latitude={car.currentLocation?.latitude}
+                  longitude={car.currentLocation?.longitude}
+                  address={car.currentLocation?.address}
+                  className="text-xs"
+                  showLoadingIcon={true}
+                />
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Fuel Efficiency</CardTitle>
+              <CardTitle className="text-sm font-medium">Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{bus.vehicleStats.fuelEfficiency}</div>
-              <p className="text-xs text-muted-foreground">km per liter</p>
+              <div className="text-2xl font-bold">{car.isOnline ? "Online" : "Offline"}</div>
+              <p className="text-xs text-muted-foreground">{car.operationalStatus}</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Current Trip Alert */}
-        {bus.currentTrip && (
+        {car.activeTrip && (
           <Card className="border-blue-200 bg-blue-50">
             <CardHeader>
               <div className="flex items-center space-x-2">
@@ -765,24 +526,34 @@ export default function BusDetailPage() {
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-blue-900">Trip {bus.currentTrip.id}</p>
-                  <p className="text-sm text-blue-700">{bus.currentTrip.route}</p>
+                  <p className="text-sm font-medium text-blue-900">Trip {car.activeTrip.id}</p>
+                  <p className="text-sm text-blue-700">
+                    {car.activeTrip.origin.placename} → {car.activeTrip.destination.placename}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-blue-900">Current Location</p>
-                  <p className="text-sm text-blue-700">{bus.currentTrip.currentLocation}</p>
+                  <p className="text-sm text-blue-700">
+                    <LocationAddress
+                      latitude={car.currentLocation?.latitude}
+                      longitude={car.currentLocation?.longitude}
+                      address={car.currentLocation?.address}
+                      className="text-sm"
+                      showLoadingIcon={true}
+                    />
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-blue-900">Next Stop</p>
-                  <p className="text-sm text-blue-700">{bus.currentTrip.nextStop}</p>
+                  <p className="text-sm text-blue-700">{nextStop}</p>
                 </div>
               </div>
               <div className="mt-4">
                 <div className="flex justify-between text-sm mb-2">
                   <span>Trip Progress</span>
-                  <span>{bus.currentTrip.progress}%</span>
+                  <span>{progress}%</span>
                 </div>
-                <Progress value={bus.currentTrip.progress} className="h-2" />
+                <Progress value={progress} className="h-2" />
               </div>
             </CardContent>
           </Card>
@@ -790,13 +561,15 @@ export default function BusDetailPage() {
 
         {/* Detailed Information Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className={`grid w-full ${car.driver ? "grid-cols-6" : "grid-cols-5"}`}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="live-ticketing">Live Ticketing</TabsTrigger>
             <TabsTrigger value="upcoming-trips">Upcoming Trips</TabsTrigger>
             <TabsTrigger value="trip-history">Trip History</TabsTrigger>
             <TabsTrigger value="fuel-history">Fuel History</TabsTrigger>
-            <TabsTrigger value="driver-info">Driver Info</TabsTrigger>
+            {car.driver && (
+              <TabsTrigger value="driver-info">Driver Info</TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -808,44 +581,74 @@ export default function BusDetailPage() {
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">License Plate:</span>
-                    <span className="font-medium">{bus.licensePlate}</span>
+                    <span className="font-medium">{car.plate}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Model:</span>
-                    <span className="font-medium">{bus.model}</span>
+                    <span className="text-muted-foreground">Make & Model:</span>
+                    <span className="font-medium">{car.make} {car.model}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Capacity:</span>
-                    <span className="font-medium">{bus.capacity} passengers</span>
+                    <span className="font-medium">{car.capacity} passengers</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status:</span>
-                    <Badge variant="default">Active</Badge>
+                    <Badge variant={car.isOnline && (car.operationalStatus === "ACTIVE" || car.operationalStatus === "WORKING") ? "default" : "secondary"}>
+                      {car.operationalStatus}
+                    </Badge>
                   </div>
+                  {car.driver && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Driver:</span>
+                        <span className="font-medium">{car.driver.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Driver Phone:</span>
+                        <span className="font-medium">{car.driver.phone}</span>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Fuel Statistics</CardTitle>
+                  <CardTitle>Current Location</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  {car.currentLocation ? (
+                    <>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Fuel Used:</span>
-                    <span className="font-medium">{bus.vehicleStats.totalFuelUsed}</span>
+                        <span className="text-muted-foreground">Address:</span>
+                        <span className="font-medium">
+                          <LocationAddress
+                            latitude={car.currentLocation.latitude}
+                            longitude={car.currentLocation.longitude}
+                            address={car.currentLocation.address}
+                            className="font-medium"
+                            showLoadingIcon={true}
+                          />
+                        </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Fuel Cost:</span>
-                    <span className="font-medium">${bus.vehicleStats.totalFuelCost}</span>
+                        <span className="text-muted-foreground">Speed:</span>
+                        <span className="font-medium">{car.currentLocation.speed} km/h</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fuel Efficiency:</span>
-                    <span className="font-medium">{bus.vehicleStats.fuelEfficiency}</span>
+                        <span className="text-muted-foreground">Bearing:</span>
+                        <span className="font-medium">{car.currentLocation.bearing}°</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Cost per KM:</span>
-                    <span className="font-medium">${bus.vehicleStats.averageFuelCostPerKm}</span>
+                        <span className="text-muted-foreground">Last Update:</span>
+                        <span className="font-medium">
+                          {new Date(car.currentLocation.timestamp).toLocaleString()}
+                        </span>
                   </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No location data available</p>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -854,96 +657,144 @@ export default function BusDetailPage() {
           <TabsContent value="live-ticketing" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Current Trip Passengers</CardTitle>
-                <CardDescription>Real-time passenger information for Trip {bus.currentTrip.id}</CardDescription>
+                <CardTitle>Live Ticketing - Active Trip Bookings</CardTitle>
+                <CardDescription>
+                  {car.activeTrip
+                    ? `Real-time booking information for Trip ${car.activeTrip.id}`
+                    : "No active trip"}
+                </CardDescription>
               </CardHeader>
               <CardContent>
+                {car.activeTrip ? (
+                  loading ? (
+                    <div className="space-y-4">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12 w-full" />
+                      ))}
+                    </div>
+                  ) : displayBookings.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">No bookings found for this trip</p>
+                  ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Passenger</TableHead>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Contact</TableHead>
                       <TableHead>Pickup Location</TableHead>
                       <TableHead>Drop-off Location</TableHead>
-                      <TableHead>Boarding Time</TableHead>
+                          <TableHead>Tickets</TableHead>
                       <TableHead>Fare</TableHead>
-                      <TableHead>Payment Method</TableHead>
+                          <TableHead>Payment</TableHead>
+                          <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bus.currentTrip.passengers.map((passenger) => (
-                      <TableRow key={passenger.id}>
-                        <TableCell className="font-medium">{passenger.name}</TableCell>
+                        {displayBookings.map((booking) => (
+                          <TableRow key={booking.id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{booking.customerName}</div>
+                                <div className="text-xs text-muted-foreground">{booking.email}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-1 text-sm">
+                                <Phone className="h-3 w-3 text-muted-foreground" />
+                                <span>{booking.phoneNumber}</span>
+                              </div>
+                            </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-1">
                             <MapPin className="h-3 w-3 text-green-600" />
-                            <span className="text-sm">{passenger.pickup}</span>
+                                <span className="text-sm">{booking.pickupLocation.address}</span>
                           </div>
+                              {booking.pickupLocation.timestamp && (
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {new Date(booking.pickupLocation.timestamp).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </div>
+                              )}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-1">
                             <MapPin className="h-3 w-3 text-red-600" />
-                            <span className="text-sm">{passenger.dropoff}</span>
+                                <span className="text-sm">{booking.dropoffLocation.address}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-sm">{passenger.boardingTime}</span>
+                              <div className="text-sm font-medium">{booking.numberOfTickets}</div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm font-medium">
+                                {new Intl.NumberFormat("en-RW", {
+                                  style: "currency",
+                                  currency: "RWF",
+                                }).format(booking.fare)}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="font-medium">${passenger.fare}</span>
+                              <Badge
+                                variant={
+                                  booking.paymentMethod === "CARD" || booking.paymentMethod === "Card"
+                                    ? "default"
+                                    : booking.paymentMethod === "CASH" || booking.paymentMethod === "Cash"
+                                      ? "secondary"
+                                      : "outline"
+                                }
+                              >
+                                {booking.paymentMethod}
+                              </Badge>
                         </TableCell>
                         <TableCell>
                           <Badge
                             variant={
-                              passenger.paymentMethod === "Card"
+                                  booking.status === "CONFIRMED" || booking.status === "Confirmed"
                                 ? "default"
-                                : passenger.paymentMethod === "Cash"
+                                    : booking.status === "PENDING" || booking.status === "Pending"
                                   ? "secondary"
                                   : "outline"
                             }
                           >
-                            {passenger.paymentMethod}
+                                {booking.status}
                           </Badge>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
+                  )
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">No active trip</p>
+                )}
               </CardContent>
             </Card>
 
+            {car.activeTrip && (
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Trip Revenue</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">${bus.currentTrip.revenue}</div>
-                  <p className="text-xs text-muted-foreground">{bus.currentTrip.ticketsSold} tickets sold</p>
+                    <div className="text-2xl font-bold">
+                      {new Intl.NumberFormat("en-RW", {
+                        style: "currency",
+                        currency: "RWF",
+                      }).format(revenue)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{occupancy} passengers</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Payment Methods</CardTitle>
+                    <CardTitle className="text-sm">Remaining Seats</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Card:</span>
-                      <span>1</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Cash:</span>
-                      <span>1</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Mobile:</span>
-                      <span>1</span>
-                    </div>
-                  </div>
+                    <div className="text-2xl font-bold">{car.activeTrip.remainingSeats}</div>
+                    <p className="text-xs text-muted-foreground">Available seats</p>
                 </CardContent>
               </Card>
 
@@ -955,17 +806,33 @@ export default function BusDetailPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Started:</span>
-                      <span>{bus.currentTrip.startTime}</span>
+                        <span>
+                          {new Date(car.activeTrip.startTime).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
                     </div>
+                      {car.activeTrip.endTime && (
                     <div className="flex justify-between text-sm">
                       <span>Est. End:</span>
-                      <span>{bus.currentTrip.estimatedEnd}</span>
+                          <span>
+                            {new Date(car.activeTrip.endTime).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
                     </div>
-                    <Badge variant="default">In Progress</Badge>
+                      )}
+                      <div className="flex justify-between text-sm">
+                        <span>Status:</span>
+                        <Badge variant="default">{car.activeTrip.status}</Badge>
+                      </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
+            )}
           </TabsContent>
 
           <TabsContent value="upcoming-trips" className="space-y-4">
@@ -986,7 +853,10 @@ export default function BusDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    ${upcomingTrips.reduce((acc, trip) => acc + (trip.estimatedRevenue || 0), 0)}
+                    {new Intl.NumberFormat("en-RW", {
+                      style: "currency",
+                      currency: "RWF",
+                    }).format(upcomingTrips.reduce((acc, trip) => acc + (trip.estimatedRevenue || 0), 0))}
                   </div>
                   <p className="text-xs text-muted-foreground">From upcoming trips</p>
                 </CardContent>
@@ -1007,15 +877,9 @@ export default function BusDetailPage() {
 
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Upcoming Trips for {bus.id}</CardTitle>
-                    <CardDescription>Scheduled trips and their current booking status</CardDescription>
-                  </div>
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Schedule Trip
-                  </Button>
+                <div>
+                  <CardTitle>Upcoming Trips for {car.id}</CardTitle>
+                  <CardDescription>Scheduled trips and their current booking status</CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
@@ -1051,15 +915,20 @@ export default function BusDetailPage() {
                         <TableCell>
                           <div className="space-y-1">
                             <div className="text-sm font-medium">
-                              {trip.bookedSeats}/{bus.capacity}
+                              {trip.bookedSeats}/{car.capacity}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {trip.bookedSeats ? Math.round((trip.bookedSeats / bus.capacity) * 100) : 0}% full
+                              {trip.bookedSeats ? Math.round((trip.bookedSeats / car.capacity) * 100) : 0}% full
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm font-medium">${trip.estimatedRevenue}</div>
+                          <div className="text-sm font-medium">
+                            {new Intl.NumberFormat("en-RW", {
+                              style: "currency",
+                              currency: "RWF",
+                            }).format(trip.estimatedRevenue)}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge className="bg-blue-100 text-blue-800">Scheduled</Badge>
@@ -1089,8 +958,8 @@ export default function BusDetailPage() {
                   <CardTitle className="text-sm">Total Trips</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{bus.vehicleStats.totalTrips}</div>
-                  <p className="text-xs text-muted-foreground">All time</p>
+                  <div className="text-2xl font-bold">N/A</div>
+                  <p className="text-xs text-muted-foreground">Data not available</p>
                 </CardContent>
               </Card>
 
@@ -1099,8 +968,8 @@ export default function BusDetailPage() {
                   <CardTitle className="text-sm">Total Revenue</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">${bus.vehicleStats.totalRevenue}</div>
-                  <p className="text-xs text-muted-foreground">All time earnings</p>
+                  <div className="text-2xl font-bold">N/A</div>
+                  <p className="text-xs text-muted-foreground">Data not available</p>
                 </CardContent>
               </Card>
 
@@ -1109,8 +978,8 @@ export default function BusDetailPage() {
                   <CardTitle className="text-sm">Total Distance</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{bus.vehicleStats.totalDistance}</div>
-                  <p className="text-xs text-muted-foreground">Distance covered</p>
+                  <div className="text-2xl font-bold">N/A</div>
+                  <p className="text-xs text-muted-foreground">Data not available</p>
                 </CardContent>
               </Card>
 
@@ -1119,8 +988,8 @@ export default function BusDetailPage() {
                   <CardTitle className="text-sm">Driving Hours</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{bus.vehicleStats.totalDrivingHours}</div>
-                  <p className="text-xs text-muted-foreground">Total operation time</p>
+                  <div className="text-2xl font-bold">N/A</div>
+                  <p className="text-xs text-muted-foreground">Data not available</p>
                 </CardContent>
               </Card>
             </div>
@@ -1148,7 +1017,14 @@ export default function BusDetailPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bus.tripHistory.map((trip) => (
+                    {tripHistory.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={11} className="text-center text-muted-foreground">
+                          No trip history available
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      tripHistory.map((trip) => (
                       <TableRow key={trip.id}>
                         <TableCell className="font-medium">{trip.id}</TableCell>
                         <TableCell>{trip.date}</TableCell>
@@ -1172,7 +1048,12 @@ export default function BusDetailPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm font-medium">${trip.revenue}</div>
+                          <div className="text-sm font-medium">
+                            {new Intl.NumberFormat("en-RW", {
+                              style: "currency",
+                              currency: "RWF",
+                            }).format(trip.revenue)}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">{trip.fuelUsed}</div>
@@ -1184,7 +1065,8 @@ export default function BusDetailPage() {
                           <Badge variant="outline">{trip.status}</Badge>
                         </TableCell>
                       </TableRow>
-                    ))}
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -1198,8 +1080,8 @@ export default function BusDetailPage() {
                   <CardTitle className="text-sm">Total Fuel Used</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{bus.vehicleStats.totalFuelUsed}</div>
-                  <p className="text-xs text-muted-foreground">All time consumption</p>
+                  <div className="text-2xl font-bold">N/A</div>
+                  <p className="text-xs text-muted-foreground">Data not available</p>
                 </CardContent>
               </Card>
 
@@ -1208,8 +1090,8 @@ export default function BusDetailPage() {
                   <CardTitle className="text-sm">Total Fuel Cost</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">${bus.vehicleStats.totalFuelCost}</div>
-                  <p className="text-xs text-muted-foreground">All time expenses</p>
+                  <div className="text-2xl font-bold">N/A</div>
+                  <p className="text-xs text-muted-foreground">Data not available</p>
                 </CardContent>
               </Card>
 
@@ -1218,8 +1100,8 @@ export default function BusDetailPage() {
                   <CardTitle className="text-sm">Fuel Efficiency</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{bus.vehicleStats.fuelEfficiency}</div>
-                  <p className="text-xs text-muted-foreground">km per liter</p>
+                  <div className="text-2xl font-bold">N/A</div>
+                  <p className="text-xs text-muted-foreground">Data not available</p>
                 </CardContent>
               </Card>
 
@@ -1228,23 +1110,17 @@ export default function BusDetailPage() {
                   <CardTitle className="text-sm">Average Cost/km</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">${bus.vehicleStats.averageFuelCostPerKm}</div>
-                  <p className="text-xs text-muted-foreground">Fuel cost per km</p>
+                  <div className="text-2xl font-bold">N/A</div>
+                  <p className="text-xs text-muted-foreground">Data not available</p>
                 </CardContent>
               </Card>
             </div>
 
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Fueling History</CardTitle>
-                    <CardDescription>Complete record of all fuel transactions</CardDescription>
-                  </div>
-                  <Button onClick={() => setShowAddFuelDialog(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Fuel Record
-                  </Button>
+                <div>
+                  <CardTitle>Fueling History</CardTitle>
+                  <CardDescription>Complete record of all fuel transactions</CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
@@ -1282,10 +1158,20 @@ export default function BusDetailPage() {
                           <div className="text-sm font-medium">{record.liters}L</div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm">${record.pricePerLiter}</div>
+                          <div className="text-sm">
+                            {new Intl.NumberFormat("en-RW", {
+                              style: "currency",
+                              currency: "RWF",
+                            }).format(record.pricePerLiter)}
+                          </div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm font-medium">${record.totalCost.toFixed(2)}</div>
+                          <div className="text-sm font-medium">
+                            {new Intl.NumberFormat("en-RW", {
+                              style: "currency",
+                              currency: "RWF",
+                            }).format(record.totalCost)}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">{record.odometer.toLocaleString()} km</div>
@@ -1306,40 +1192,38 @@ export default function BusDetailPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="driver-info" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Assigned Driver</CardTitle>
-                <CardDescription>Current driver information and performance</CardDescription>
-              </CardHeader>
-              <CardContent>
+          {car.driver && (
+            <TabsContent value="driver-info" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assigned Driver</CardTitle>
+                  <CardDescription>Current driver information and performance</CardDescription>
+                </CardHeader>
+                <CardContent>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Name:</span>
-                      <span className="font-medium">{bus.driver.name}</span>
+                      <span className="font-medium">{car.driver?.name || "Not Assigned"}</span>
                     </div>
+                    {car.driver && (
+                      <>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Driver ID:</span>
-                      <span className="font-medium">{bus.driver.id}</span>
+                          <span className="font-medium">{car.driver.id}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Phone:</span>
-                      <span className="font-medium">{bus.driver.phone}</span>
+                          <span className="font-medium">{car.driver.phone}</span>
                     </div>
+                      </>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Experience:</span>
-                      <span className="font-medium">{bus.driver.experience}</span>
+                      <span className="font-medium">N/A</span>
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Rating:</span>
-                      <div className="flex items-center space-x-1">
-                        <span className="font-medium">{bus.driver.rating}</span>
-                        <span className="text-yellow-500">★</span>
-                      </div>
-                    </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Status:</span>
                       <Badge variant="default">On Duty</Badge>
@@ -1353,10 +1237,11 @@ export default function BusDetailPage() {
               </CardContent>
             </Card>
           </TabsContent>
+          )}
         </Tabs>
 
         <AddFuelRecordDialog
-          busId={bus.id}
+          busId={car.id}
           isOpen={showAddFuelDialog}
           onClose={() => setShowAddFuelDialog(false)}
           onAdd={addFuelRecord}
