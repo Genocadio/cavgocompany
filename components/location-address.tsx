@@ -67,7 +67,7 @@ export function LocationAddress({
     : "Location unknown"
   
   // Build tooltip content based on status and available data
-  let tooltipParts: string[] = []
+  const tooltipParts: string[] = []
   
   if (fullAddressText !== "Location unknown") {
     tooltipParts.push(fullAddressText)

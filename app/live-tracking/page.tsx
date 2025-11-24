@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
@@ -55,8 +55,6 @@ type Bus = {
 }
 
 function TripDetailsDialog({ trip, bus, isOpen, onClose }: { trip: Trip; bus: Bus; isOpen: boolean; onClose: () => void }) {
-  if (!trip || !bus) return null
-
   // Fetch bookings for this trip
   const { bookings, loading: bookingsLoading } = useBookingsByTrip(trip.id)
 
@@ -66,6 +64,8 @@ function TripDetailsDialog({ trip, bus, isOpen, onClose }: { trip: Trip; bus: Bu
       .filter((booking: Booking) => booking.status === "PAID" || booking.status === "BOARDED")
       .reduce((sum: number, booking: Booking) => sum + booking.fare, 0)
   }, [bookings])
+
+  if (!trip || !bus) return null
 
   // Helper function to get status badge variant
   const getStatusBadgeVariant = (status: string) => {

@@ -21,6 +21,18 @@ import { LocationAddress } from "@/components/location-address"
 import type { Trip } from "@/types"
 import type { LiveTrip, TripHistory } from "@/lib/graphql/types"
 
+// Extended Trip type with additional properties for live tracking
+interface ExtendedTrip extends Trip {
+  nextWaypoint?: {
+    name: string
+    remainingDistance?: number | null
+  } | null
+  currentLocationLat?: number | null
+  currentLocationLon?: number | null
+  currentLocationSpeed?: number | null
+  completionTime?: string | null
+}
+
 // Remove dummy tripsData - using real data from GraphQL
 
 export default function TripsPage() {
@@ -31,8 +43,8 @@ export default function TripsPage() {
   const [selectedRoute, setSelectedRoute] = useState("all")
 
   // Map LiveTrip to Trip interface
-  const mappedLiveTrips = useMemo(() => {
-    return liveTrips.map((liveTrip: LiveTrip) => {
+  const mappedLiveTrips = useMemo((): ExtendedTrip[] => {
+    return liveTrips.map((liveTrip: LiveTrip): ExtendedTrip => {
       const route = `${liveTrip.origin.placename} → ${liveTrip.destination.placename}`
       const occupancy = liveTrip.car.capacity - liveTrip.remainingSeats
       
@@ -88,8 +100,8 @@ export default function TripsPage() {
   }, [liveTrips])
 
   // Map TripHistory to Trip interface
-  const mappedTripHistory = useMemo(() => {
-    return tripHistory.map((history: TripHistory) => {
+  const mappedTripHistory = useMemo((): ExtendedTrip[] => {
+    return tripHistory.map((history: TripHistory): ExtendedTrip => {
       const route = history.origin?.placename 
         ? `${history.origin.placename} → ${history.destination.placename}`
         : history.destination.placename
@@ -506,20 +518,20 @@ export default function TripsPage() {
                               </span>
                             </div>
                           ) : trip.status === "ongoing" || trip.status === "in_progress" ? (
-                            (trip as any).nextWaypoint ? (
+                            (trip as ExtendedTrip).nextWaypoint ? (
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="flex items-center gap-2 cursor-help">
                                     <Badge variant="outline" className="text-xs">Next point:</Badge>
-                                    <span className="text-sm">{(trip as any).nextWaypoint.name}</span>
+                                    <span className="text-sm">{(trip as ExtendedTrip).nextWaypoint?.name}</span>
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <div className="text-xs">
-                                    <div className="font-medium">{(trip as any).nextWaypoint.name}</div>
-                                    {(trip as any).nextWaypoint.remainingDistance != null && (
+                                    <div className="font-medium">{(trip as ExtendedTrip).nextWaypoint?.name}</div>
+                                    {(trip as ExtendedTrip).nextWaypoint?.remainingDistance != null && (
                                       <div className="text-muted-foreground mt-1">
-                                        Remaining: {((trip as any).nextWaypoint.remainingDistance / 1000).toFixed(2)} km
+                                        Remaining: {(((trip as ExtendedTrip).nextWaypoint?.remainingDistance ?? 0) / 1000).toFixed(2)} km
                                       </div>
                                     )}
                                   </div>
@@ -528,7 +540,7 @@ export default function TripsPage() {
                             ) : (
                               <div className="flex items-center gap-2">
                                 <Badge variant="outline" className="text-xs">Next point:</Badge>
-                                <span className="text-sm">{(trip as any).nextStop || "N/A"}</span>
+                                <span className="text-sm">{trip.nextStop || "N/A"}</span>
                               </div>
                             )
                           ) : trip.status === "completed" ? (
@@ -537,9 +549,9 @@ export default function TripsPage() {
                                 <div className="text-sm cursor-help">Completed</div>
                               </TooltipTrigger>
                               <TooltipContent>
-                                {(trip as any).completionTime ? (
+                                {(trip as ExtendedTrip).completionTime ? (
                                   <div className="text-xs">
-                                    Completed: {new Date((trip as any).completionTime).toLocaleString()}
+                                    Completed: {new Date((trip as ExtendedTrip).completionTime!).toLocaleString()}
                                   </div>
                                 ) : (
                                   <div className="text-xs">Completed</div>
@@ -567,12 +579,12 @@ export default function TripsPage() {
                           <div className="flex items-center space-x-1 min-w-0">
                             <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                             <LocationAddress
-                              latitude={(trip as any).currentLocationLat}
-                              longitude={(trip as any).currentLocationLon}
+                              latitude={(trip as ExtendedTrip).currentLocationLat}
+                              longitude={(trip as ExtendedTrip).currentLocationLon}
                               address={trip.currentLocation}
-                              speed={(trip as any).currentLocationSpeed}
-                              nextWaypoint={(trip as any).nextWaypoint}
-                              completionTime={(trip as any).completionTime}
+                              speed={(trip as ExtendedTrip).currentLocationSpeed}
+                              nextWaypoint={(trip as ExtendedTrip).nextWaypoint}
+                              completionTime={(trip as ExtendedTrip).completionTime}
                               status={trip.status}
                               className="text-sm min-w-0 flex-1"
                               showLoadingIcon={true}

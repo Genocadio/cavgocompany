@@ -1,6 +1,6 @@
 "use client"
 
-import { Bus, BarChart3, Users, UserCheck, Home, LogOut, Navigation, Calendar, User } from "lucide-react"
+import { Bus, BarChart3, UserCheck, Home, LogOut, Navigation, Calendar, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/components/auth-provider"

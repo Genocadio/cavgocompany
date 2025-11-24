@@ -135,7 +135,7 @@ export default function TicketingPage() {
     const avgDailyTickets = Math.round(ticketMetrics.weeklyTickets / 7)
     const avgDailyRevenue = Math.round(ticketMetrics.todayRevenue)
 
-    return days.map((day, index) => ({
+    return days.map((day) => ({
       day,
       tickets: Math.max(0, Math.round(avgDailyTickets + (Math.random() * 50 - 25))), // Add some variation
       revenue: Math.max(0, Math.round(avgDailyRevenue + (Math.random() * 200 - 100))),
@@ -148,7 +148,7 @@ export default function TicketingPage() {
     const avgMonthlyTickets = Math.round(ticketMetrics.weeklyTickets * 4.3) // Approximate monthly
     const avgMonthlyRevenue = Math.round(ticketMetrics.todayRevenue * 30) // Approximate monthly
 
-    return months.map((month, index) => ({
+    return months.map((month) => ({
       month,
       tickets: Math.max(0, Math.round(avgMonthlyTickets + (Math.random() * 1000 - 500))),
       revenue: Math.max(0, Math.round(avgMonthlyRevenue + (Math.random() * 5000 - 2500))),
@@ -164,7 +164,7 @@ export default function TicketingPage() {
     ]
     const avgHourlyTickets = Math.round(ticketMetrics.avgPerDay / 17) // Distribute across 17 hours
 
-    return hours.map((hour, index) => ({
+    return hours.map((hour) => ({
       hour,
       tickets: Math.max(0, Math.round(avgHourlyTickets + (Math.random() * 50 - 25))),
     }))

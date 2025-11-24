@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, MapPin, Users, Gauge, Eye } from "lucide-react"
+import { Search, MapPin, Gauge, Eye } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
@@ -97,7 +97,7 @@ function BusDetailsDialog({ bus, isOpen, onClose }: BusDetailsDialogProps) {
                   {new Intl.NumberFormat("en-RW", {
                     style: "currency",
                     currency: "RWF",
-                  }).format(bus.todayRevenue)}
+                  }).format(bus.todayRevenue || 0)}
                 </div>
               </CardContent>
             </Card>
@@ -159,7 +159,7 @@ export default function BusesPage() {
   const { user } = useAuth()
   const { cars, loading, error } = useCarsByCompany(user?.companyId)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedBus, setSelectedBus] = useState<Bus | null>(null)
+  const [selectedBus] = useState<Bus | null>(null)
   const [showBusDetails, setShowBusDetails] = useState(false)
 
   // Map GraphQL Car data to Bus interface
@@ -215,21 +215,6 @@ export default function BusesPage() {
       bus.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bus.driver.toLowerCase().includes(searchTerm.toLowerCase()),
   )
-
-
-  const getOccupancyColor = (occupancy: number, capacity: number) => {
-    const percentage = (occupancy / capacity) * 100
-    if (percentage >= 90) return "text-red-600"
-    if (percentage >= 70) return "text-yellow-600"
-    return "text-green-600"
-  }
-
-  const getOccupancyBadge = (occupancy: number, capacity: number) => {
-    const percentage = (occupancy / capacity) * 100
-    if (percentage >= 90) return "destructive"
-    if (percentage >= 70) return "secondary"
-    return "default"
-  }
 
   return (
     <div className="flex flex-col">

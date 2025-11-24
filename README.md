@@ -1,8 +1,22 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```bash
+# GraphQL API URL (optional - defaults to http://localhost:4000/graphql)
+NEXT_PUBLIC_GRAPHQL_URL=http://localhost:4000/graphql
+
+# Login API URL (required)
+NEXT_PUBLIC_LOGIN_API_URL=http://localhost:4000/api/auth/login
+```
+
+**Note:** All environment variables must be prefixed with `NEXT_PUBLIC_` to be accessible in the browser.
+
 ## Getting Started
 
-First, run the development server:
+First, set up your environment variables (see above), then run the development server:
 
 ```bash
 npm run dev

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ArrowLeft, Phone, Clock, CreditCard, Car, MapPin, Fuel, Plus, Edit, Calendar } from "lucide-react"
+import { ArrowLeft, Phone, CreditCard, Car, MapPin, Fuel, Edit, Calendar } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -311,7 +311,7 @@ export default function BusDetailPage() {
   const [showAddFuelDialog, setShowAddFuelDialog] = useState(false)
   const [fuelingHistory, setFuelingHistory] = useState<FuelRecord[]>([]) // Not available in GraphQL response
   const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]) // Not available in GraphQL response
-  const [tripHistory, setTripHistory] = useState<Trip[]>([]) // Not available in GraphQL response
+  const [tripHistory] = useState<Trip[]>([]) // Not available in GraphQL response
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null)
   const [showEditTripDialog, setShowEditTripDialog] = useState(false)
 
@@ -927,7 +927,7 @@ export default function BusDetailPage() {
                             {new Intl.NumberFormat("en-RW", {
                               style: "currency",
                               currency: "RWF",
-                            }).format(trip.estimatedRevenue)}
+                            }).format(trip.estimatedRevenue || 0)}
                           </div>
                         </TableCell>
                         <TableCell>

@@ -21,9 +21,11 @@ const authLink = setContext((_, { headers }) => {
   }
 })
 
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const errorLink = onError(({ graphQLErrors, networkError }: any) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, locations, path }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    graphQLErrors.forEach(({ message, locations, path }: any) => {
       // Filter out introspection errors - these are server-side configuration issues
       // and shouldn't break the client application
       if (message.includes("GraphQL introspection is not allowed")) {
