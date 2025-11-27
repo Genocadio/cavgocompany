@@ -258,7 +258,6 @@ export default function BusesPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>License Plate</TableHead>
-                    <TableHead>License Plate</TableHead>
                     <TableHead>Driver</TableHead>
                     <TableHead className="max-w-[200px]">Location</TableHead>
                     <TableHead>Speed</TableHead>
@@ -269,7 +268,7 @@ export default function BusesPage() {
                 <TableBody>
                   {filteredBuses.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center text-muted-foreground">
                         No buses found
                       </TableCell>
                     </TableRow>
@@ -277,7 +276,6 @@ export default function BusesPage() {
                     filteredBuses.map((bus) => (
                   <TableRow key={bus.id}>
                     <TableCell className="font-medium">{bus.licensePlate}</TableCell>
-                    <TableCell>{bus.licensePlate}</TableCell>
                     <TableCell>{bus.driver}</TableCell>
                     <TableCell>
                       {bus.locationLat && bus.locationLon ? (
