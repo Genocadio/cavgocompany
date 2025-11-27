@@ -17,7 +17,7 @@ export function useCompanyDashboard(companyId: string | number | null | undefine
   )
 
   return {
-    dashboard: data?.getCompanyDashboard || null,
+    dashboard: data?.companyDashboard || null,
     loading,
     error,
   }

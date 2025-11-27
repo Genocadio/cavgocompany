@@ -54,7 +54,7 @@ function BusDetailsDialog({ bus, isOpen, onClose }: BusDetailsDialogProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Bus Details - {bus.id}</DialogTitle>
+          <DialogTitle>Bus Details - {bus.licensePlate}</DialogTitle>
           <DialogDescription>Comprehensive information for {bus.licensePlate}</DialogDescription>
         </DialogHeader>
 
@@ -66,16 +66,20 @@ function BusDetailsDialog({ bus, isOpen, onClose }: BusDetailsDialogProps) {
                 <CardTitle className="text-sm">Current Location</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <LocationAddress
-                    latitude={bus.locationLat}
-                    longitude={bus.locationLon}
-                    address={bus.location}
-                    className="text-sm"
-                    showLoadingIcon={true}
-                  />
-                </div>
+                {bus.locationLat && bus.locationLon ? (
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <LocationAddress
+                      latitude={bus.locationLat}
+                      longitude={bus.locationLon}
+                      address=""
+                      className="text-sm"
+                      showLoadingIcon={true}
+                    />
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-foreground">No location data</span>
+                )}
               </CardContent>
             </Card>
 
@@ -165,42 +169,27 @@ export default function BusesPage() {
   // Map GraphQL Car data to Bus interface
   const buses = useMemo(() => {
     return cars.map((car: Car) => {
-      const occupancy = car.activeTrip
-        ? car.capacity - car.activeTrip.remainingSeats
-        : 0
-      const nextStop = car.activeTrip?.waypoints?.find((wp) => !wp.passed)?.placename || 
-                      car.activeTrip?.destination?.placename || 
-                      "N/A"
-      
       return {
         id: car.id,
         licensePlate: car.plate,
-        driver: car.driver?.name || "Not Assigned",
-        driverId: car.driver?.id || "",
-        status: car.operationalStatus || "UNKNOWN",
+        driver: car.currentDriver?.name || car.driver?.name || "Not Assigned",
+        driverId: car.currentDriver?.id || car.driver?.id || "",
+        status: car.status || car.operationalStatus || "UNKNOWN",
         capacity: car.capacity,
-        occupancy: occupancy,
-        location: car.currentLocation?.address || "",
-        locationLat: car.currentLocation?.latitude,
-        locationLon: car.currentLocation?.longitude,
+        occupancy: 0, // Not available in new structure
+        location: "", // Address not available in new structure
+        locationLat: car.currentLocation?.location?.lat,
+        locationLon: car.currentLocation?.location?.lng,
         speed: car.currentLocation?.speed || 0,
-        route: car.activeTrip ? `${car.activeTrip.origin.placename} → ${car.activeTrip.destination.placename}` : "Not Assigned",
-        currentTrip: car.activeTrip
+        route: car.latestTrip ? `Trip ${car.latestTrip.id}` : "Not Assigned",
+        currentTrip: car.latestTrip
           ? {
-              id: car.activeTrip.id,
-              startTime: new Date(car.activeTrip.startTime).toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
-              estimatedEnd: car.activeTrip.endTime
-                ? new Date(car.activeTrip.endTime).toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "N/A",
-              ticketsSold: occupancy,
-              revenue: car.activeTrip.waypoints?.reduce((sum, wp) => sum + (wp.fare || 0), 0) || 0,
-              nextStop: nextStop,
+              id: car.latestTrip.id,
+              startTime: "N/A", // Not available in new structure
+              estimatedEnd: "N/A", // Not available in new structure
+              ticketsSold: 0, // Not available in new structure
+              revenue: 0, // Not available in new structure
+              nextStop: "N/A", // Not available in new structure
             }
           : null,
         totalTripsToday: 0, // Not available in GraphQL response
@@ -212,7 +201,6 @@ export default function BusesPage() {
   const filteredBuses = buses.filter(
     (bus) =>
       bus.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bus.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bus.driver.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
@@ -269,7 +257,7 @@ export default function BusesPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Bus ID</TableHead>
+                    <TableHead>License Plate</TableHead>
                     <TableHead>License Plate</TableHead>
                     <TableHead>Driver</TableHead>
                     <TableHead className="max-w-[200px]">Location</TableHead>
@@ -288,21 +276,25 @@ export default function BusesPage() {
                   ) : (
                     filteredBuses.map((bus) => (
                   <TableRow key={bus.id}>
-                    <TableCell className="font-medium">{bus.id}</TableCell>
+                    <TableCell className="font-medium">{bus.licensePlate}</TableCell>
                     <TableCell>{bus.licensePlate}</TableCell>
                     <TableCell>{bus.driver}</TableCell>
                     <TableCell>
-                      <div className="flex items-center space-x-1">
-                        <MapPin className="h-3 w-3 text-muted-foreground" />
-                        <LocationAddress
-                          latitude={bus.locationLat}
-                          longitude={bus.locationLon}
-                          address={bus.location}
-                          className="text-sm min-w-0"
-                          showLoadingIcon={true}
-                          truncate={true}
-                        />
-                      </div>
+                      {bus.locationLat && bus.locationLon ? (
+                        <div className="flex items-center space-x-1">
+                          <MapPin className="h-3 w-3 text-muted-foreground" />
+                          <LocationAddress
+                            latitude={bus.locationLat}
+                            longitude={bus.locationLon}
+                            address=""
+                            className="text-sm min-w-0"
+                            showLoadingIcon={true}
+                            truncate={true}
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">No location data</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-1">

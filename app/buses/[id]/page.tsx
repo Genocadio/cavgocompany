@@ -25,14 +25,14 @@ import type { FuelRecord, Trip, FuelFormData, TripFormData } from "@/types"
 // Remove dummy getBusDetails function - using real data from GraphQL
 
 interface AddFuelRecordDialogProps {
-  busId: string
+  busPlate: string
   isOpen: boolean
   onClose: () => void
   onAdd: (record: FuelRecord) => void
 }
 
 // Add Fuel Record Dialog Component
-function AddFuelRecordDialog({ busId, isOpen, onClose, onAdd }: AddFuelRecordDialogProps) {
+function AddFuelRecordDialog({ busPlate, isOpen, onClose, onAdd }: AddFuelRecordDialogProps) {
   const [fuelData, setFuelData] = useState<FuelFormData>({
     liters: "",
     pricePerLiter: "",
@@ -83,7 +83,7 @@ function AddFuelRecordDialog({ busId, isOpen, onClose, onAdd }: AddFuelRecordDia
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add Fuel Record</DialogTitle>
-          <DialogDescription>Record a new fueling transaction for {busId}</DialogDescription>
+          <DialogDescription>Record a new fueling transaction for {busPlate}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -299,7 +299,7 @@ export default function BusDetailPage() {
   const { car, loading: carLoading, error: carError } = useCar(busId)
   
   // Get tripId from car data
-  const tripId = useMemo(() => car?.activeTrip?.id, [car?.activeTrip?.id])
+  const tripId = useMemo(() => car?.latestTrip?.id, [car?.latestTrip?.id])
   
   // Fetch bookings separately when we have tripId
   const { bookings, loading: bookingsLoading } = useBookingsByTrip(tripId)
@@ -317,10 +317,10 @@ export default function BusDetailPage() {
 
   // If driver is null and activeTab is driver-info, switch to overview
   useEffect(() => {
-    if (!car?.driver && activeTab === "driver-info") {
+    if (!car?.currentDriver && activeTab === "driver-info") {
       setActiveTab("overview")
     }
-  }, [car?.driver, activeTab])
+  }, [car?.currentDriver, activeTab])
 
   const addFuelRecord = (newRecord: FuelRecord) => {
     setFuelingHistory([newRecord, ...fuelingHistory])
@@ -402,7 +402,7 @@ export default function BusDetailPage() {
         </header>
         <main className="flex-1 space-y-6 p-6">
           <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-            <p className="text-sm text-yellow-800">Bus not found. Please check the bus ID and try again.</p>
+            <p className="text-sm text-yellow-800">Bus not found. Please check the bus plate and try again.</p>
           </div>
         </main>
       </div>
@@ -410,14 +410,12 @@ export default function BusDetailPage() {
   }
 
   // Map car data for display
-  const occupancy = car.activeTrip ? car.capacity - car.activeTrip.remainingSeats : 0
-  const nextStop = car.activeTrip?.waypoints?.find((wp) => !wp.passed)?.placename ||
-                  car.activeTrip?.destination?.placename ||
-                  "N/A"
-  const totalWaypoints = car.activeTrip?.waypoints?.length || 0
-  const passedWaypoints = car.activeTrip?.waypoints?.filter((wp) => wp.passed).length || 0
-  const progress = totalWaypoints > 0 ? Math.round((passedWaypoints / totalWaypoints) * 100) : 0
-  const revenue = car.activeTrip?.waypoints?.reduce((sum, wp) => sum + (wp.fare || 0), 0) || 0
+  const occupancy = 0 // Not available in new structure
+  const nextStop = car.latestTrip?.destinations?.find((dest) => !dest.isPassede)?.addres || "N/A"
+  const totalDestinations = car.latestTrip?.destinations?.length || 0
+  const passedDestinations = car.latestTrip?.destinations?.filter((dest) => dest.isPassede).length || 0
+  const progress = totalDestinations > 0 ? Math.round((passedDestinations / totalDestinations) * 100) : 0
+  const revenue = car.latestTrip?.destinations?.reduce((sum, dest) => sum + (dest.fare || 0), 0) || 0
 
   return (
     <div className="flex flex-col">
@@ -430,17 +428,17 @@ export default function BusDetailPage() {
         <div className="flex flex-1 items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold">
-              Bus {car.id} - {car.plate}
+              Bus {car.plate}
             </h1>
-            <p className="text-sm text-muted-foreground">{car.make} {car.model}</p>
+            <p className="text-sm text-muted-foreground">{car.model}</p>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge variant={car.isOnline && (car.operationalStatus === "ACTIVE" || car.operationalStatus === "WORKING") ? "default" : "secondary"}>
-              {car.operationalStatus}
+            <Badge variant={car.isOnline && (car.status === "ACTIVE" || car.status === "WORKING") ? "default" : "secondary"}>
+              {car.status}
             </Badge>
-            {car.driver && (
+            {car.currentDriver && (
               <Button variant="outline" size="sm" asChild>
-                <a href={`tel:${car.driver.phone}`}>
+                <a href={`tel:${car.currentDriver.phoneNumber}`}>
               <Phone className="mr-2 h-4 w-4" />
               Contact Driver
                 </a>
@@ -457,8 +455,8 @@ export default function BusDetailPage() {
           </div>
         )}
         {/* Quick Stats */}
-        <div className={`grid gap-4 ${car.activeTrip ? "md:grid-cols-4" : "md:grid-cols-2"}`}>
-          {car.activeTrip && (
+        <div className={`grid gap-4 ${car.latestTrip ? "md:grid-cols-4" : "md:grid-cols-2"}`}>
+          {car.latestTrip && (
             <>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -492,13 +490,17 @@ export default function BusDetailPage() {
             <CardContent>
               <div className="text-2xl font-bold">{car.currentLocation?.speed || 0} km/h</div>
               <p className="text-xs text-muted-foreground">
-                <LocationAddress
-                  latitude={car.currentLocation?.latitude}
-                  longitude={car.currentLocation?.longitude}
-                  address={car.currentLocation?.address}
-                  className="text-xs"
-                  showLoadingIcon={true}
-                />
+                {car.currentLocation?.location ? (
+                  <LocationAddress
+                    latitude={car.currentLocation.location.lat}
+                    longitude={car.currentLocation.location.lng}
+                    address=""
+                    className="text-xs"
+                    showLoadingIcon={true}
+                  />
+                ) : (
+                  "No location data"
+                )}
               </p>
             </CardContent>
           </Card>
@@ -509,38 +511,42 @@ export default function BusDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{car.isOnline ? "Online" : "Offline"}</div>
-              <p className="text-xs text-muted-foreground">{car.operationalStatus}</p>
+              <p className="text-xs text-muted-foreground">{car.status}</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Current Trip Alert */}
-        {car.activeTrip && (
+        {/* Latest Trip Alert */}
+        {car.latestTrip && (
           <Card className="border-blue-200 bg-blue-50">
             <CardHeader>
               <div className="flex items-center space-x-2">
                 <Car className="h-5 w-5 text-blue-600" />
-                <CardTitle className="text-blue-900">Current Trip in Progress</CardTitle>
+                <CardTitle className="text-blue-900">Latest Trip</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-blue-900">Trip {car.activeTrip.id}</p>
+                  <p className="text-sm font-medium text-blue-900">Trip {car.latestTrip.id}</p>
                   <p className="text-sm text-blue-700">
-                    {car.activeTrip.origin.placename} → {car.activeTrip.destination.placename}
+                    {car.latestTrip.origin.addres} → {car.latestTrip.destinations[car.latestTrip.destinations.length - 1]?.addres || "N/A"}
                   </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-blue-900">Current Location</p>
                   <p className="text-sm text-blue-700">
-                    <LocationAddress
-                      latitude={car.currentLocation?.latitude}
-                      longitude={car.currentLocation?.longitude}
-                      address={car.currentLocation?.address}
-                      className="text-sm"
-                      showLoadingIcon={true}
-                    />
+                    {car.currentLocation?.location ? (
+                      <LocationAddress
+                        latitude={car.currentLocation.location.lat}
+                        longitude={car.currentLocation.location.lng}
+                        address=""
+                        className="text-sm"
+                        showLoadingIcon={true}
+                      />
+                    ) : (
+                      "No location data"
+                    )}
                   </p>
                 </div>
                 <div className="space-y-1">
@@ -561,13 +567,13 @@ export default function BusDetailPage() {
 
         {/* Detailed Information Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={`grid w-full ${car.driver ? "grid-cols-6" : "grid-cols-5"}`}>
+          <TabsList className={`grid w-full ${car.currentDriver ? "grid-cols-6" : "grid-cols-5"}`}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="live-ticketing">Live Ticketing</TabsTrigger>
             <TabsTrigger value="upcoming-trips">Upcoming Trips</TabsTrigger>
             <TabsTrigger value="trip-history">Trip History</TabsTrigger>
             <TabsTrigger value="fuel-history">Fuel History</TabsTrigger>
-            {car.driver && (
+            {car.currentDriver && (
               <TabsTrigger value="driver-info">Driver Info</TabsTrigger>
             )}
           </TabsList>
@@ -584,8 +590,8 @@ export default function BusDetailPage() {
                     <span className="font-medium">{car.plate}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Make & Model:</span>
-                    <span className="font-medium">{car.make} {car.model}</span>
+                    <span className="text-muted-foreground">Model:</span>
+                    <span className="font-medium">{car.model}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Capacity:</span>
@@ -593,19 +599,19 @@ export default function BusDetailPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status:</span>
-                    <Badge variant={car.isOnline && (car.operationalStatus === "ACTIVE" || car.operationalStatus === "WORKING") ? "default" : "secondary"}>
-                      {car.operationalStatus}
+                    <Badge variant={car.isOnline && (car.status === "ACTIVE" || car.status === "WORKING") ? "default" : "secondary"}>
+                      {car.status}
                     </Badge>
                   </div>
-                  {car.driver && (
+                  {car.currentDriver && (
                     <>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Driver:</span>
-                        <span className="font-medium">{car.driver.name}</span>
+                        <span className="font-medium">{car.currentDriver.name}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Driver Phone:</span>
-                        <span className="font-medium">{car.driver.phone}</span>
+                        <span className="font-medium">{car.currentDriver.phoneNumber}</span>
                       </div>
                     </>
                   )}
@@ -617,15 +623,15 @@ export default function BusDetailPage() {
                   <CardTitle>Current Location</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {car.currentLocation ? (
+                  {car.currentLocation?.location ? (
                     <>
                   <div className="flex justify-between">
                         <span className="text-muted-foreground">Address:</span>
                         <span className="font-medium">
                           <LocationAddress
-                            latitude={car.currentLocation.latitude}
-                            longitude={car.currentLocation.longitude}
-                            address={car.currentLocation.address}
+                            latitude={car.currentLocation.location.lat}
+                            longitude={car.currentLocation.location.lng}
+                            address=""
                             className="font-medium"
                             showLoadingIcon={true}
                           />
@@ -659,13 +665,13 @@ export default function BusDetailPage() {
               <CardHeader>
                 <CardTitle>Live Ticketing - Active Trip Bookings</CardTitle>
                 <CardDescription>
-                  {car.activeTrip
-                    ? `Real-time booking information for Trip ${car.activeTrip.id}`
+                  {car.latestTrip
+                    ? `Real-time booking information for Trip ${car.latestTrip.id}`
                     : "No active trip"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {car.activeTrip ? (
+                {car.latestTrip ? (
                   loading ? (
                     <div className="space-y-4">
                       {Array.from({ length: 5 }).map((_, i) => (
@@ -771,7 +777,7 @@ export default function BusDetailPage() {
               </CardContent>
             </Card>
 
-            {car.activeTrip && (
+            {car.latestTrip && (
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardHeader className="pb-2">
@@ -784,7 +790,7 @@ export default function BusDetailPage() {
                         currency: "RWF",
                       }).format(revenue)}
                     </div>
-                    <p className="text-xs text-muted-foreground">{occupancy} passengers</p>
+                    <p className="text-xs text-muted-foreground">{car.latestTrip.destinations.length} destinations</p>
                 </CardContent>
               </Card>
 
@@ -793,7 +799,7 @@ export default function BusDetailPage() {
                     <CardTitle className="text-sm">Remaining Seats</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{car.activeTrip.remainingSeats}</div>
+                    <div className="text-2xl font-bold">N/A</div>
                     <p className="text-xs text-muted-foreground">Available seats</p>
                 </CardContent>
               </Card>
@@ -805,19 +811,21 @@ export default function BusDetailPage() {
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Started:</span>
+                      <span>Created:</span>
                         <span>
-                          {new Date(car.activeTrip.startTime).toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {car.latestTrip?.createdAt
+                            ? new Date(car.latestTrip.createdAt).toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "N/A"}
                         </span>
                     </div>
-                      {car.activeTrip.endTime && (
+                      {car.latestTrip?.updatedAt && (
                     <div className="flex justify-between text-sm">
-                      <span>Est. End:</span>
+                      <span>Last Updated:</span>
                           <span>
-                            {new Date(car.activeTrip.endTime).toLocaleTimeString("en-US", {
+                            {new Date(car.latestTrip.updatedAt).toLocaleTimeString("en-US", {
                               hour: "2-digit",
                               minute: "2-digit",
                             })}
@@ -826,7 +834,7 @@ export default function BusDetailPage() {
                       )}
                       <div className="flex justify-between text-sm">
                         <span>Status:</span>
-                        <Badge variant="default">{car.activeTrip.status}</Badge>
+                        <Badge variant="default">{car.latestTrip?.status || "N/A"}</Badge>
                       </div>
                   </div>
                 </CardContent>
@@ -878,7 +886,7 @@ export default function BusDetailPage() {
             <Card>
               <CardHeader>
                 <div>
-                  <CardTitle>Upcoming Trips for {car.id}</CardTitle>
+                  <CardTitle>Upcoming Trips for {car.plate}</CardTitle>
                   <CardDescription>Scheduled trips and their current booking status</CardDescription>
                 </div>
               </CardHeader>
@@ -1192,7 +1200,7 @@ export default function BusDetailPage() {
             </Card>
           </TabsContent>
 
-          {car.driver && (
+          {car.currentDriver && (
             <TabsContent value="driver-info" className="space-y-4">
               <Card>
                 <CardHeader>
@@ -1204,17 +1212,17 @@ export default function BusDetailPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Name:</span>
-                      <span className="font-medium">{car.driver?.name || "Not Assigned"}</span>
+                      <span className="font-medium">{car.currentDriver?.name || "Not Assigned"}</span>
                     </div>
-                    {car.driver && (
+                    {car.currentDriver && (
                       <>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Driver ID:</span>
-                          <span className="font-medium">{car.driver.id}</span>
+                          <span className="font-medium">{car.currentDriver.id}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Phone:</span>
-                          <span className="font-medium">{car.driver.phone}</span>
+                          <span className="font-medium">{car.currentDriver.phoneNumber}</span>
                     </div>
                       </>
                     )}
@@ -1241,7 +1249,7 @@ export default function BusDetailPage() {
         </Tabs>
 
         <AddFuelRecordDialog
-          busId={car.id}
+          busPlate={car.plate}
           isOpen={showAddFuelDialog}
           onClose={() => setShowAddFuelDialog(false)}
           onAdd={addFuelRecord}

@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Bus, UserCheck, TrendingUp, DollarSign, Activity } from "lucide-react"
+import { Bus, UserCheck, TrendingUp, Activity } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -15,67 +15,47 @@ export default function Dashboard() {
   const companyName = user?.companyName || null
   const { dashboard, loading, error } = useCompanyDashboard(user?.companyId)
 
-  // Format number with commas
-  const formatNumber = (num: number) => {
-    return num.toLocaleString()
-  }
-
-  // Format currency
-  const formatCurrency = (num: number) => {
-    return new Intl.NumberFormat("en-RW", {
-      style: "currency",
-      currency: "RWF",
-    }).format(num)
-  }
-
   // Calculate percentages
-  const activeCarsPercentage = dashboard
-    ? Math.round((dashboard.activeCars / dashboard.totalCars) * 100)
+  const activeBusesPercentage = dashboard
+    ? Math.round((dashboard.activeBuses / dashboard.totalCars) * 100)
     : 0
 
   const statsCards = dashboard
     ? [
         {
           title: "Active Buses",
-          value: dashboard.activeCars.toString(),
+          value: dashboard.activeBuses.toString(),
           description: `Out of ${dashboard.totalCars} total buses`,
           icon: Bus,
           color: "text-green-600",
         },
         {
-          title: "Inactive Buses",
-          value: dashboard.offlineCars.toString(),
-          description: "Currently offline",
+          title: "Ongoing Trips",
+          value: dashboard.ongoingTrips.toString(),
+          description: "Currently in progress",
           icon: Activity,
-          color: "text-red-600",
-        },
-        {
-          title: "Active Drivers",
-          value: dashboard.totalDrivers.toString(),
-          description: "Registered drivers",
-          icon: UserCheck,
           color: "text-blue-600",
         },
         {
-          title: "Total Bookings",
-          value: formatNumber(dashboard.totalBookings),
-          description: "All time bookings",
+          title: "Today's Trips",
+          value: dashboard.todayTrips.toString(),
+          description: "Trips completed today",
           icon: TrendingUp,
           color: "text-purple-600",
         },
         {
-          title: "Pending Bookings",
-          value: formatNumber(dashboard.pendingBookings),
-          description: "Awaiting confirmation",
-          icon: TrendingUp,
-          color: "text-orange-600",
+          title: "Total Drivers",
+          value: dashboard.totalDrivers.toString(),
+          description: "Registered drivers",
+          icon: UserCheck,
+          color: "text-indigo-600",
         },
         {
-          title: "Today's Revenue",
-          value: formatCurrency(dashboard.totalRevenueToday),
-          description: "Total earnings today",
-          icon: DollarSign,
-          color: "text-green-600",
+          title: "Total Buses",
+          value: dashboard.totalCars.toString(),
+          description: "Fleet size",
+          icon: Bus,
+          color: "text-orange-600",
         },
       ]
     : []
@@ -105,7 +85,7 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {loading
-            ? Array.from({ length: 6 }).map((_, index) => (
+            ? Array.from({ length: 5 }).map((_, index) => (
                 <Card key={index}>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <Skeleton className="h-4 w-24" />
@@ -148,10 +128,10 @@ export default function Dashboard() {
                   <div className="flex justify-between text-sm">
                     <span>Active Buses</span>
                     <span>
-                      {dashboard.activeCars}/{dashboard.totalCars} ({activeCarsPercentage}%)
+                      {dashboard.activeBuses}/{dashboard.totalCars} ({activeBusesPercentage}%)
                     </span>
                   </div>
-                  <Progress value={activeCarsPercentage} className="h-2" />
+                  <Progress value={activeBusesPercentage} className="h-2" />
                 </div>
               ) : null}
             </CardContent>
@@ -174,11 +154,15 @@ export default function Dashboard() {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Company Name</p>
-                    <p className="text-sm font-semibold">{companyName || dashboard.companyName || "N/A"}</p>
+                    <p className="text-sm font-semibold">{companyName || dashboard.company.name || "N/A"}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Company Code</p>
-                    <p className="text-sm font-semibold">{dashboard.companyCode}</p>
+                    <p className="text-sm font-semibold">{dashboard.company.companyCode}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Address</p>
+                    <p className="text-sm font-semibold">{dashboard.company.address || "N/A"}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Total Buses</p>

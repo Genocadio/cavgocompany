@@ -17,7 +17,7 @@ export function useCompanyDrivers(companyId: string | number | null | undefined)
   )
 
   return {
-    drivers: data?.getCompanyDrivers || [],
+    drivers: data?.getDriversByCompany || [],
     loading,
     error,
   }

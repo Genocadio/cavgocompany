@@ -1,154 +1,104 @@
 import { gql } from "@apollo/client"
 
 export const GET_COMPANY_DASHBOARD = gql`
-  query GetCompanyDashboard($companyId: ID!) {
-    getCompanyDashboard(companyId: $companyId) {
-      activeCars
-      averageRating
-      companyCode
-      companyId
-      companyName
-      offlineCars
-      pendingBookings
-      totalBookings
+  query CompanyDashboard($companyId: ID!) {
+    companyDashboard(companyId: $companyId) {
+      activeBuses
+      company {
+        address
+        companyCode
+        name
+      }
+      ongoingTrips
+      todayTrips
       totalCars
       totalDrivers
-      totalRevenueToday
     }
   }
 `
 
 export const GET_CARS_BY_COMPANY = gql`
-  query GetCarsByCompany($companyId: ID!) {
-    getCarsByCompany(companyId: $companyId) {
+  query CarsByCompany($companyId: ID!) {
+    carsByCompany(companyId: $companyId) {
+      capacity
+      isOnline
+      model
+      plate
+      status
+      latestTrip {
+        id
+        status
+        totalDistance
+      }
+      id
       currentLocation {
-        address
         bearing
-        latitude
-        longitude
+        location {
+          lng
+          lat
+        }
         speed
         timestamp
       }
-      driver {
-        id
+      currentDriver {
         name
-        phone
-      }
-      id
-      operationalStatus
-      plate
-      capacity
-      make
-      model
-      isOnline
-      latestTripCompletionTime
-      activeTrip {
-        remainingSeats
-        startTime
-        status
-        waypoints {
-          fare
-          placename
-          passedTimestamp
-          remainingDistance
-          passed
-          longitude
-          latitude
-        }
-        origin {
-          placename
-          passedTimestamp
-          passed
-          longitude
-          latitude
-        }
         id
-        endTime
-        distance
-        destination {
-          fare
-          latitude
-          longitude
-          passed
-          passedTimestamp
-          placename
-          remainingDistance
-        }
-        departureTime
+        email
       }
     }
   }
 `
 
 export const GET_CAR = gql`
-  query GetCar($getCarId: ID!, $carId: ID!) {
-    getCar(id: $getCarId) {
-      activeTrip {
-        id
-        remainingSeats
-        startTime
-        status
-        waypoints {
-          fare
-          placename
-          passedTimestamp
-          remainingDistance
-          passed
-          longitude
-          latitude
-        }
-        origin {
-          placename
-          passedTimestamp
-          passed
-          longitude
-          latitude
-        }
-        endTime
-        distance
-        destination {
-          fare
-          latitude
-          longitude
-          passed
-          passedTimestamp
-          placename
-          remainingDistance
-        }
-        departureTime
-      }
-      driver {
-        email
-        licenseNumber
-        name
-        phone
-      }
-      capacity
-      isOnline
-      make
-      model
-      plate
-      operationalStatus
-      lastUpdated
+  query Car($carId: ID!) {
+    car(id: $carId) {
       id
+      plate
+      model
+      capacity
+      status
+      isOnline
       currentLocation {
-        address
-        bearing
-        latitude
-        longitude
+        location {
+          lat
+          lng
+        }
         speed
+        bearing
         timestamp
       }
-      connectionStatus
-    }
-    getTripsByCar(carId: $carId) {
-      origin {
-        placename
-        passedTimestamp
-        passed
-        longitude
-        latitude
+      currentDriver {
+        id
+        name
+        phoneNumber
+        email
+        companyId
       }
+      latestTrip {
+        id
+        origin {
+          id
+          addres
+          lat
+          lng
+        }
+        destinations {
+          id
+          addres
+          lat
+          lng
+          index
+          fare
+          remainingDistance
+          isPassede
+          passedTime
+        }
+        status
+        totalDistance
+        createdAt
+        updatedAt
+      }
+      companyId
     }
   }
 `
@@ -177,113 +127,170 @@ export const GET_BOOKINGS_BY_TRIP = gql`
   }
 `
 
-export const GET_LIVE_TRIPS = gql`
-  query GetLiveTrips($companyId: ID!) {
-    getLiveTrips(companyId: $companyId) {
-      car {
-        plate
-        capacity
-        id
+export const GET_TRIPS_BY_COMPANY = gql`
+  query TripsByCompany($companyId: ID!) {
+    tripsByCompany(companyId: $companyId) {
+      id
+      carDriver {
+        car {
+          capacity
+          currentLocation {
+            bearing
+            location {
+              lat
+              lng
+            }
+            speed
+            timestamp
+          }
+          model
+          plate
+          id
+        }
+        driver {
+          id
+          email
+          name
+          phoneNumber
+        }
       }
-      remainingSeats
       origin {
-        latitude
-        longitude
-        placename
-      }
-      departureTime
-      status
-      totalRevenue
-      waypoints {
-        passed
-        longitude
-        latitude
-        passedTimestamp
-        placename
-        remainingDistance
-      }
-      driver {
-        name
+        addres
         id
-        phone
-        email
+        lat
+        lng
       }
-      destination {
+      destinations {
+        addres
         fare
-        latitude
-        longitude
-        placename
+        id
+        index
+        isPassede
+        lat
+        lng
+        passedTime
         remainingDistance
       }
-      currentLocation {
-        address
-        bearing
-        latitude
-        longitude
-        speed
-      }
-      distance
+      status
+      totalDistance
+      createdAt
+      updatedAt
     }
   }
 `
 
-export const GET_TRIP_HISTORY = gql`
-  query GetTripHistory($companyId: ID!, $limit: Int) {
-    getTripHistory(companyId: $companyId, limit: $limit) {
-      totalRevenue
-      departureTime
+export const GET_ACTIVE_TRIPS = gql`
+  query GetActiveCompanyTrips($companyId: ID!) {
+    getActiveCompanyTrips(companyId: $companyId) {
+      id
       origin {
-        fare
-        remainingDistance
-        placename
-        passedTimestamp
-        passed
-        longitude
-        latitude
-      }
-      destination {
-        fare
-        remainingDistance
-        placename
-        passedTimestamp
-        passed
-        longitude
-        latitude
-      }
-      distance
-      endTime
-      driver {
-        name
         id
-        phone
-        email
+        addres
+        lat
+        lng
       }
+      totalDistance
       status
-      remainingSeats
-      car {
-        capacity
+      updatedAt
+      createdAt
+      carDriver {
+        car {
+          capacity
+          plate
+          model
+        }
+        driver {
+          phoneNumber
+          name
+          id
+        }
+      }
+      destinations {
+        addres
+        fare
         id
-        plate
+        index
+        isPassede
+        lat
+        lng
+        passedTime
+        remainingDistance
       }
     }
   }
 `
 
 export const GET_COMPANY_DRIVERS = gql`
-  query GetCompanyDrivers($companyId: ID!) {
-    getCompanyDrivers(companyId: $companyId) {
-      email
+  query GetDriversByCompany($companyId: ID!) {
+    getDriversByCompany(companyId: $companyId) {
       id
-      lastTripTimestamp
-      licenseNumber
       name
-      phone
-      rating
-      totalDistance
-      totalRevenue
-      totalTrips
+      phoneNumber
+      email
+      status
       currentCar {
+        capacity
+        model
         plate
+      }
+      latestTrip {
+        origin {
+          addres
+        }
+        status
+        destinations {
+          addres
+          fare
+          remainingDistance
+          passedTime
+        }
+      }
+      companyId
+    }
+  }
+`
+
+export const GET_COMPANY_METRICS = gql`
+  query CompanyMetrics($companyId: ID!, $startTime: Int, $endTime: Int) {
+    companyMetrics(companyId: $companyId, startTime: $startTime, endTime: $endTime) {
+      companyId
+      period
+      startTime
+      endTime
+      totalTrips
+      completedTrips
+      cancelledTrips
+      inProgressTrips
+      scheduledTrips
+      totalRevenue
+      revenueFromCompletedTrips
+      totalDistance
+      totalDuration
+      averageTripDistance
+      averageTripDuration
+      uniqueDrivers
+      uniqueCars
+      tripsByStatus {
+        completed
+        cancelled
+        in_progress
+        scheduled
+      }
+      revenueSeries {
+        unit
+        granularity
+        data {
+          value
+          label
+        }
+      }
+      tripsSeries {
+        data {
+          label
+          value
+        }
+        granularity
+        unit
       }
     }
   }

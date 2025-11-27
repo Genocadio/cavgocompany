@@ -17,7 +17,7 @@ export function useCarsByCompany(companyId: string | number | null | undefined) 
   )
 
   return {
-    cars: data?.getCarsByCompany || [],
+    cars: data?.carsByCompany || [],
     loading,
     error,
     refetch,

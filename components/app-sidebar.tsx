@@ -54,8 +54,8 @@ const menuItems = [
     icon: UserCheck,
   },
   {
-    title: "Ticketing",
-    url: "/ticketing",
+    title: "Metrics",
+    url: "/metrics",
     icon: BarChart3,
   },
 ]

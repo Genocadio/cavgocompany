@@ -11,15 +11,14 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, Calendar, Clock, MapPin, Users, CreditCard, Eye } from "lucide-react"
+import { Search, Calendar, Clock, MapPin, Users, Eye } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAuth } from "@/components/auth-provider"
 import { useLiveTrips } from "@/hooks/use-live-trips"
-import { useTripHistory } from "@/hooks/use-trip-history"
 import { LocationAddress } from "@/components/location-address"
 import type { Trip } from "@/types"
-import type { LiveTrip, TripHistory } from "@/lib/graphql/types"
+import type { TripByCompany } from "@/lib/graphql/types"
 
 // Extended Trip type with additional properties for live tracking
 interface ExtendedTrip extends Trip {
@@ -38,112 +37,69 @@ interface ExtendedTrip extends Trip {
 export default function TripsPage() {
   const { user } = useAuth()
   const { liveTrips, loading: liveTripsLoading, error: liveTripsError } = useLiveTrips(user?.companyId)
-  const { tripHistory, loading: historyLoading, error: historyError } = useTripHistory(user?.companyId)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRoute, setSelectedRoute] = useState("all")
 
-  // Map LiveTrip to Trip interface
+  // Map TripByCompany to Trip interface
   const mappedLiveTrips = useMemo((): ExtendedTrip[] => {
-    return liveTrips.map((liveTrip: LiveTrip): ExtendedTrip => {
-      const route = `${liveTrip.origin.placename} → ${liveTrip.destination.placename}`
-      const occupancy = liveTrip.car.capacity - liveTrip.remainingSeats
+    return liveTrips.map((trip: TripByCompany): ExtendedTrip => {
+      const finalDestination = trip.destinations[trip.destinations.length - 1]
+      const route = `${trip.origin.addres} → ${finalDestination?.addres || "N/A"}`
       
-      // Find next waypoint or destination
-      const nextWaypoint = liveTrip.waypoints?.find((wp) => !wp.passed)
-      const nextStopName = nextWaypoint?.placename || liveTrip.destination?.placename || "N/A"
-      const nextStopDistance = nextWaypoint?.remainingDistance ?? liveTrip.destination?.remainingDistance ?? null
+      // Calculate revenue from destinations - set to 0 for ongoing and completed trips
+      const tripStatus = trip.status === "scheduled" ? "scheduled" : trip.status === "in_progress" || trip.status === "IN_PROGRESS" ? "ongoing" : trip.status.toLowerCase()
+      const revenue = tripStatus === "scheduled" ? trip.destinations.reduce((sum, dest) => sum + (dest.fare || 0), 0) : 0
       
-      // Calculate progress for ongoing trips
-      const totalWaypoints = liveTrip.waypoints?.length || 0
-      const passedWaypoints = liveTrip.waypoints?.filter((wp) => wp.passed).length || 0
-      let progress = totalWaypoints > 0 ? Math.round((passedWaypoints / totalWaypoints) * 100) : 0
+      // Find next destination that hasn't been passed
+      const nextDestination = trip.destinations.find((dest) => !dest.isPassede)
+      const nextStopName = nextDestination?.addres || finalDestination?.addres || "N/A"
+      const nextStopDistance = nextDestination?.remainingDistance ?? finalDestination?.remainingDistance ?? null
       
-      // If status is not completed, cap progress at 99% (never show 100% for non-completed trips)
-      const tripStatus = liveTrip.status === "scheduled" ? "scheduled" : liveTrip.status === "in_progress" || liveTrip.status === "IN_PROGRESS" ? "ongoing" : liveTrip.status.toLowerCase()
+      // Calculate progress based on passed destinations
+      const totalDestinations = trip.destinations.length
+      const passedDestinations = trip.destinations.filter((dest) => dest.isPassede).length
+      let progress = totalDestinations > 0 ? Math.round((passedDestinations / totalDestinations) * 100) : 0
+      
+      // If status is not completed, cap progress at 99%
       if (progress === 100 && tripStatus !== "completed") {
         progress = 99
       }
 
-      // Generate unique trip ID from car ID and departure time
-      const tripId = `${liveTrip.car.id}-${liveTrip.departureTime}`
-
       return {
-        id: tripId,
-        busId: liveTrip.car.id,
-        licensePlate: liveTrip.car.plate,
-        driver: liveTrip.driver?.name || "N/A",
+        id: trip.id,
+        busId: trip.carDriver.car.id,
+        licensePlate: trip.carDriver.car.plate,
+        driver: trip.carDriver.driver?.name || "N/A",
         route: route,
-        scheduledStart: liveTrip.departureTime,
-        scheduledEnd: "", // Not available in live trips
-        estimatedDuration: `${liveTrip.distance.toFixed(1)}km`, // Distance in km
+        scheduledStart: trip.createdAt,
+        scheduledEnd: trip.updatedAt || "",
+        estimatedDuration: `${(trip.totalDistance / 1000).toFixed(1)}km`, // Distance in km
         status: tripStatus,
-        capacity: liveTrip.car.capacity,
-        bookedSeats: occupancy,
-        currentOccupancy: occupancy,
-        estimatedRevenue: liveTrip.totalRevenue,
-        revenue: liveTrip.totalRevenue,
+        capacity: trip.carDriver.car.capacity,
+        bookedSeats: 0, // Not available in new structure
+        currentOccupancy: 0, // Not available in new structure
+        estimatedRevenue: revenue,
+        revenue: revenue,
         progress: progress,
-        currentLocation: liveTrip.currentLocation?.address || "",
-        currentLocationLat: liveTrip.currentLocation?.latitude,
-        currentLocationLon: liveTrip.currentLocation?.longitude,
-        currentLocationSpeed: liveTrip.currentLocation?.speed || null,
+        currentLocation: trip.carDriver.car.currentLocation?.location ? `${trip.carDriver.car.currentLocation.location.lat}, ${trip.carDriver.car.currentLocation.location.lng}` : "",
+        currentLocationLat: trip.carDriver.car.currentLocation?.location?.lat,
+        currentLocationLon: trip.carDriver.car.currentLocation?.location?.lng,
+        currentLocationSpeed: trip.carDriver.car.currentLocation?.speed || null,
         nextStop: nextStopName,
         nextWaypoint: nextStopName !== "N/A" ? {
           name: nextStopName,
           remainingDistance: nextStopDistance,
         } : null,
-        departureLocation: liveTrip.origin.placename,
-        arrivalLocation: liveTrip.destination.placename,
-        distance: `${liveTrip.distance.toFixed(1)}km`,
+        departureLocation: trip.origin.addres,
+        arrivalLocation: finalDestination?.addres || "N/A",
+        distance: `${(trip.totalDistance / 1000).toFixed(1)}km`,
       }
     })
   }, [liveTrips])
 
-  // Map TripHistory to Trip interface
-  const mappedTripHistory = useMemo((): ExtendedTrip[] => {
-    return tripHistory.map((history: TripHistory): ExtendedTrip => {
-      const route = history.origin?.placename 
-        ? `${history.origin.placename} → ${history.destination.placename}`
-        : history.destination.placename
-      const occupancy = history.car.capacity - history.remainingSeats
-
-      // Generate unique trip ID from car ID and departure time
-      const tripId = `${history.car.id}-${history.departureTime}`
-      const tripStatus = history.status.toLowerCase()
-
-      return {
-        id: tripId,
-        busId: history.car.id,
-        licensePlate: history.car.plate,
-        driver: history.driver?.name || "N/A",
-        route: route,
-        scheduledStart: history.departureTime,
-        scheduledEnd: history.endTime || "",
-        actualEnd: history.endTime || undefined,
-        completionTime: history.endTime || null,
-        duration: history.endTime ? (() => {
-          const start = new Date(history.departureTime)
-          const end = new Date(history.endTime!)
-          const diffMs = end.getTime() - start.getTime()
-          const hours = Math.floor(diffMs / (1000 * 60 * 60))
-          const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
-          return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
-        })() : "N/A",
-        status: tripStatus,
-        capacity: history.car.capacity,
-        totalPassengers: occupancy,
-        revenue: history.totalRevenue,
-        estimatedDuration: `${history.distance.toFixed(1)}km`,
-        departureLocation: history.origin?.placename || history.destination.placename,
-        arrivalLocation: history.destination.placename,
-        distance: `${history.distance.toFixed(1)}km`,
-      }
-    })
-  }, [tripHistory])
-
   const upcomingTrips = mappedLiveTrips.filter((trip) => trip.status === "scheduled")
   const ongoingTrips = mappedLiveTrips.filter((trip) => trip.status === "ongoing" || trip.status === "in_progress")
-  const completedTrips = mappedTripHistory.filter((trip) => trip.status !== "scheduled" && trip.status !== "ongoing" && trip.status !== "in_progress")
+  const completedTrips = mappedLiveTrips.filter((trip) => trip.status === "completed" || trip.status === "cancelled")
 
   const filterTrips = (tripsList: Trip[]) => {
     return tripsList.filter((trip) => {
@@ -191,19 +147,19 @@ export default function TripsPage() {
     }
   }
 
-  const loading = liveTripsLoading || historyLoading
-  const error = liveTripsError || historyError
+  const loading = liveTripsLoading
+  const error = liveTripsError
 
   // Extract unique routes for filter
   const availableRoutes = useMemo(() => {
     const routes = new Set<string>()
-    ;[...mappedLiveTrips, ...mappedTripHistory].forEach((trip) => {
+    mappedLiveTrips.forEach((trip) => {
       if (trip.route) {
         routes.add(trip.route)
       }
     })
     return Array.from(routes).sort()
-  }, [mappedLiveTrips, mappedTripHistory])
+  }, [mappedLiveTrips])
 
   return (
     <div className="flex flex-col">
@@ -225,7 +181,7 @@ export default function TripsPage() {
         )}
 
         {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Upcoming Trips</CardTitle>
@@ -272,31 +228,6 @@ export default function TripsPage() {
                 <>
                   <div className="text-2xl font-bold">{completedTrips.length}</div>
                   <p className="text-xs text-muted-foreground">Finished trips</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <div className="text-2xl font-bold">
-                    {new Intl.NumberFormat("en-RW", {
-                      style: "currency",
-                      currency: "RWF",
-                    }).format(
-                      completedTrips.reduce((acc, trip) => acc + trip.revenue, 0) +
-                        ongoingTrips.reduce((acc, trip) => acc + trip.revenue, 0)
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">Today&apos;s earnings</p>
                 </>
               )}
             </CardContent>
@@ -363,7 +294,6 @@ export default function TripsPage() {
                         <TableHead>Scheduled Time</TableHead>
                         <TableHead>Distance</TableHead>
                         <TableHead>Bookings</TableHead>
-                        <TableHead>Est. Revenue</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -371,7 +301,7 @@ export default function TripsPage() {
                     <TableBody>
                       {filterTrips(upcomingTrips).length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={9} className="text-center text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center text-muted-foreground">
                             No upcoming trips found
                           </TableCell>
                         </TableRow>
@@ -435,14 +365,6 @@ export default function TripsPage() {
                                 : 0}
                               % full
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm font-medium">
-                            {new Intl.NumberFormat("en-RW", {
-                              style: "currency",
-                              currency: "RWF",
-                            }).format(trip.estimatedRevenue || trip.revenue)}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -610,7 +532,7 @@ export default function TripsPage() {
                             {new Intl.NumberFormat("en-RW", {
                               style: "currency",
                               currency: "RWF",
-                            }).format(trip.revenue)}
+                            }).format(0)}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -678,7 +600,7 @@ export default function TripsPage() {
                             {new Intl.NumberFormat("en-RW", {
                               style: "currency",
                               currency: "RWF",
-                            }).format(trip.revenue)}
+                            }).format(0)}
                           </div>
                         </TableCell>
                         <TableCell>

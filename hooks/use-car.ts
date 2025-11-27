@@ -7,7 +7,6 @@ import type { GetCarResponse, GetCarVariables } from "@/lib/graphql/types"
 export function useCar(carId: string | null | undefined) {
   const { data, loading, error } = useQuery<GetCarResponse, GetCarVariables>(GET_CAR, {
     variables: {
-      getCarId: String(carId || ""),
       carId: String(carId || ""),
     },
     skip: !carId,
@@ -15,8 +14,8 @@ export function useCar(carId: string | null | undefined) {
   })
 
   return {
-    car: data?.getCar || null,
-    trips: data?.getTripsByCar || [],
+    car: data?.car || null,
+    trips: [], // No longer available in new query structure
     loading,
     error,
   }

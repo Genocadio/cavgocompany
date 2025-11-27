@@ -8,16 +8,15 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, MapPin, Clock, Users, CreditCard, Navigation, RefreshCw, Eye, AlertTriangle } from "lucide-react"
+import { Search, MapPin, Clock, Users, Navigation, RefreshCw, Eye, AlertTriangle } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/components/auth-provider"
-import { useCarsByCompany } from "@/hooks/use-cars-by-company"
+import { useActiveTrips } from "@/hooks/use-active-trips"
 import { useBookingsByTrip } from "@/hooks/use-bookings-by-trip"
-import { LocationAddress } from "@/components/location-address"
-import type { Car, Booking } from "@/lib/graphql/types"
+import type { ActiveCompanyTrip, Booking } from "@/lib/graphql/types"
 
 // Remove dummy liveTrackingData - using real data from GraphQL
 
@@ -49,7 +48,7 @@ type Bus = {
   licensePlate: string;
   driver: string;
   route: string;
-  currentTrip: Trip;
+  currentTrip: Trip | null;
   status: string;
   alerts: string[];
 }
@@ -125,7 +124,7 @@ function TripDetailsDialog({ trip, bus, isOpen, onClose }: { trip: Trip; bus: Bu
         <DialogHeader>
           <DialogTitle>Trip Details - {trip.id}</DialogTitle>
           <DialogDescription>
-            Live passenger information for {bus.id} on {bus.route}
+            Live passenger information for {bus.licensePlate} on {bus.route}
           </DialogDescription>
         </DialogHeader>
 
@@ -371,86 +370,86 @@ function TripDetailsDialog({ trip, bus, isOpen, onClose }: { trip: Trip; bus: Bu
 
 export default function LiveTrackingPage() {
   const { user } = useAuth()
-  const { cars, loading, error, refetch } = useCarsByCompany(user?.companyId)
+  const { activeTrips, loading, error, refetch } = useActiveTrips(user?.companyId)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRoute, setSelectedRoute] = useState("all")
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null)
   const [selectedBusForTrip, setSelectedBusForTrip] = useState<Bus | null>(null)
   const [showTripDetails, setShowTripDetails] = useState(false)
 
-  // Map GraphQL Car data to Bus/Trip types
+  // Map ActiveCompanyTrip to Trip type (trip-centered view)
+  const trips = useMemo(() => {
+    return activeTrips.map((trip: ActiveCompanyTrip) => {
+      const finalDestination = trip.destinations[trip.destinations.length - 1]
+      
+      // Calculate revenue from destinations
+      const revenue = trip.destinations.reduce((sum, dest) => sum + (dest.fare || 0), 0)
+      
+      // Find next destination that hasn't been passed
+      const nextDestination = trip.destinations.find((dest) => !dest.isPassede)
+      const nextStopName = nextDestination?.addres || finalDestination?.addres || "N/A"
+      const nextStopDistance = nextDestination?.remainingDistance ?? finalDestination?.remainingDistance ?? null
+      
+      // Calculate progress based on passed destinations
+      const totalDestinations = trip.destinations.length
+      const passedDestinations = trip.destinations.filter((dest) => dest.isPassede).length
+      let progress = totalDestinations > 0 ? Math.round((passedDestinations / totalDestinations) * 100) : 0
+      
+      // If status is not completed, cap progress at 99%
+      const tripStatus = trip.status === "scheduled" ? "scheduled" : 
+                        trip.status === "in_progress" || trip.status === "IN_PROGRESS" ? "in_progress" : 
+                        trip.status.toLowerCase()
+      if (progress === 100 && tripStatus !== "completed") {
+        progress = 99
+      }
+
+      return {
+        id: trip.id,
+        startTime: new Date(trip.createdAt).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        estimatedEnd: "N/A", // Not available
+        progress: progress,
+        status: tripStatus,
+        departureTime: trip.createdAt,
+        completionTime: trip.updatedAt || null,
+        currentLocation: "", // Not available in trip data
+        currentLocationLat: null, // Not available in trip data
+        currentLocationLon: null, // Not available in trip data
+        currentLocationSpeed: null, // Not available in trip data
+        nextStop: nextStopName,
+        nextWaypoint: nextStopName !== "N/A" ? {
+          name: nextStopName,
+          remainingDistance: nextStopDistance,
+        } : null,
+        ticketsSold: 0, // Not available
+        revenue: revenue,
+        occupancy: 0, // Not available
+        capacity: trip.carDriver.car.capacity,
+      }
+    })
+  }, [activeTrips])
+
+  // Map trips to buses for display (trip-centered, but showing bus info)
   const buses = useMemo(() => {
-    return cars
-      .filter((car: Car) => car.activeTrip !== null) // Only show cars with active trips
-      .map((car: Car) => {
-        const occupancy = car.capacity - (car.activeTrip?.remainingSeats || 0)
-        
-        // Find next waypoint or destination
-        const nextWaypoint = car.activeTrip?.waypoints?.find((wp) => !wp.passed)
-        const nextStopName = nextWaypoint?.placename || car.activeTrip?.destination?.placename || "N/A"
-        const nextStopDistance = nextWaypoint?.remainingDistance ?? car.activeTrip?.destination?.remainingDistance ?? null
-        
-        // Calculate progress based on waypoints
-        const totalWaypoints = car.activeTrip?.waypoints?.length || 0
-        const passedWaypoints = car.activeTrip?.waypoints?.filter((wp) => wp.passed).length || 0
-        let progress = totalWaypoints > 0 ? Math.round((passedWaypoints / totalWaypoints) * 100) : 0
-        
-        // If status is not completed, cap progress at 99% (never show 100% for non-completed trips)
-        if (progress === 100) {
-          progress = 99
-        }
-
-        const revenue = car.activeTrip?.waypoints?.reduce((sum, wp) => sum + (wp.fare || 0), 0) || 0
-        
-        // Determine trip status
-        const tripStatus = car.activeTrip?.status 
-          ? (car.activeTrip.status === "scheduled" ? "scheduled" : 
-             car.activeTrip.status === "in_progress" || car.activeTrip.status === "IN_PROGRESS" ? "in_progress" : 
-             car.activeTrip.status.toLowerCase())
-          : "in_progress" // Default for active trips
-
-        return {
-          id: car.id,
-          licensePlate: car.plate,
-          driver: car.driver?.name || "Not Assigned",
-          route: car.activeTrip
-            ? `${car.activeTrip.origin.placename} → ${car.activeTrip.destination.placename}`
-            : "Not Assigned",
-          currentTrip: {
-            id: car.activeTrip!.id,
-            startTime: new Date(car.activeTrip!.startTime).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            estimatedEnd: car.activeTrip!.endTime
-              ? new Date(car.activeTrip!.endTime).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "N/A",
-            progress: progress,
-            status: tripStatus,
-            departureTime: car.activeTrip!.departureTime,
-            completionTime: car.activeTrip!.endTime || null,
-            currentLocation: car.currentLocation?.address || "",
-            currentLocationLat: car.currentLocation?.latitude,
-            currentLocationLon: car.currentLocation?.longitude,
-            currentLocationSpeed: car.currentLocation?.speed || null,
-            nextStop: nextStopName,
-            nextWaypoint: nextStopName !== "N/A" ? {
-              name: nextStopName,
-              remainingDistance: nextStopDistance,
-            } : null,
-            ticketsSold: occupancy,
-            revenue: revenue,
-            occupancy: occupancy,
-            capacity: car.capacity,
-          },
-          status: car.operationalStatus || "UNKNOWN",
-          alerts: occupancy >= car.capacity * 0.9 ? ["High Occupancy"] : [],
-        }
-      })
-  }, [cars])
+    return activeTrips.map((trip: ActiveCompanyTrip) => {
+      const finalDestination = trip.destinations[trip.destinations.length - 1]
+      const route = `${trip.origin.addres} → ${finalDestination?.addres || "N/A"}`
+      
+      const tripData = trips.find(t => t.id === trip.id)
+      
+      return {
+        id: trip.carDriver.car.plate, // Use plate as ID for display
+        licensePlate: trip.carDriver.car.plate,
+        driver: trip.carDriver.driver?.name || "Not Assigned",
+        route: route,
+        currentTrip: tripData || null,
+        status: trip.status,
+        alerts: [],
+      }
+    })
+  }, [activeTrips, trips])
 
 
   // Extract unique routes from buses with active trips
@@ -466,7 +465,7 @@ export default function LiveTrackingPage() {
 
   const filteredBuses = buses.filter((bus) => {
     const matchesSearch =
-      bus.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      bus.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bus.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bus.driver.toLowerCase().includes(searchTerm.toLowerCase())
 
@@ -516,7 +515,7 @@ export default function LiveTrackingPage() {
         )}
 
         {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Buses</CardTitle>
@@ -544,30 +543,8 @@ export default function LiveTrackingPage() {
                 <Skeleton className="h-8 w-16" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold">{buses.reduce((acc, bus) => acc + bus.currentTrip.occupancy, 0)}</div>
+                  <div className="text-2xl font-bold">{buses.reduce((acc, bus) => acc + (bus.currentTrip?.occupancy || 0), 0)}</div>
                   <p className="text-xs text-muted-foreground">Across all buses</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Live Revenue</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <Skeleton className="h-8 w-16" />
-              ) : (
-                <>
-                  <div className="text-2xl font-bold">
-                    {new Intl.NumberFormat("en-RW", {
-                      style: "currency",
-                      currency: "RWF",
-                    }).format(buses.reduce((acc, bus) => acc + bus.currentTrip.revenue, 0))}
-                  </div>
-                  <p className="text-xs text-muted-foreground">Current trips</p>
                 </>
               )}
             </CardContent>
@@ -643,53 +620,39 @@ export default function LiveTrackingPage() {
                     <TableHead>Bus</TableHead>
                     <TableHead>Driver</TableHead>
                     <TableHead>Route</TableHead>
-                    <TableHead className="max-w-[200px]">Current Location</TableHead>
                     <TableHead>Progress</TableHead>
                     <TableHead>Occupancy</TableHead>
-                    <TableHead>Revenue</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredBuses.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center text-muted-foreground">
                         No active trips found
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredBuses.map((bus) => (
-                  <TableRow key={bus.id}>
+                    filteredBuses
+                      .filter((bus) => bus.currentTrip !== null)
+                      .map((bus) => {
+                        const trip = bus.currentTrip!
+                        return (
+                      <TableRow key={bus.id}>
+                        <TableCell>
+                          <div className="font-medium">{bus.licensePlate}</div>
+                        </TableCell>
+                        <TableCell className="font-medium">{bus.driver}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{bus.route}</Badge>
+                        </TableCell>
                     <TableCell>
-                      <div className="font-medium">{bus.licensePlate}</div>
-                    </TableCell>
-                    <TableCell className="font-medium">{bus.driver}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{bus.route}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-1 min-w-0">
-                        <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                        <LocationAddress
-                          latitude={bus.currentTrip.currentLocationLat}
-                          longitude={bus.currentTrip.currentLocationLon}
-                          address={bus.currentTrip.currentLocation}
-                          speed={bus.currentTrip.currentLocationSpeed}
-                          nextWaypoint={bus.currentTrip.nextWaypoint}
-                          status="in_progress"
-                          className="text-sm min-w-0 flex-1"
-                          showLoadingIcon={true}
-                          truncate={true}
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {bus.currentTrip.status === "scheduled" ? (
+                      {trip.status === "scheduled" ? (
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-xs">Departure time:</Badge>
                           <span className="text-sm">
-                            {bus.currentTrip.departureTime ? (
-                              new Date(bus.currentTrip.departureTime).toLocaleString("en-US", {
+                            {trip.departureTime ? (
+                              new Date(trip.departureTime).toLocaleString("en-US", {
                                 month: "short",
                                 day: "numeric",
                                 hour: "2-digit",
@@ -700,21 +663,21 @@ export default function LiveTrackingPage() {
                             )}
                           </span>
                         </div>
-                      ) : bus.currentTrip.status === "in_progress" || bus.currentTrip.status === "ongoing" ? (
-                        bus.currentTrip.nextWaypoint ? (
+                      ) : trip.status === "in_progress" || trip.status === "ongoing" ? (
+                        trip.nextWaypoint ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div className="flex items-center gap-2 cursor-help">
                                 <Badge variant="outline" className="text-xs">Next point:</Badge>
-                                <span className="text-sm">{bus.currentTrip.nextWaypoint.name}</span>
+                                <span className="text-sm">{trip.nextWaypoint.name}</span>
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
                               <div className="text-xs">
-                                <div className="font-medium">{bus.currentTrip.nextWaypoint.name}</div>
-                                {bus.currentTrip.nextWaypoint.remainingDistance != null && (
+                                <div className="font-medium">{trip.nextWaypoint.name}</div>
+                                {trip.nextWaypoint.remainingDistance != null && (
                                   <div className="text-muted-foreground mt-1">
-                                    Remaining: {((bus.currentTrip.nextWaypoint.remainingDistance / 1000).toFixed(2))} km
+                                    Remaining: {((trip.nextWaypoint.remainingDistance / 1000).toFixed(2))} km
                                   </div>
                                 )}
                               </div>
@@ -723,18 +686,18 @@ export default function LiveTrackingPage() {
                         ) : (
                           <div className="flex items-center gap-2">
                             <Badge variant="outline" className="text-xs">Next point:</Badge>
-                            <span className="text-sm">{bus.currentTrip.nextStop || "N/A"}</span>
+                            <span className="text-sm">{trip.nextStop || "N/A"}</span>
                           </div>
                         )
-                      ) : bus.currentTrip.status === "completed" ? (
+                      ) : trip.status === "completed" ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="text-sm cursor-help">Completed</div>
                           </TooltipTrigger>
                           <TooltipContent>
-                            {bus.currentTrip.completionTime ? (
+                            {trip.completionTime ? (
                               <div className="text-xs">
-                                Completed: {new Date(bus.currentTrip.completionTime).toLocaleString()}
+                                Completed: {new Date(trip.completionTime).toLocaleString()}
                               </div>
                             ) : (
                               <div className="text-xs">Completed</div>
@@ -743,13 +706,13 @@ export default function LiveTrackingPage() {
                         </Tooltip>
                       ) : (
                         // Show progress bar only if progress < 100% and not completed
-                        bus.currentTrip.progress < 100 && bus.currentTrip.status !== "completed" ? (
+                        trip.progress < 100 && trip.status !== "completed" ? (
                           <div className="space-y-1">
                             <div className="flex justify-between text-sm">
                               <span>Trip Progress</span>
-                              <span>{Math.round(bus.currentTrip.progress)}%</span>
+                              <span>{Math.round(trip.progress)}%</span>
                             </div>
-                            <Progress value={bus.currentTrip.progress} className="h-2" />
+                            <Progress value={trip.progress} className="h-2" />
                           </div>
                         ) : (
                           <div className="text-sm">-</div>
@@ -759,24 +722,13 @@ export default function LiveTrackingPage() {
                     <TableCell>
                       <div className="space-y-1">
                         <div
-                          className={`text-sm font-medium ${getOccupancyColor(bus.currentTrip.occupancy, bus.currentTrip.capacity)}`}
+                          className={`text-sm font-medium ${getOccupancyColor(trip.occupancy, trip.capacity)}`}
                         >
-                          {bus.currentTrip.occupancy}/{bus.currentTrip.capacity}
+                          {trip.occupancy}/{trip.capacity}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {Math.round((bus.currentTrip.occupancy / bus.currentTrip.capacity) * 100)}%
+                          {Math.round((trip.occupancy / trip.capacity) * 100)}%
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm font-medium">
-                          {new Intl.NumberFormat("en-RW", {
-                            style: "currency",
-                            currency: "RWF",
-                          }).format(bus.currentTrip.revenue)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">{bus.currentTrip.ticketsSold} tickets</div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -784,7 +736,7 @@ export default function LiveTrackingPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setSelectedTrip(bus.currentTrip)
+                          setSelectedTrip(trip)
                           setSelectedBusForTrip(bus)
                           setShowTripDetails(true)
                         }}
@@ -793,7 +745,8 @@ export default function LiveTrackingPage() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                    ))
+                      )
+                    })
                   )}
                 </TableBody>
               </Table>
@@ -817,7 +770,7 @@ export default function LiveTrackingPage() {
                   .map((bus) => (
                     <div key={bus.id} className="flex items-center justify-between p-2 bg-white rounded border">
                       <div>
-                        <span className="font-medium">{bus.id}</span>
+                        <span className="font-medium">{bus.licensePlate}</span>
                         <span className="text-sm text-muted-foreground ml-2">{bus.alerts.join(", ")}</span>
                       </div>
                       <Badge variant="secondary">Alert</Badge>

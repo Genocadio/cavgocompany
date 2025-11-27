@@ -1,12 +1,12 @@
 "use client"
 
 import { useQuery } from "@apollo/client/react"
-import { GET_LIVE_TRIPS } from "@/lib/graphql/queries"
-import type { GetLiveTripsResponse, GetLiveTripsVariables } from "@/lib/graphql/types"
+import { GET_TRIPS_BY_COMPANY } from "@/lib/graphql/queries"
+import type { GetTripsByCompanyResponse, GetTripsByCompanyVariables } from "@/lib/graphql/types"
 
 export function useLiveTrips(companyId: string | number | null | undefined) {
-  const { data, loading, error } = useQuery<GetLiveTripsResponse, GetLiveTripsVariables>(
-    GET_LIVE_TRIPS,
+  const { data, loading, error } = useQuery<GetTripsByCompanyResponse, GetTripsByCompanyVariables>(
+    GET_TRIPS_BY_COMPANY,
     {
       variables: {
         companyId: companyId?.toString() || "",
@@ -17,7 +17,7 @@ export function useLiveTrips(companyId: string | number | null | undefined) {
   )
 
   return {
-    liveTrips: data?.getLiveTrips || [],
+    liveTrips: data?.tripsByCompany || [],
     loading,
     error,
   }
