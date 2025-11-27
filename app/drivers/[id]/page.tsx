@@ -903,7 +903,6 @@ export default function DriverDetailPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date & Time</TableHead>
-                      <TableHead>Bus</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Liters</TableHead>
                       <TableHead>Price/L</TableHead>
@@ -921,9 +920,6 @@ export default function DriverDetailPage() {
                             <div className="text-sm font-medium">{record.date}</div>
                             <div className="text-xs text-muted-foreground">{record.time}</div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{record.bus}</Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-1">
