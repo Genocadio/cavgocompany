@@ -189,8 +189,9 @@ export default function MetricsPage() {
       }
     }
     
-    // For weekly labels, extract day abbreviation
+    // For weekly labels, convert dates to day names
     if (granularity === "weekly" || granularity === "week") {
+      // First, try to find day name in the label
       const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
       const shortDayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
       const dayIndex = dayNames.findIndex(day => 
@@ -199,7 +200,50 @@ export default function MetricsPage() {
       if (dayIndex !== -1) {
         return shortDayNames[dayIndex]
       }
-      // If it contains a date, extract just the day number
+      
+      // Try to parse date from various formats
+      // Formats: "2024-01-15", "01/15/2024", "15-01-2024", "Jan 15", "15 Jan", etc.
+      let date: Date | null = null
+      
+      // ISO format: YYYY-MM-DD
+      const isoMatch = label.match(/(\d{4})-(\d{1,2})-(\d{1,2})/)
+      if (isoMatch) {
+        date = new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3]))
+      }
+      
+      // US format: MM/DD/YYYY or M/D/YYYY
+      if (!date) {
+        const usMatch = label.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/)
+        if (usMatch) {
+          date = new Date(parseInt(usMatch[3]), parseInt(usMatch[1]) - 1, parseInt(usMatch[2]))
+        }
+      }
+      
+      // European format: DD-MM-YYYY or D-M-YYYY
+      if (!date) {
+        const euMatch = label.match(/(\d{1,2})-(\d{1,2})-(\d{4})/)
+        if (euMatch) {
+          date = new Date(parseInt(euMatch[3]), parseInt(euMatch[2]) - 1, parseInt(euMatch[1]))
+        }
+      }
+      
+      // Try parsing as a date string directly
+      if (!date) {
+        const parsedDate = new Date(label)
+        if (!isNaN(parsedDate.getTime())) {
+          date = parsedDate
+        }
+      }
+      
+      // If we successfully parsed a date, get the day name
+      if (date && !isNaN(date.getTime())) {
+        const dayOfWeek = date.getDay() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        // Convert to Monday-first week (0 = Monday, 6 = Sunday)
+        const mondayFirstDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+        return shortDayNames[mondayFirstDay]
+      }
+      
+      // Fallback: if it contains a date, extract just the day number
       const dayMatch = label.match(/(\d{1,2})(?:\s|$)/)
       if (dayMatch) {
         return dayMatch[1]
@@ -249,18 +293,15 @@ export default function MetricsPage() {
       return Math.ceil(dataLength / 10)
     }
     
-    // For weekly data, show fewer labels
+    // For weekly data, show all 7 days (one label per day)
     if (granularity === "weekly" || granularity === "week") {
-      if (isSmall) {
-        if (dataLength <= 4) return 0
-        return Math.ceil(dataLength / 4)
-      }
-      if (isMedium) {
-        if (dataLength <= 7) return 0
-        return Math.ceil(dataLength / 5)
-      }
-      if (dataLength <= 10) return 0
-      return Math.ceil(dataLength / 7)
+      // For exactly 7 days, show all labels (interval 0)
+      if (dataLength === 7) return 0
+      // For less than 7 days, show all
+      if (dataLength < 7) return 0
+      // For more than 7 days, show every day (interval 0) to ensure all days are visible
+      // The chart will handle spacing automatically
+      return 0
     }
     
     // Default behavior for other granularities
@@ -296,30 +337,103 @@ export default function MetricsPage() {
     return `${hour24 - 12} PM`
   }
 
+  // Helper function to parse date from label and get day of week (0 = Monday, 6 = Sunday)
+  const getDayOfWeekFromLabel = (label: string): number | null => {
+    let date: Date | null = null
+    
+    // ISO format: YYYY-MM-DD
+    const isoMatch = label.match(/(\d{4})-(\d{1,2})-(\d{1,2})/)
+    if (isoMatch) {
+      date = new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3]))
+    }
+    
+    // US format: MM/DD/YYYY
+    if (!date || isNaN(date.getTime())) {
+      const usMatch = label.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/)
+      if (usMatch) {
+        date = new Date(parseInt(usMatch[3]), parseInt(usMatch[1]) - 1, parseInt(usMatch[2]))
+      }
+    }
+    
+    // European format: DD-MM-YYYY
+    if (!date || isNaN(date.getTime())) {
+      const euMatch = label.match(/(\d{1,2})-(\d{1,2})-(\d{4})/)
+      if (euMatch) {
+        date = new Date(parseInt(euMatch[3]), parseInt(euMatch[2]) - 1, parseInt(euMatch[1]))
+      }
+    }
+    
+    // Try parsing as date string directly
+    if (!date || isNaN(date.getTime())) {
+      const parsedDate = new Date(label)
+      if (!isNaN(parsedDate.getTime())) {
+        date = parsedDate
+      }
+    }
+    
+    if (date && !isNaN(date.getTime())) {
+      const dayOfWeek = date.getDay() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      // Convert to Monday-first week (0 = Monday, 6 = Sunday)
+      return dayOfWeek === 0 ? 6 : dayOfWeek - 1
+    }
+    
+    return null
+  }
+  
+  // Sort weekly data by day of week (Monday to Sunday)
+  const sortWeeklyData = <T extends { originalLabel: string }>(data: T[]): T[] => {
+    return [...data].sort((a, b) => {
+      const dayA = getDayOfWeekFromLabel(a.originalLabel)
+      const dayB = getDayOfWeekFromLabel(b.originalLabel)
+      
+      if (dayA === null && dayB === null) return 0
+      if (dayA === null) return 1
+      if (dayB === null) return -1
+      
+      return dayA - dayB
+    })
+  }
+
   // Format revenue series data
   const revenueChartData = useMemo(() => {
     if (!metrics?.revenueSeries?.data) return []
     const granularity = metrics.revenueSeries.granularity
-    return metrics.revenueSeries.data.map((point) => ({
+    const formattedData = metrics.revenueSeries.data.map((point) => ({
       label: formatLabel(point.label, granularity),
       revenue: point.value,
       fullLabel: point.label, // Keep original for tooltip
-      originalLabel: point.label, // Keep for hour extraction
+      originalLabel: point.label, // Keep for hour extraction and date parsing
       hour: extractHour(point.label), // Extract hour for AM/PM formatting
+      dayOfWeek: getDayOfWeekFromLabel(point.label), // Get day of week for sorting
     }))
+    
+    // Sort weekly data by day of week
+    if (granularity === "weekly" || granularity === "week") {
+      return sortWeeklyData(formattedData)
+    }
+    
+    return formattedData
   }, [metrics])
 
   // Format trips series data
   const tripsChartData = useMemo(() => {
     if (!metrics?.tripsSeries?.data) return []
     const granularity = metrics.tripsSeries.granularity
-    return metrics.tripsSeries.data.map((point) => ({
+    const formattedData = metrics.tripsSeries.data.map((point) => ({
       label: formatLabel(point.label, granularity),
       trips: point.value,
       fullLabel: point.label, // Keep original for tooltip
-      originalLabel: point.label, // Keep for hour extraction
+      originalLabel: point.label, // Keep for hour extraction and date parsing
       hour: extractHour(point.label), // Extract hour for AM/PM formatting
+      dayOfWeek: getDayOfWeekFromLabel(point.label), // Get day of week for sorting
     }))
+    
+    // Sort weekly data by day of week
+    if (granularity === "weekly" || granularity === "week") {
+      return sortWeeklyData(formattedData)
+    }
+    
+    return formattedData
   }, [metrics])
   
   // Get XAxis interval for revenue chart
