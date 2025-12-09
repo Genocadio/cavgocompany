@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useCar } from "@/hooks/use-car"
 import { useBookingsByTrip } from "@/hooks/use-bookings-by-trip"
 import { LocationAddress } from "@/components/location-address"
+import { convertMsToKmh } from "@/lib/utils"
 import type { FuelRecord, Trip, FuelFormData, TripFormData } from "@/types"
 
 // Remove dummy getBusDetails function - using real data from GraphQL
@@ -488,7 +489,7 @@ export default function BusDetailPage() {
               <Fuel className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{car.currentLocation?.speed || 0} km/h</div>
+              <div className="text-2xl font-bold">{convertMsToKmh(car.currentLocation?.speed).toFixed(1)} km/h</div>
               <p className="text-xs text-muted-foreground">
                 {car.currentLocation?.location ? (
                   <LocationAddress
@@ -639,7 +640,7 @@ export default function BusDetailPage() {
                   </div>
                   <div className="flex justify-between">
                         <span className="text-muted-foreground">Speed:</span>
-                        <span className="font-medium">{car.currentLocation.speed} km/h</span>
+                        <span className="font-medium">{convertMsToKmh(car.currentLocation.speed).toFixed(1)} km/h</span>
                   </div>
                   <div className="flex justify-between">
                         <span className="text-muted-foreground">Bearing:</span>

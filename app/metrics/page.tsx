@@ -18,7 +18,9 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
+  Legend,
 } from "recharts"
+import type { LegendPayload } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { useCompanyMetrics } from "@/hooks/use-company-metrics"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -110,7 +112,7 @@ export default function MetricsPage() {
     ].filter((item) => item.value > 0)
   }, [metrics])
 
-  // Helper function to format labels based on granularity
+  // Helper function to format labels based on granularity and prevent overlapping
   const formatLabel = (label: string, granularity?: string): string => {
     if (granularity === "monthly" || granularity === "month") {
       // Try to parse month name and convert to short format
@@ -150,7 +152,68 @@ export default function MetricsPage() {
         return firstWord
       }
     }
+    
+    // Handle daily/hourly labels - extract just the essential part
+    if (granularity === "daily" || granularity === "day" || granularity === "hourly" || granularity === "hour") {
+      // If it's a date string, try to extract just the day or hour
+      // Format like "2024-01-15" -> "15" or "Mon 15" -> "15" or "09:00" -> "09"
+      const dayMatch = label.match(/(\d{1,2})(?:\s|$|:)/)
+      if (dayMatch) {
+        return dayMatch[1]
+      }
+      // If it's a day name, use abbreviation
+      const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+      const shortDayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+      const dayIndex = dayNames.findIndex(day => 
+        label.toLowerCase().includes(day.toLowerCase())
+      )
+      if (dayIndex !== -1) {
+        return shortDayNames[dayIndex]
+      }
+    }
+    
+    // For weekly labels, extract day abbreviation
+    if (granularity === "weekly" || granularity === "week") {
+      const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+      const shortDayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+      const dayIndex = dayNames.findIndex(day => 
+        label.toLowerCase().includes(day.toLowerCase())
+      )
+      if (dayIndex !== -1) {
+        return shortDayNames[dayIndex]
+      }
+      // If it contains a date, extract just the day number
+      const dayMatch = label.match(/(\d{1,2})(?:\s|$)/)
+      if (dayMatch) {
+        return dayMatch[1]
+      }
+    }
+    
+    // Default: truncate long labels
+    if (label.length > 8) {
+      return label.substring(0, 8) + "..."
+    }
+    
     return label
+  }
+  
+  // Calculate optimal interval for XAxis based on data length and screen size
+  const getXAxisInterval = (dataLength: number, isSmall: boolean, isMedium: boolean): number | "preserveStartEnd" => {
+    if (isSmall) {
+      // On small screens, show fewer labels
+      if (dataLength <= 7) return 0
+      if (dataLength <= 14) return 1
+      return Math.ceil(dataLength / 7)
+    }
+    if (isMedium) {
+      if (dataLength <= 10) return 0
+      if (dataLength <= 20) return 1
+      return Math.ceil(dataLength / 10)
+    }
+    // On large screens, show more labels
+    if (dataLength <= 15) return 0
+    if (dataLength <= 30) return 1
+    return Math.ceil(dataLength / 15)
   }
 
   // Format revenue series data
@@ -160,6 +223,7 @@ export default function MetricsPage() {
     return metrics.revenueSeries.data.map((point) => ({
       label: formatLabel(point.label, granularity),
       revenue: point.value,
+      fullLabel: point.label, // Keep original for tooltip
     }))
   }, [metrics])
 
@@ -170,8 +234,21 @@ export default function MetricsPage() {
     return metrics.tripsSeries.data.map((point) => ({
       label: formatLabel(point.label, granularity),
       trips: point.value,
+      fullLabel: point.label, // Keep original for tooltip
     }))
   }, [metrics])
+  
+  // Get XAxis interval for revenue chart
+  const revenueXAxisInterval = useMemo(() => 
+    getXAxisInterval(revenueChartData.length, isSmallScreen, isMediumScreen),
+    [revenueChartData.length, isSmallScreen, isMediumScreen]
+  )
+  
+  // Get XAxis interval for trips chart
+  const tripsXAxisInterval = useMemo(() => 
+    getXAxisInterval(tripsChartData.length, isSmallScreen, isMediumScreen),
+    [tripsChartData.length, isSmallScreen, isMediumScreen]
+  )
 
   return (
     <div className="flex flex-col">
@@ -334,27 +411,57 @@ export default function MetricsPage() {
                       <Pie
                         data={statusData}
                         cx="50%"
-                        cy="50%"
+                        cy={isSmallScreen ? "45%" : isMediumScreen ? "47%" : "50%"}
                         labelLine={false}
                         label={
                           isSmallScreen ? false : 
                           isMediumScreen ? ({ name, value }) => `${name}: ${value}` :
-                          ({ name, value, percent }) => `${name}: ${value} (${percent ? (percent * 100).toFixed(0) : 0}%)`
+                          ({ name, value, percent }) => {
+                            const percentage = percent ? (percent * 100).toFixed(0) : 0
+                            return `${name}\n${value} (${percentage}%)`
+                          }
                         }
                         outerRadius={
-                          isSmallScreen ? 70 : 
-                          isMediumScreen ? 85 : 
-                          100
+                          isSmallScreen ? 60 : 
+                          isMediumScreen ? 75 : 
+                          90
                         }
+                        innerRadius={isSmallScreen ? 20 : isMediumScreen ? 25 : 30}
                         fill="#8884d8"
                         dataKey="value"
+                        paddingAngle={2}
                       >
                         {statusData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
+                      <Legend
+                        verticalAlign={isSmallScreen ? "bottom" : "middle"}
+                        align={isSmallScreen ? "center" : "right"}
+                        layout={isSmallScreen ? "horizontal" : "vertical"}
+                        iconType="circle"
+                        wrapperStyle={{
+                          fontSize: isSmallScreen ? "10px" : isMediumScreen ? "11px" : "12px",
+                          paddingTop: isSmallScreen ? "10px" : "0"
+                        }}
+                        formatter={(value, entry: LegendPayload) => {
+                          const total = statusData.reduce((sum, item) => sum + item.value, 0)
+                          const entryValue = (entry.payload?.value as number) || 0
+                          const percent = total > 0 ? ((entryValue / total) * 100).toFixed(0) : 0
+                          return (
+                            <span style={{ color: entry.color }}>
+                              {value}: {entryValue} ({percent}%)
+                            </span>
+                          )
+                        }}
+                      />
                       <ChartTooltip 
                         content={<ChartTooltipContent />}
+                        formatter={(value: number, name: string) => {
+                          const total = statusData.reduce((sum, item) => sum + item.value, 0)
+                          const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0
+                          return [`${value} trips (${percent}%)`, name]
+                        }}
                         wrapperStyle={{ 
                           fontSize: isSmallScreen ? "11px" : 
                                    isMediumScreen ? "12px" : 
@@ -466,31 +573,53 @@ export default function MetricsPage() {
                     <LineChart 
                       data={revenueChartData} 
                       margin={
-                        isSmallScreen ? { top: 5, right: 5, left: -15, bottom: 40 } : 
-                        isMediumScreen ? { top: 5, right: 10, left: -10, bottom: 50 } : 
-                        { top: 5, right: 10, left: 0, bottom: 5 }
+                        isSmallScreen ? { top: 10, right: 10, left: 0, bottom: 60 } : 
+                        isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
+                        { top: 10, right: 20, left: 10, bottom: 80 }
                       }
                     >
-                      <CartesianGrid strokeDasharray="3 3" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                       <XAxis 
                         dataKey="label" 
                         tick={{ 
-                          fontSize: isSmallScreen ? 9 : 
-                                  isMediumScreen ? 10 : 
-                                  12 
+                          fontSize: isSmallScreen ? 8 : 
+                                  isMediumScreen ? 9 : 
+                                  11,
+                          fill: "hsl(var(--muted-foreground))"
                         }}
-                        angle={isSmallScreen ? -45 : isMediumScreen ? -30 : 0}
-                        textAnchor={isSmallScreen || isMediumScreen ? "end" : "middle"}
-                        height={isSmallScreen ? 50 : isMediumScreen ? 60 : 30}
-                        interval={isSmallScreen ? "preserveStartEnd" : isMediumScreen ? "preserveStartEnd" : 0}
+                        angle={isSmallScreen ? -45 : isMediumScreen ? -35 : -25}
+                        textAnchor={isSmallScreen || isMediumScreen ? "end" : "end"}
+                        height={isSmallScreen ? 60 : isMediumScreen ? 70 : 80}
+                        interval={revenueXAxisInterval}
+                        minTickGap={isSmallScreen ? 5 : isMediumScreen ? 8 : 10}
+                        tickMargin={8}
+                        label={{ 
+                          value: metrics?.revenueSeries?.granularity ? 
+                            `Time (${metrics.revenueSeries.granularity})` : "Time",
+                          position: "insideBottom",
+                          offset: -5,
+                          style: { textAnchor: "middle", fill: "hsl(var(--foreground))", fontSize: isSmallScreen ? 10 : 12 }
+                        }}
                       />
                       <YAxis 
                         tick={{ 
                           fontSize: isSmallScreen ? 9 : 
                                   isMediumScreen ? 10 : 
-                                  12 
+                                  11,
+                          fill: "hsl(var(--muted-foreground))"
                         }}
-                        width={isSmallScreen ? 35 : isMediumScreen ? 50 : 60}
+                        width={isSmallScreen ? 50 : isMediumScreen ? 60 : 70}
+                        tickFormatter={(value) => {
+                          if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`
+                          if (value >= 1000) return `${(value / 1000).toFixed(1)}K`
+                          return value.toString()
+                        }}
+                        label={{ 
+                          value: "Revenue (RWF)",
+                          angle: -90,
+                          position: "insideLeft",
+                          style: { textAnchor: "middle", fill: "hsl(var(--foreground))", fontSize: isSmallScreen ? 10 : 12 }
+                        }}
                       />
                       <ChartTooltip
                         content={<ChartTooltipContent />}
@@ -500,6 +629,10 @@ export default function MetricsPage() {
                             currency: "RWF",
                           }).format(value)
                         }
+                        labelFormatter={(label, payload) => {
+                          const data = payload?.[0]?.payload
+                          return data?.fullLabel || label
+                        }}
                         wrapperStyle={{ 
                           fontSize: isSmallScreen ? "11px" : 
                                    isMediumScreen ? "12px" : 
@@ -511,8 +644,8 @@ export default function MetricsPage() {
                         dataKey="revenue" 
                         stroke="var(--color-revenue)" 
                         strokeWidth={isSmallScreen ? 1.5 : isMediumScreen ? 1.8 : 2}
-                        dot={!isSmallScreen && !isMediumScreen}
-                        activeDot={{ r: isSmallScreen ? 3 : isMediumScreen ? 5 : 6 }}
+                        dot={false}
+                        activeDot={{ r: isSmallScreen ? 4 : isMediumScreen ? 5 : 6 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -561,34 +694,59 @@ export default function MetricsPage() {
                     <BarChart 
                       data={tripsChartData} 
                       margin={
-                        isSmallScreen ? { top: 5, right: 5, left: -15, bottom: 40 } : 
-                        isMediumScreen ? { top: 5, right: 10, left: -10, bottom: 50 } : 
-                        { top: 5, right: 10, left: 0, bottom: 5 }
+                        isSmallScreen ? { top: 10, right: 10, left: 0, bottom: 60 } : 
+                        isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
+                        { top: 10, right: 20, left: 10, bottom: 80 }
                       }
                     >
-                      <CartesianGrid strokeDasharray="3 3" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                       <XAxis 
                         dataKey="label" 
                         tick={{ 
-                          fontSize: isSmallScreen ? 9 : 
-                                  isMediumScreen ? 10 : 
-                                  12 
+                          fontSize: isSmallScreen ? 8 : 
+                                  isMediumScreen ? 9 : 
+                                  11,
+                          fill: "hsl(var(--muted-foreground))"
                         }}
-                        angle={isSmallScreen ? -45 : isMediumScreen ? -30 : 0}
-                        textAnchor={isSmallScreen || isMediumScreen ? "end" : "middle"}
-                        height={isSmallScreen ? 50 : isMediumScreen ? 60 : 30}
-                        interval={isSmallScreen ? "preserveStartEnd" : isMediumScreen ? "preserveStartEnd" : 0}
+                        angle={isSmallScreen ? -45 : isMediumScreen ? -35 : -25}
+                        textAnchor={isSmallScreen || isMediumScreen ? "end" : "end"}
+                        height={isSmallScreen ? 60 : isMediumScreen ? 70 : 80}
+                        interval={tripsXAxisInterval}
+                        minTickGap={isSmallScreen ? 5 : isMediumScreen ? 8 : 10}
+                        tickMargin={8}
+                        label={{ 
+                          value: metrics?.tripsSeries?.granularity ? 
+                            `Time (${metrics.tripsSeries.granularity})` : "Time",
+                          position: "insideBottom",
+                          offset: -5,
+                          style: { textAnchor: "middle", fill: "hsl(var(--foreground))", fontSize: isSmallScreen ? 10 : 12 }
+                        }}
                       />
                       <YAxis 
                         tick={{ 
                           fontSize: isSmallScreen ? 9 : 
                                   isMediumScreen ? 10 : 
-                                  12 
+                                  11,
+                          fill: "hsl(var(--muted-foreground))"
                         }}
-                        width={isSmallScreen ? 35 : isMediumScreen ? 50 : 60}
+                        width={isSmallScreen ? 50 : isMediumScreen ? 60 : 70}
+                        tickFormatter={(value) => {
+                          if (value >= 1000) return `${(value / 1000).toFixed(1)}K`
+                          return value.toString()
+                        }}
+                        label={{ 
+                          value: "Number of Trips",
+                          angle: -90,
+                          position: "insideLeft",
+                          style: { textAnchor: "middle", fill: "hsl(var(--foreground))", fontSize: isSmallScreen ? 10 : 12 }
+                        }}
                       />
                       <ChartTooltip 
                         content={<ChartTooltipContent />}
+                        labelFormatter={(label, payload) => {
+                          const data = payload?.[0]?.payload
+                          return data?.fullLabel || label
+                        }}
                         wrapperStyle={{ 
                           fontSize: isSmallScreen ? "11px" : 
                                    isMediumScreen ? "12px" : 

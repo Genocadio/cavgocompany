@@ -3,6 +3,7 @@
 import { useReverseGeocode } from "@/hooks/use-reverse-geocode"
 import { Loader2 } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { convertMsToKmh } from "@/lib/utils"
 
 interface LocationAddressProps {
   latitude?: number | null
@@ -78,7 +79,8 @@ export function LocationAddress({
   }
   
   if (speed != null && speed > 0) {
-    tooltipParts.push(`\nSpeed: ${speed.toFixed(1)} km/h`)
+    const speedInKmh = convertMsToKmh(speed)
+    tooltipParts.push(`\nSpeed: ${speedInKmh.toFixed(1)} km/h`)
   }
   
   // For in_progress trips, show next waypoint with remaining distance

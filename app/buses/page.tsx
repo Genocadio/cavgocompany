@@ -14,6 +14,7 @@ import Link from "next/link"
 import { useAuth } from "@/components/auth-provider"
 import { useCarsByCompany } from "@/hooks/use-cars-by-company"
 import { LocationAddress } from "@/components/location-address"
+import { convertMsToKmh } from "@/lib/utils"
 import type { Car } from "@/lib/graphql/types"
 
 // Remove dummy busData array - using real data from GraphQL
@@ -180,7 +181,7 @@ export default function BusesPage() {
         location: "", // Address not available in new structure
         locationLat: car.currentLocation?.location?.lat,
         locationLon: car.currentLocation?.location?.lng,
-        speed: car.currentLocation?.speed || 0,
+        speed: convertMsToKmh(car.currentLocation?.speed),
         route: car.latestTrip ? `Trip ${car.latestTrip.id}` : "Not Assigned",
         currentTrip: car.latestTrip
           ? {
@@ -297,7 +298,7 @@ export default function BusesPage() {
                     <TableCell>
                       <div className="flex items-center space-x-1">
                         <Gauge className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm">{bus.speed} km/h</span>
+                        <span className="text-sm">{bus.speed.toFixed(1)} km/h</span>
                       </div>
                     </TableCell>
                     <TableCell>
