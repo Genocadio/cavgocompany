@@ -18,9 +18,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Legend,
 } from "recharts"
-import type { LegendPayload } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { useCompanyMetrics } from "@/hooks/use-company-metrics"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -837,26 +835,6 @@ export default function MetricsPage() {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Legend
-                        verticalAlign={isSmallScreen ? "bottom" : "middle"}
-                        align={isSmallScreen ? "center" : "right"}
-                        layout={isSmallScreen ? "horizontal" : "vertical"}
-                        iconType="circle"
-                        wrapperStyle={{
-                          fontSize: isSmallScreen ? "10px" : isMediumScreen ? "11px" : "12px",
-                          paddingTop: isSmallScreen ? "10px" : "0"
-                        }}
-                        formatter={(value, entry: LegendPayload) => {
-                          const total = statusData.reduce((sum, item) => sum + item.value, 0)
-                          const entryValue = (entry.payload?.value as number) || 0
-                          const percent = total > 0 ? ((entryValue / total) * 100).toFixed(0) : 0
-                          return (
-                            <span style={{ color: entry.color }}>
-                              {value}: {entryValue} ({percent}%)
-                            </span>
-                          )
-                        }}
-                      />
                       <ChartTooltip 
                         content={<ChartTooltipContent />}
                         formatter={(value: number, name: string) => {
