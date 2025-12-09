@@ -153,11 +153,28 @@ export default function MetricsPage() {
       }
     }
     
-    // Handle daily/hourly labels - extract just the essential part
-    if (granularity === "daily" || granularity === "day" || granularity === "hourly" || granularity === "hour") {
-      // If it's a date string, try to extract just the day or hour
-      // Format like "2024-01-15" -> "15" or "Mon 15" -> "15" or "09:00" -> "09"
-      const dayMatch = label.match(/(\d{1,2})(?:\s|$|:)/)
+    // Handle hourly labels - extract hour number (1-24 format)
+    if (granularity === "hourly" || granularity === "hour") {
+      // Extract hour from formats like "00:00", "01:00", "23:00", "22:00", etc.
+      const hourMatch = label.match(/(\d{1,2}):\d{2}/)
+      if (hourMatch) {
+        const hour24 = parseInt(hourMatch[1])
+        // Convert to 1-24 format (0 becomes 24 for midnight)
+        const hour = hour24 === 0 ? 24 : hour24
+        return hour.toString()
+      }
+      // Fallback: try to extract any number
+      const numMatch = label.match(/(\d{1,2})(?:\s|$)/)
+      if (numMatch) {
+        return numMatch[1]
+      }
+    }
+    
+    // Handle daily labels - extract just the day number
+    if (granularity === "daily" || granularity === "day") {
+      // If it's a date string, try to extract just the day number
+      // Format like "2024-01-15" -> "15" or "Mon 15" -> "15"
+      const dayMatch = label.match(/(\d{1,2})(?:\s|$)/)
       if (dayMatch) {
         return dayMatch[1]
       }
@@ -197,10 +214,57 @@ export default function MetricsPage() {
     return label
   }
   
-  // Calculate optimal interval for XAxis based on data length and screen size
-  const getXAxisInterval = (dataLength: number, isSmall: boolean, isMedium: boolean): number | "preserveStartEnd" => {
+  // Calculate optimal interval for XAxis based on data length, screen size, and granularity
+  const getXAxisInterval = (
+    dataLength: number, 
+    isSmall: boolean, 
+    isMedium: boolean,
+    granularity?: string
+  ): number | "preserveStartEnd" => {
+    // For hourly data, show much fewer labels (every 2-4 hours)
+    if (granularity === "hourly" || granularity === "hour") {
+      if (isSmall) {
+        // Show every 4-6 hours on small screens
+        return Math.max(3, Math.floor(dataLength / 6))
+      }
+      if (isMedium) {
+        // Show every 3-4 hours on medium screens
+        return Math.max(2, Math.floor(dataLength / 8))
+      }
+      // Show every 2-3 hours on large screens
+      return Math.max(1, Math.floor(dataLength / 12))
+    }
+    
+    // For daily data, show fewer labels
+    if (granularity === "daily" || granularity === "day") {
+      if (isSmall) {
+        if (dataLength <= 7) return 1
+        return Math.ceil(dataLength / 5)
+      }
+      if (isMedium) {
+        if (dataLength <= 10) return 1
+        return Math.ceil(dataLength / 7)
+      }
+      if (dataLength <= 15) return 1
+      return Math.ceil(dataLength / 10)
+    }
+    
+    // For weekly data, show fewer labels
+    if (granularity === "weekly" || granularity === "week") {
+      if (isSmall) {
+        if (dataLength <= 4) return 0
+        return Math.ceil(dataLength / 4)
+      }
+      if (isMedium) {
+        if (dataLength <= 7) return 0
+        return Math.ceil(dataLength / 5)
+      }
+      if (dataLength <= 10) return 0
+      return Math.ceil(dataLength / 7)
+    }
+    
+    // Default behavior for other granularities
     if (isSmall) {
-      // On small screens, show fewer labels
       if (dataLength <= 7) return 0
       if (dataLength <= 14) return 1
       return Math.ceil(dataLength / 7)
@@ -210,10 +274,26 @@ export default function MetricsPage() {
       if (dataLength <= 20) return 1
       return Math.ceil(dataLength / 10)
     }
-    // On large screens, show more labels
     if (dataLength <= 15) return 0
     if (dataLength <= 30) return 1
     return Math.ceil(dataLength / 15)
+  }
+  
+  // Extract hour from label for AM/PM formatting
+  const extractHour = (label: string): number | null => {
+    const hourMatch = label.match(/(\d{1,2}):\d{2}/)
+    if (hourMatch) {
+      return parseInt(hourMatch[1])
+    }
+    return null
+  }
+  
+  // Format hour with AM/PM for axis labels
+  const formatHourWithAmPm = (hour24: number): string => {
+    if (hour24 === 0) return "12 AM"
+    if (hour24 === 12) return "12 PM"
+    if (hour24 < 12) return `${hour24} AM`
+    return `${hour24 - 12} PM`
   }
 
   // Format revenue series data
@@ -224,6 +304,8 @@ export default function MetricsPage() {
       label: formatLabel(point.label, granularity),
       revenue: point.value,
       fullLabel: point.label, // Keep original for tooltip
+      originalLabel: point.label, // Keep for hour extraction
+      hour: extractHour(point.label), // Extract hour for AM/PM formatting
     }))
   }, [metrics])
 
@@ -235,20 +317,56 @@ export default function MetricsPage() {
       label: formatLabel(point.label, granularity),
       trips: point.value,
       fullLabel: point.label, // Keep original for tooltip
+      originalLabel: point.label, // Keep for hour extraction
+      hour: extractHour(point.label), // Extract hour for AM/PM formatting
     }))
   }, [metrics])
   
   // Get XAxis interval for revenue chart
   const revenueXAxisInterval = useMemo(() => 
-    getXAxisInterval(revenueChartData.length, isSmallScreen, isMediumScreen),
-    [revenueChartData.length, isSmallScreen, isMediumScreen]
+    getXAxisInterval(
+      revenueChartData.length, 
+      isSmallScreen, 
+      isMediumScreen,
+      metrics?.revenueSeries?.granularity
+    ),
+    [revenueChartData.length, isSmallScreen, isMediumScreen, metrics?.revenueSeries?.granularity]
   )
   
   // Get XAxis interval for trips chart
   const tripsXAxisInterval = useMemo(() => 
-    getXAxisInterval(tripsChartData.length, isSmallScreen, isMediumScreen),
-    [tripsChartData.length, isSmallScreen, isMediumScreen]
+    getXAxisInterval(
+      tripsChartData.length, 
+      isSmallScreen, 
+      isMediumScreen,
+      metrics?.tripsSeries?.granularity
+    ),
+    [tripsChartData.length, isSmallScreen, isMediumScreen, metrics?.tripsSeries?.granularity]
   )
+  
+  // Custom tick formatter for hourly charts - show AM/PM only at start and end
+  const createHourlyTickFormatter = (data: typeof revenueChartData) => {
+    // Create a map of label to index for lookup
+    const labelToIndex = new Map<string, number>()
+    data.forEach((point, idx) => {
+      labelToIndex.set(point.label, idx)
+    })
+    
+    return (value: string) => {
+      const index = labelToIndex.get(value)
+      if (index === undefined) return value
+      
+      // Only show AM/PM on first and last tick
+      if (index === 0 || index === data.length - 1) {
+        const dataPoint = data[index]
+        if (dataPoint?.hour !== null && dataPoint?.hour !== undefined) {
+          return formatHourWithAmPm(dataPoint.hour)
+        }
+      }
+      // For all other ticks, just show the hour number
+      return value
+    }
+  }
 
   return (
     <div className="flex flex-col">
@@ -587,12 +705,25 @@ export default function MetricsPage() {
                                   11,
                           fill: "hsl(var(--muted-foreground))"
                         }}
-                        angle={isSmallScreen ? -45 : isMediumScreen ? -35 : -25}
-                        textAnchor={isSmallScreen || isMediumScreen ? "end" : "end"}
+                        angle={
+                          (metrics?.revenueSeries?.granularity === "hourly" || metrics?.revenueSeries?.granularity === "hour") 
+                            ? 0 
+                            : (isSmallScreen ? -45 : isMediumScreen ? -35 : -25)
+                        }
+                        textAnchor={
+                          (metrics?.revenueSeries?.granularity === "hourly" || metrics?.revenueSeries?.granularity === "hour")
+                            ? "middle"
+                            : (isSmallScreen || isMediumScreen ? "end" : "end")
+                        }
                         height={isSmallScreen ? 60 : isMediumScreen ? 70 : 80}
                         interval={revenueXAxisInterval}
                         minTickGap={isSmallScreen ? 5 : isMediumScreen ? 8 : 10}
                         tickMargin={8}
+                        tickFormatter={
+                          (metrics?.revenueSeries?.granularity === "hourly" || metrics?.revenueSeries?.granularity === "hour")
+                            ? createHourlyTickFormatter(revenueChartData)
+                            : undefined
+                        }
                         label={{ 
                           value: metrics?.revenueSeries?.granularity ? 
                             `Time (${metrics.revenueSeries.granularity})` : "Time",
@@ -708,12 +839,25 @@ export default function MetricsPage() {
                                   11,
                           fill: "hsl(var(--muted-foreground))"
                         }}
-                        angle={isSmallScreen ? -45 : isMediumScreen ? -35 : -25}
-                        textAnchor={isSmallScreen || isMediumScreen ? "end" : "end"}
+                        angle={
+                          (metrics?.tripsSeries?.granularity === "hourly" || metrics?.tripsSeries?.granularity === "hour") 
+                            ? 0 
+                            : (isSmallScreen ? -45 : isMediumScreen ? -35 : -25)
+                        }
+                        textAnchor={
+                          (metrics?.tripsSeries?.granularity === "hourly" || metrics?.tripsSeries?.granularity === "hour")
+                            ? "middle"
+                            : (isSmallScreen || isMediumScreen ? "end" : "end")
+                        }
                         height={isSmallScreen ? 60 : isMediumScreen ? 70 : 80}
                         interval={tripsXAxisInterval}
                         minTickGap={isSmallScreen ? 5 : isMediumScreen ? 8 : 10}
                         tickMargin={8}
+                        tickFormatter={
+                          (metrics?.tripsSeries?.granularity === "hourly" || metrics?.tripsSeries?.granularity === "hour")
+                            ? createHourlyTickFormatter(tripsChartData)
+                            : undefined
+                        }
                         label={{ 
                           value: metrics?.tripsSeries?.granularity ? 
                             `Time (${metrics.tripsSeries.granularity})` : "Time",
