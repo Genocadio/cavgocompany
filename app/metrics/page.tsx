@@ -345,7 +345,14 @@ export default function MetricsPage() {
   )
   
   // Custom tick formatter for hourly charts - show AM/PM only at start and end
-  const createHourlyTickFormatter = (data: typeof revenueChartData) => {
+  type ChartDataPoint = {
+    label: string
+    fullLabel: string
+    originalLabel: string
+    hour: number | null
+  }
+  
+  const createHourlyTickFormatter = (data: ChartDataPoint[]) => {
     // Create a map of label to index for lookup
     const labelToIndex = new Map<string, number>()
     data.forEach((point, idx) => {
