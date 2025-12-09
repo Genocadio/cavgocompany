@@ -78,6 +78,9 @@ function getTimeRangeDates(range: string): { startTime: number | null; endTime: 
 export default function MetricsPage() {
   const { user } = useAuth()
   const [selectedRange, setSelectedRange] = useState("today")
+  // Chart-level time range selectors (for when data is too dense)
+  const [revenueChartRange, setRevenueChartRange] = useState<string>("all")
+  const [tripsChartRange, setTripsChartRange] = useState<string>("all")
   const isMobile = useIsMobile()
   const [windowWidth, setWindowWidth] = useState<number>(0)
 
@@ -97,6 +100,12 @@ export default function MetricsPage() {
 
   const { startTime, endTime } = useMemo(() => {
     return getTimeRangeDates(selectedRange)
+  }, [selectedRange])
+
+  // Reset chart ranges when main time range changes
+  useEffect(() => {
+    setRevenueChartRange("all")
+    setTripsChartRange("all")
   }, [selectedRange])
 
   const { metrics, loading, error } = useCompanyMetrics(user?.companyId, startTime, endTime)
@@ -436,26 +445,180 @@ export default function MetricsPage() {
     return formattedData
   }, [metrics])
   
+  // Check if data is too dense and needs filtering
+  const isDataTooDense = (dataLength: number, granularity?: string): boolean => {
+    // For hourly data, if more than 12 hours, consider it dense
+    if (granularity === "hourly" || granularity === "hour") {
+      return dataLength > 12
+    }
+    // For daily data, if more than 14 days, consider it dense
+    if (granularity === "daily" || granularity === "day") {
+      return dataLength > 14
+    }
+    // For weekly data, if more than 8 weeks, consider it dense
+    if (granularity === "weekly" || granularity === "week") {
+      return dataLength > 8
+    }
+    // For monthly data, if more than 12 months, consider it dense
+    if (granularity === "monthly" || granularity === "month") {
+      return dataLength > 12
+    }
+    return false
+  }
+  
+  // Filter chart data based on chart-level range selection
+  const filterChartData = <T extends { originalLabel: string }>(
+    data: T[],
+    range: string,
+    granularity?: string
+  ): T[] => {
+    if (range === "all" || !isDataTooDense(data.length, granularity)) {
+      return data
+    }
+    
+    const totalLength = data.length
+    let startIndex = 0
+    let endIndex = totalLength
+    
+    switch (range) {
+      case "first-half":
+        endIndex = Math.ceil(totalLength / 2)
+        break
+      case "second-half":
+        startIndex = Math.floor(totalLength / 2)
+        break
+      case "first-third":
+        endIndex = Math.ceil(totalLength / 3)
+        break
+      case "middle-third":
+        startIndex = Math.floor(totalLength / 3)
+        endIndex = Math.ceil((totalLength * 2) / 3)
+        break
+      case "last-third":
+        startIndex = Math.floor((totalLength * 2) / 3)
+        break
+      case "first-quarter":
+        endIndex = Math.ceil(totalLength / 4)
+        break
+      case "second-quarter":
+        startIndex = Math.floor(totalLength / 4)
+        endIndex = Math.ceil(totalLength / 2)
+        break
+      case "third-quarter":
+        startIndex = Math.floor(totalLength / 2)
+        endIndex = Math.ceil((totalLength * 3) / 4)
+        break
+      case "last-quarter":
+        startIndex = Math.floor((totalLength * 3) / 4)
+        break
+      default:
+        return data
+    }
+    
+    return data.slice(startIndex, endIndex)
+  }
+  
+  // Get filtered revenue chart data
+  const filteredRevenueChartData = useMemo(() => {
+    return filterChartData(
+      revenueChartData,
+      revenueChartRange,
+      metrics?.revenueSeries?.granularity
+    )
+  }, [revenueChartData, revenueChartRange, metrics?.revenueSeries?.granularity])
+  
+  // Get filtered trips chart data
+  const filteredTripsChartData = useMemo(() => {
+    return filterChartData(
+      tripsChartData,
+      tripsChartRange,
+      metrics?.tripsSeries?.granularity
+    )
+  }, [tripsChartData, tripsChartRange, metrics?.tripsSeries?.granularity])
+  
+  // Get chart range options based on granularity and data length
+  const getChartRangeOptions = (dataLength: number, granularity?: string): Array<{ label: string; value: string }> => {
+    if (!isDataTooDense(dataLength, granularity)) {
+      return []
+    }
+    
+    const options: Array<{ label: string; value: string }> = [
+      { label: "All", value: "all" }
+    ]
+    
+    // For hourly data (24 hours), offer quarters
+    if (granularity === "hourly" || granularity === "hour") {
+      if (dataLength >= 20) {
+        options.push(
+          { label: "Hours 1-6", value: "first-quarter" },
+          { label: "Hours 7-12", value: "second-quarter" },
+          { label: "Hours 13-18", value: "third-quarter" },
+          { label: "Hours 19-24", value: "last-quarter" }
+        )
+      } else {
+        options.push(
+          { label: "First Half", value: "first-half" },
+          { label: "Second Half", value: "second-half" }
+        )
+      }
+    }
+    // For daily data, offer halves or thirds
+    else if (granularity === "daily" || granularity === "day") {
+      if (dataLength >= 20) {
+        options.push(
+          { label: "First Third", value: "first-third" },
+          { label: "Middle Third", value: "middle-third" },
+          { label: "Last Third", value: "last-third" }
+        )
+      } else {
+        options.push(
+          { label: "First Half", value: "first-half" },
+          { label: "Second Half", value: "second-half" }
+        )
+      }
+    }
+    // For weekly/monthly data, offer halves
+    else {
+      options.push(
+        { label: "First Half", value: "first-half" },
+        { label: "Second Half", value: "second-half" }
+      )
+    }
+    
+    return options
+  }
+  
   // Get XAxis interval for revenue chart
   const revenueXAxisInterval = useMemo(() => 
     getXAxisInterval(
-      revenueChartData.length, 
+      filteredRevenueChartData.length, 
       isSmallScreen, 
       isMediumScreen,
       metrics?.revenueSeries?.granularity
     ),
-    [revenueChartData.length, isSmallScreen, isMediumScreen, metrics?.revenueSeries?.granularity]
+    [filteredRevenueChartData.length, isSmallScreen, isMediumScreen, metrics?.revenueSeries?.granularity]
   )
   
   // Get XAxis interval for trips chart
   const tripsXAxisInterval = useMemo(() => 
     getXAxisInterval(
-      tripsChartData.length, 
+      filteredTripsChartData.length, 
       isSmallScreen, 
       isMediumScreen,
       metrics?.tripsSeries?.granularity
     ),
-    [tripsChartData.length, isSmallScreen, isMediumScreen, metrics?.tripsSeries?.granularity]
+    [filteredTripsChartData.length, isSmallScreen, isMediumScreen, metrics?.tripsSeries?.granularity]
+  )
+  
+  // Get chart range options
+  const revenueChartRangeOptions = useMemo(() => 
+    getChartRangeOptions(revenueChartData.length, metrics?.revenueSeries?.granularity),
+    [revenueChartData.length, metrics?.revenueSeries?.granularity]
+  )
+  
+  const tripsChartRangeOptions = useMemo(() => 
+    getChartRangeOptions(tripsChartData.length, metrics?.tripsSeries?.granularity),
+    [tripsChartData.length, metrics?.tripsSeries?.granularity]
   )
   
   // Custom tick formatter for hourly charts - show AM/PM only at start and end
@@ -774,10 +937,32 @@ export default function MetricsPage() {
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Revenue Trend</CardTitle>
-              <CardDescription>
-                Revenue over time ({metrics?.revenueSeries?.granularity || "N/A"})
-              </CardDescription>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <CardTitle>Revenue Trend</CardTitle>
+                  <CardDescription>
+                    Revenue over time ({metrics?.revenueSeries?.granularity || "N/A"})
+                  </CardDescription>
+                </div>
+                {revenueChartRangeOptions.length > 0 && (
+                  <Select value={revenueChartRange} onValueChange={setRevenueChartRange}>
+                    <SelectTrigger className={
+                      isSmallScreen ? "w-[120px] text-xs" : 
+                      isMediumScreen ? "w-[140px] text-sm" : 
+                      "w-[160px]"
+                    }>
+                      <SelectValue placeholder="View range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {revenueChartRangeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -786,7 +971,7 @@ export default function MetricsPage() {
                   isMediumScreen ? "h-[280px] w-full" : 
                   "h-[300px] w-full"
                 } />
-              ) : revenueChartData.length === 0 ? (
+              ) : filteredRevenueChartData.length === 0 ? (
                 <div className={`flex items-center justify-center text-muted-foreground ${
                   isSmallScreen ? "h-[250px]" : 
                   isMediumScreen ? "h-[280px]" : 
@@ -810,7 +995,7 @@ export default function MetricsPage() {
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart 
-                      data={revenueChartData} 
+                      data={filteredRevenueChartData} 
                       margin={
                         isSmallScreen ? { top: 10, right: 10, left: 0, bottom: 60 } : 
                         isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
@@ -842,7 +1027,7 @@ export default function MetricsPage() {
                         tickMargin={8}
                         tickFormatter={
                           (metrics?.revenueSeries?.granularity === "hourly" || metrics?.revenueSeries?.granularity === "hour")
-                            ? createHourlyTickFormatter(revenueChartData)
+                            ? createHourlyTickFormatter(filteredRevenueChartData)
                             : undefined
                         }
                         label={{ 
@@ -908,10 +1093,32 @@ export default function MetricsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Trips Trend</CardTitle>
-              <CardDescription>
-                Number of trips over time ({metrics?.tripsSeries?.granularity || "N/A"})
-              </CardDescription>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <CardTitle>Trips Trend</CardTitle>
+                  <CardDescription>
+                    Number of trips over time ({metrics?.tripsSeries?.granularity || "N/A"})
+                  </CardDescription>
+                </div>
+                {tripsChartRangeOptions.length > 0 && (
+                  <Select value={tripsChartRange} onValueChange={setTripsChartRange}>
+                    <SelectTrigger className={
+                      isSmallScreen ? "w-[120px] text-xs" : 
+                      isMediumScreen ? "w-[140px] text-sm" : 
+                      "w-[160px]"
+                    }>
+                      <SelectValue placeholder="View range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tripsChartRangeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -920,7 +1127,7 @@ export default function MetricsPage() {
                   isMediumScreen ? "h-[280px] w-full" : 
                   "h-[300px] w-full"
                 } />
-              ) : tripsChartData.length === 0 ? (
+              ) : filteredTripsChartData.length === 0 ? (
                 <div className={`flex items-center justify-center text-muted-foreground ${
                   isSmallScreen ? "h-[250px]" : 
                   isMediumScreen ? "h-[280px]" : 
@@ -944,7 +1151,7 @@ export default function MetricsPage() {
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart 
-                      data={tripsChartData} 
+                      data={filteredTripsChartData} 
                       margin={
                         isSmallScreen ? { top: 10, right: 10, left: 0, bottom: 60 } : 
                         isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
@@ -976,7 +1183,7 @@ export default function MetricsPage() {
                         tickMargin={8}
                         tickFormatter={
                           (metrics?.tripsSeries?.granularity === "hourly" || metrics?.tripsSeries?.granularity === "hour")
-                            ? createHourlyTickFormatter(tripsChartData)
+                            ? createHourlyTickFormatter(filteredTripsChartData)
                             : undefined
                         }
                         label={{ 
