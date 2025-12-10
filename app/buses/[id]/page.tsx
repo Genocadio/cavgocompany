@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCar } from "@/hooks/use-car"
 import { useBookingsByTrip } from "@/hooks/use-bookings-by-trip"
+import { useCarMetrics } from "@/hooks/use-car-metrics"
 import { LocationAddress } from "@/components/location-address"
 import { convertMsToKmh } from "@/lib/utils"
 import type { FuelRecord, Trip, FuelFormData, TripFormData } from "@/types"
@@ -315,6 +316,29 @@ export default function BusDetailPage() {
   const [tripHistory] = useState<Trip[]>([]) // Not available in GraphQL response
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null)
   const [showEditTripDialog, setShowEditTripDialog] = useState(false)
+  
+  // Car Metrics state
+  const [metricsStartDate, setMetricsStartDate] = useState<string | null>(null)
+  const [metricsEndDate, setMetricsEndDate] = useState<string | null>(null)
+  
+  // Calculate default date (today) for metrics
+  const getTodayDateString = () => {
+    const today = new Date()
+    return today.toISOString().split("T")[0]
+  }
+  
+  // Determine which dates to pass to the query
+  // Default: today (no dates set) - pass today as startDate, endDate = null (single date)
+  // If only startDate is set: pass startDate, endDate = null (single date)
+  // If both are set: pass both (range)
+  const metricsQueryStartDate = metricsStartDate || getTodayDateString()
+  const metricsQueryEndDate = metricsEndDate || null // Only pass endDate if explicitly set
+  
+  const { metrics: carMetrics, loading: metricsLoading, error: metricsError } = useCarMetrics(
+    busId,
+    metricsQueryStartDate,
+    metricsQueryEndDate
+  )
 
   // If driver is null and activeTab is driver-info, switch to overview
   useEffect(() => {
@@ -568,12 +592,13 @@ export default function BusDetailPage() {
 
         {/* Detailed Information Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={`grid w-full ${car.currentDriver ? "grid-cols-6" : "grid-cols-5"}`}>
+          <TabsList className={`grid w-full ${car.currentDriver ? "grid-cols-7" : "grid-cols-6"}`}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="live-ticketing">Live Ticketing</TabsTrigger>
             <TabsTrigger value="upcoming-trips">Upcoming Trips</TabsTrigger>
             <TabsTrigger value="trip-history">Trip History</TabsTrigger>
             <TabsTrigger value="fuel-history">Fuel History</TabsTrigger>
+            <TabsTrigger value="car-metrics">Car Metrics</TabsTrigger>
             {car.currentDriver && (
               <TabsTrigger value="driver-info">Driver Info</TabsTrigger>
             )}
@@ -1197,6 +1222,133 @@ export default function BusDetailPage() {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="car-metrics" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div>
+                    <CardTitle>Car Metrics</CardTitle>
+                    <CardDescription>Performance metrics for this vehicle</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="metrics-start-date" className="text-sm whitespace-nowrap">Start Date:</Label>
+                      <Input
+                        id="metrics-start-date"
+                        type="date"
+                        value={metricsStartDate || getTodayDateString()}
+                        onChange={(e) => {
+                          setMetricsStartDate(e.target.value || null)
+                          // If end date is before start date, clear it
+                          if (metricsEndDate && e.target.value && metricsEndDate < e.target.value) {
+                            setMetricsEndDate(null)
+                          }
+                        }}
+                        className="w-[160px]"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="metrics-end-date" className="text-sm whitespace-nowrap">End Date (optional):</Label>
+                      <Input
+                        id="metrics-end-date"
+                        type="date"
+                        value={metricsEndDate || ""}
+                        min={metricsStartDate || undefined}
+                        onChange={(e) => setMetricsEndDate(e.target.value || null)}
+                        className="w-[160px]"
+                        placeholder="Leave empty for single date"
+                      />
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMetricsStartDate(null)
+                        setMetricsEndDate(null)
+                      }}
+                    >
+                      Reset to Today
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {metricsLoading ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                  </div>
+                ) : metricsError ? (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                    <p className="text-sm text-red-800">Error loading car metrics. Please try again later.</p>
+                  </div>
+                ) : carMetrics ? (
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Trips</CardTitle>
+                        <Car className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{carMetrics.totalTrips.toLocaleString()}</div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {metricsQueryEndDate 
+                            ? `From ${metricsQueryStartDate} to ${metricsQueryEndDate}`
+                            : `On ${metricsQueryStartDate}`
+                          }
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">
+                          {new Intl.NumberFormat("en-RW", {
+                            style: "currency",
+                            currency: "RWF",
+                          }).format(carMetrics.totalRevenue)}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {metricsQueryEndDate 
+                            ? `From ${metricsQueryStartDate} to ${metricsQueryEndDate}`
+                            : `On ${metricsQueryStartDate}`
+                          }
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Distance</CardTitle>
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">
+                          {((carMetrics.totalDistance || 0) / 1000).toFixed(2)} km
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {metricsQueryEndDate 
+                            ? `From ${metricsQueryStartDate} to ${metricsQueryEndDate}`
+                            : `On ${metricsQueryStartDate}`
+                          }
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    No metrics data available
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

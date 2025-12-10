@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, MapPin, Clock, Users, Navigation, RefreshCw, Eye, AlertTriangle } from "lucide-react"
+import { Search, MapPin, Clock, Users, Navigation, Eye, AlertTriangle } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -370,7 +370,7 @@ function TripDetailsDialog({ trip, bus, isOpen, onClose }: { trip: Trip; bus: Bu
 
 export default function LiveTrackingPage() {
   const { user } = useAuth()
-  const { activeTrips, loading, error, refetch } = useActiveTrips(user?.companyId)
+  const { activeTrips, loading, error } = useActiveTrips(user?.companyId)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRoute, setSelectedRoute] = useState("all")
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null)
@@ -380,19 +380,23 @@ export default function LiveTrackingPage() {
   // Map ActiveCompanyTrip to Trip type (trip-centered view)
   const trips = useMemo(() => {
     return activeTrips.map((trip: ActiveCompanyTrip) => {
-      const finalDestination = trip.destinations[trip.destinations.length - 1]
+      // Handle trips with 0 destinations
+      const hasDestinations = trip.destinations && trip.destinations.length > 0
+      const finalDestination = hasDestinations ? trip.destinations[trip.destinations.length - 1] : null
       
       // Calculate revenue from destinations
-      const revenue = trip.destinations.reduce((sum, dest) => sum + (dest.fare || 0), 0)
+      const revenue = hasDestinations 
+        ? trip.destinations.reduce((sum, dest) => sum + (dest.fare || 0), 0) 
+        : 0
       
       // Find next destination that hasn't been passed
-      const nextDestination = trip.destinations.find((dest) => !dest.isPassede)
+      const nextDestination = hasDestinations ? trip.destinations.find((dest) => !dest.isPassede) : null
       const nextStopName = nextDestination?.addres || finalDestination?.addres || "N/A"
       const nextStopDistance = nextDestination?.remainingDistance ?? finalDestination?.remainingDistance ?? null
       
       // Calculate progress based on passed destinations
-      const totalDestinations = trip.destinations.length
-      const passedDestinations = trip.destinations.filter((dest) => dest.isPassede).length
+      const totalDestinations = trip.destinations?.length || 0
+      const passedDestinations = hasDestinations ? trip.destinations.filter((dest) => dest.isPassede).length : 0
       let progress = totalDestinations > 0 ? Math.round((passedDestinations / totalDestinations) * 100) : 0
       
       // If status is not completed, cap progress at 99%
@@ -434,8 +438,12 @@ export default function LiveTrackingPage() {
   // Map trips to buses for display (trip-centered, but showing bus info)
   const buses = useMemo(() => {
     return activeTrips.map((trip: ActiveCompanyTrip) => {
-      const finalDestination = trip.destinations[trip.destinations.length - 1]
-      const route = `${trip.origin.addres} → ${finalDestination?.addres || "N/A"}`
+      // Handle trips with 0 destinations
+      const hasDestinations = trip.destinations && trip.destinations.length > 0
+      const finalDestination = hasDestinations ? trip.destinations[trip.destinations.length - 1] : null
+      const route = hasDestinations 
+        ? `${trip.origin.addres} → ${finalDestination?.addres || "N/A"}`
+        : `${trip.origin.addres} → No destination`
       
       const tripData = trips.find(t => t.id === trip.id)
       
@@ -482,13 +490,6 @@ export default function LiveTrackingPage() {
   }
 
 
-  const manualRefresh = () => {
-    // Refetch in background without blocking UI
-    if (refetch) {
-      refetch()
-    }
-  }
-
   return (
     <div className="flex flex-col">
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -497,12 +498,6 @@ export default function LiveTrackingPage() {
           <div>
             <h1 className="text-lg font-semibold">Live Fleet Tracking</h1>
             <p className="text-sm text-muted-foreground">Real-time monitoring of all active buses</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" onClick={manualRefresh}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh Now
-            </Button>
           </div>
         </div>
       </header>

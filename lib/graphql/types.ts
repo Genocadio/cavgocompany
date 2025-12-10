@@ -302,6 +302,14 @@ export interface GetActiveTripsVariables {
   companyId: string
 }
 
+export interface ActiveCompanyTripsSubscriptionResponse {
+  activeCompanyTrips: ActiveCompanyTrip[]
+}
+
+export interface ActiveCompanyTripsSubscriptionVariables {
+  companyId: string
+}
+
 // Legacy types for backward compatibility
 export interface LiveTripCar {
   plate: string
@@ -467,5 +475,22 @@ export interface GetCompanyMetricsVariables {
   companyId: string
   startTime?: number | null
   endTime?: number | null
+}
+
+export interface CarMetrics {
+  totalDistance: number
+  totalRevenue: number
+  totalTrips: number
+  carId: string
+}
+
+export interface GetCarMetricsResponse {
+  carMetrics: CarMetrics
+}
+
+export interface GetCarMetricsVariables {
+  carId: string
+  startDate?: string | null
+  endDate?: string | null
 }
 

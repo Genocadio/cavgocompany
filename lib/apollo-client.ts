@@ -1,12 +1,49 @@
 "use client"
 
-import { ApolloClient, InMemoryCache, createHttpLink, from } from "@apollo/client"
+import { ApolloClient, InMemoryCache, createHttpLink, from, split } from "@apollo/client"
 import { setContext } from "@apollo/client/link/context"
 import { onError } from "@apollo/client/link/error"
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions"
+import { createClient } from "graphql-ws"
+import { getMainDefinition } from "@apollo/client/utilities"
+
+const httpUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:4000/graphql"
+// Convert HTTP URL to WebSocket URL
+const getWsUrl = (url: string): string => {
+  if (url.startsWith("https://")) {
+    return url.replace("https://", "wss://")
+  }
+  if (url.startsWith("http://")) {
+    return url.replace("http://", "ws://")
+  }
+  // If no protocol, assume ws://
+  return `ws://${url}`
+}
+const wsUrl = getWsUrl(httpUrl)
 
 const httpLink = createHttpLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:4000/graphql",
+  uri: httpUrl,
 })
+
+// Create WebSocket client for subscriptions (only on client side)
+const wsClient = typeof window !== "undefined" 
+  ? createClient({
+      url: wsUrl,
+      connectionParams: () => {
+        try {
+          const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
+          return token ? { authorization: `Bearer ${token}` } : {}
+        } catch (error) {
+          console.error("Error getting auth token for WebSocket:", error)
+          return {}
+        }
+      },
+      shouldRetry: () => true,
+    })
+  : null
+
+// Create WebSocket link (only on client side)
+const wsLink = typeof window !== "undefined" && wsClient ? new GraphQLWsLink(wsClient) : null
 
 const authLink = setContext((_, { headers }) => {
   // Get the authentication token from localStorage if it exists
@@ -44,8 +81,23 @@ const errorLink = onError(({ graphQLErrors, networkError }: any) => {
   }
 })
 
+// Split link: use WebSocket for subscriptions, HTTP for queries and mutations
+const splitLink = typeof window !== "undefined" && wsLink
+  ? split(
+      ({ query }) => {
+        const definition = getMainDefinition(query)
+        return (
+          definition.kind === "OperationDefinition" &&
+          definition.operation === "subscription"
+        )
+      },
+      wsLink,
+      from([errorLink, authLink, httpLink])
+    )
+  : from([errorLink, authLink, httpLink])
+
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: splitLink,
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {

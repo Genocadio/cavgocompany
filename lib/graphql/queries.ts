@@ -220,6 +220,47 @@ export const GET_ACTIVE_TRIPS = gql`
   }
 `
 
+export const ACTIVE_COMPANY_TRIPS_SUBSCRIPTION = gql`
+  subscription ActiveCompanyTrips($companyId: ID!) {
+    activeCompanyTrips(companyId: $companyId) {
+      id
+      origin {
+        id
+        addres
+        lat
+        lng
+      }
+      totalDistance
+      status
+      updatedAt
+      createdAt
+      carDriver {
+        car {
+          capacity
+          plate
+          model
+        }
+        driver {
+          phoneNumber
+          name
+          id
+        }
+      }
+      destinations {
+        addres
+        fare
+        id
+        index
+        isPassede
+        lat
+        lng
+        passedTime
+        remainingDistance
+      }
+    }
+  }
+`
+
 export const GET_COMPANY_DRIVERS = gql`
   query GetDriversByCompany($companyId: ID!) {
     getDriversByCompany(companyId: $companyId) {
@@ -292,6 +333,17 @@ export const GET_COMPANY_METRICS = gql`
         granularity
         unit
       }
+    }
+  }
+`
+
+export const GET_CAR_METRICS = gql`
+  query CarMetrics($carId: ID!, $startDate: String, $endDate: String) {
+    carMetrics(carId: $carId, startDate: $startDate, endDate: $endDate) {
+      totalDistance
+      totalRevenue
+      totalTrips
+      carId
     }
   }
 `

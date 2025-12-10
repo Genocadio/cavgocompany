@@ -25,6 +25,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "graphql": "^16.12.0",
+    "graphql-ws": "^5.16.2",
     "lucide-react": "^0.524.0",
     "next": "15.3.6",
     "react": "^19.0.0",
