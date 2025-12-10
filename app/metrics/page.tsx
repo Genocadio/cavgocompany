@@ -95,6 +95,17 @@ export default function MetricsPage() {
   // Determine screen size category
   const isSmallScreen = windowWidth > 0 && windowWidth < 640 // sm breakpoint
   const isMediumScreen = windowWidth >= 640 && windowWidth < 1024 // md breakpoint
+  
+  // Calculate if charts can fit horizontally
+  // Each chart needs minimum ~400px width to display properly (including margins, padding, etc.)
+  // With gap between them, we need at least 850px for side-by-side layout
+  const minWidthPerChart = 400
+  const minWidthForHorizontal = minWidthPerChart * 2 + 32 // 32px for gap
+  const canFitHorizontal = windowWidth >= minWidthForHorizontal
+  
+  // If even a single chart can't fit (needs at least 350px), hide charts
+  const minWidthForSingleChart = 350
+  const shouldShowCharts = windowWidth >= minWidthForSingleChart || windowWidth === 0
 
   const { startTime, endTime } = useMemo(() => {
     return getTimeRangeDates(selectedRange)
@@ -914,7 +925,8 @@ export default function MetricsPage() {
         </div>
 
         {/* Revenue and Trips Charts */}
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+        {shouldShowCharts && (
+          <div className={`grid gap-4 ${canFitHorizontal ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
           <Card className="overflow-hidden">
             <CardHeader className={isSmallScreen ? "p-3 pb-2" : ""}>
               <div className="flex items-center justify-between flex-wrap gap-2">
@@ -960,7 +972,7 @@ export default function MetricsPage() {
                   No revenue data available
                 </div>
               ) : (
-                <div className="overflow-x-auto -mx-3 px-3">
+                <div className="w-full">
                   <ChartContainer
                     config={{
                       revenue: {
@@ -969,24 +981,18 @@ export default function MetricsPage() {
                       },
                     }}
                     className={
-                      isSmallScreen ? "h-[200px]" : 
-                      isMediumScreen ? "h-[280px]" : 
-                      "h-[300px]"
+                      isSmallScreen ? "h-[200px] w-full" : 
+                      isMediumScreen ? "h-[280px] w-full" : 
+                      "h-[300px] w-full"
                     }
-                    style={{
-                      minWidth: Math.max(
-                        isSmallScreen ? 400 : isMediumScreen ? 500 : 600,
-                        filteredRevenueChartData.length * (isSmallScreen ? 40 : isMediumScreen ? 50 : 60) + 100
-                      )
-                    }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart 
                         data={filteredRevenueChartData} 
                         margin={
-                          isSmallScreen ? { top: 5, right: 20, left: 5, bottom: 50 } : 
-                          isMediumScreen ? { top: 10, right: 20, left: 10, bottom: 70 } : 
-                          { top: 10, right: 30, left: 15, bottom: 80 }
+                          isSmallScreen ? { top: 5, right: 5, left: 0, bottom: 50 } : 
+                          isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
+                          canFitHorizontal ? { top: 10, right: 20, left: 10, bottom: 80 } : { top: 10, right: 10, left: 5, bottom: 80 }
                         }
                       >
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
@@ -1074,7 +1080,7 @@ export default function MetricsPage() {
                     </LineChart>
                   </ResponsiveContainer>
                 </ChartContainer>
-                </div>
+                  </div>
               )}
             </CardContent>
           </Card>
@@ -1124,7 +1130,7 @@ export default function MetricsPage() {
                   No trips data available
                 </div>
               ) : (
-                <div className="overflow-x-auto -mx-3 px-3">
+                <div className="w-full">
                   <ChartContainer
                     config={{
                       trips: {
@@ -1133,24 +1139,18 @@ export default function MetricsPage() {
                       },
                     }}
                     className={
-                      isSmallScreen ? "h-[200px]" : 
-                      isMediumScreen ? "h-[280px]" : 
-                      "h-[300px]"
+                      isSmallScreen ? "h-[200px] w-full" : 
+                      isMediumScreen ? "h-[280px] w-full" : 
+                      "h-[300px] w-full"
                     }
-                    style={{
-                      minWidth: Math.max(
-                        isSmallScreen ? 400 : isMediumScreen ? 500 : 600,
-                        filteredTripsChartData.length * (isSmallScreen ? 40 : isMediumScreen ? 50 : 60) + 100
-                      )
-                    }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
                         data={filteredTripsChartData} 
                         margin={
-                          isSmallScreen ? { top: 5, right: 20, left: 5, bottom: 50 } : 
-                          isMediumScreen ? { top: 10, right: 20, left: 10, bottom: 70 } : 
-                          { top: 10, right: 30, left: 15, bottom: 80 }
+                          isSmallScreen ? { top: 5, right: 5, left: 0, bottom: 50 } : 
+                          isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
+                          canFitHorizontal ? { top: 10, right: 20, left: 10, bottom: 80 } : { top: 10, right: 10, left: 5, bottom: 80 }
                         }
                       >
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
@@ -1232,11 +1232,12 @@ export default function MetricsPage() {
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartContainer>
-                </div>
+                  </div>
               )}
             </CardContent>
           </Card>
-        </div>
+          </div>
+        )}
 
         {/* Additional Metrics */}
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
