@@ -960,7 +960,7 @@ export default function MetricsPage() {
                   No revenue data available
                 </div>
               ) : (
-                <div className={isSmallScreen ? "overflow-x-auto -mx-3 px-3" : ""}>
+                <div className="overflow-x-auto -mx-3 px-3">
                   <ChartContainer
                     config={{
                       revenue: {
@@ -969,18 +969,24 @@ export default function MetricsPage() {
                       },
                     }}
                     className={
-                      isSmallScreen ? "h-[200px] min-w-[320px]" : 
+                      isSmallScreen ? "h-[200px]" : 
                       isMediumScreen ? "h-[280px]" : 
                       "h-[300px]"
                     }
+                    style={{
+                      minWidth: Math.max(
+                        isSmallScreen ? 400 : isMediumScreen ? 500 : 600,
+                        filteredRevenueChartData.length * (isSmallScreen ? 40 : isMediumScreen ? 50 : 60) + 100
+                      )
+                    }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart 
                         data={filteredRevenueChartData} 
                         margin={
-                          isSmallScreen ? { top: 5, right: 5, left: -5, bottom: 50 } : 
-                          isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
-                          { top: 10, right: 20, left: 10, bottom: 80 }
+                          isSmallScreen ? { top: 5, right: 20, left: 5, bottom: 50 } : 
+                          isMediumScreen ? { top: 10, right: 20, left: 10, bottom: 70 } : 
+                          { top: 10, right: 30, left: 15, bottom: 80 }
                         }
                       >
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
@@ -1118,7 +1124,7 @@ export default function MetricsPage() {
                   No trips data available
                 </div>
               ) : (
-                <div className={isSmallScreen ? "overflow-x-auto -mx-3 px-3" : ""}>
+                <div className="overflow-x-auto -mx-3 px-3">
                   <ChartContainer
                     config={{
                       trips: {
@@ -1127,18 +1133,24 @@ export default function MetricsPage() {
                       },
                     }}
                     className={
-                      isSmallScreen ? "h-[200px] min-w-[320px]" : 
+                      isSmallScreen ? "h-[200px]" : 
                       isMediumScreen ? "h-[280px]" : 
                       "h-[300px]"
                     }
+                    style={{
+                      minWidth: Math.max(
+                        isSmallScreen ? 400 : isMediumScreen ? 500 : 600,
+                        filteredTripsChartData.length * (isSmallScreen ? 40 : isMediumScreen ? 50 : 60) + 100
+                      )
+                    }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
                         data={filteredTripsChartData} 
                         margin={
-                          isSmallScreen ? { top: 5, right: 5, left: -5, bottom: 50 } : 
-                          isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
-                          { top: 10, right: 20, left: 10, bottom: 80 }
+                          isSmallScreen ? { top: 5, right: 20, left: 5, bottom: 50 } : 
+                          isMediumScreen ? { top: 10, right: 20, left: 10, bottom: 70 } : 
+                          { top: 10, right: 30, left: 15, bottom: 80 }
                         }
                       >
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
