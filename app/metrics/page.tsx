@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -388,7 +388,7 @@ export default function MetricsPage() {
   }
   
   // Sort weekly data by day of week (Monday to Sunday)
-  const sortWeeklyData = <T extends { originalLabel: string }>(data: T[]): T[] => {
+  const sortWeeklyData = useCallback(<T extends { originalLabel: string }>(data: T[]): T[] => {
     return [...data].sort((a, b) => {
       const dayA = getDayOfWeekFromLabel(a.originalLabel)
       const dayB = getDayOfWeekFromLabel(b.originalLabel)
@@ -399,7 +399,7 @@ export default function MetricsPage() {
       
       return dayA - dayB
     })
-  }
+  }, [])
 
   // Format revenue series data
   const revenueChartData = useMemo(() => {
@@ -420,7 +420,7 @@ export default function MetricsPage() {
     }
     
     return formattedData
-  }, [metrics])
+  }, [metrics, sortWeeklyData])
 
   // Format trips series data
   const tripsChartData = useMemo(() => {
@@ -441,7 +441,7 @@ export default function MetricsPage() {
     }
     
     return formattedData
-  }, [metrics])
+  }, [metrics, sortWeeklyData])
   
   // Check if data is too dense and needs filtering
   const isDataTooDense = (dataLength: number, granularity?: string): boolean => {
@@ -465,7 +465,7 @@ export default function MetricsPage() {
   }
   
   // Filter chart data based on chart-level range selection
-  const filterChartData = <T extends { originalLabel: string }>(
+  const filterChartData = useCallback(<T extends { originalLabel: string }>(
     data: T[],
     range: string,
     granularity?: string
@@ -514,7 +514,7 @@ export default function MetricsPage() {
     }
     
     return data.slice(startIndex, endIndex)
-  }
+  }, [])
   
   // Get filtered revenue chart data
   const filteredRevenueChartData = useMemo(() => {
@@ -523,7 +523,7 @@ export default function MetricsPage() {
       revenueChartRange,
       metrics?.revenueSeries?.granularity
     )
-  }, [revenueChartData, revenueChartRange, metrics?.revenueSeries?.granularity])
+  }, [revenueChartData, revenueChartRange, metrics?.revenueSeries?.granularity, filterChartData])
   
   // Get filtered trips chart data
   const filteredTripsChartData = useMemo(() => {
@@ -532,10 +532,10 @@ export default function MetricsPage() {
       tripsChartRange,
       metrics?.tripsSeries?.granularity
     )
-  }, [tripsChartData, tripsChartRange, metrics?.tripsSeries?.granularity])
+  }, [tripsChartData, tripsChartRange, metrics?.tripsSeries?.granularity, filterChartData])
   
   // Get chart range options based on granularity and data length
-  const getChartRangeOptions = (dataLength: number, granularity?: string): Array<{ label: string; value: string }> => {
+  const getChartRangeOptions = useCallback((dataLength: number, granularity?: string): Array<{ label: string; value: string }> => {
     if (!isDataTooDense(dataLength, granularity)) {
       return []
     }
@@ -584,7 +584,7 @@ export default function MetricsPage() {
     }
     
     return options
-  }
+  }, [])
   
   // Get XAxis interval for revenue chart
   const revenueXAxisInterval = useMemo(() => 
@@ -611,12 +611,12 @@ export default function MetricsPage() {
   // Get chart range options
   const revenueChartRangeOptions = useMemo(() => 
     getChartRangeOptions(revenueChartData.length, metrics?.revenueSeries?.granularity),
-    [revenueChartData.length, metrics?.revenueSeries?.granularity]
+    [revenueChartData.length, metrics?.revenueSeries?.granularity, getChartRangeOptions]
   )
   
   const tripsChartRangeOptions = useMemo(() => 
     getChartRangeOptions(tripsChartData.length, metrics?.tripsSeries?.granularity),
-    [tripsChartData.length, metrics?.tripsSeries?.granularity]
+    [tripsChartData.length, metrics?.tripsSeries?.granularity, getChartRangeOptions]
   )
   
   // Custom tick formatter for hourly charts - show AM/PM only at start and end
@@ -772,95 +772,97 @@ export default function MetricsPage() {
 
         {/* Trip Status Breakdown */}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-          <Card>
+          <Card className="overflow-hidden">
             <CardHeader>
-              <CardTitle>Trip Status Breakdown</CardTitle>
-              <CardDescription>Distribution of trips by status</CardDescription>
+              <CardTitle className={isSmallScreen ? "text-base" : ""}>Trip Status Breakdown</CardTitle>
+              <CardDescription className={isSmallScreen ? "text-xs" : ""}>Distribution of trips by status</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isSmallScreen ? "p-3" : ""}>
               {loading ? (
                 <Skeleton className={
-                  isSmallScreen ? "h-[250px] w-full" : 
+                  isSmallScreen ? "h-[200px] w-full" : 
                   isMediumScreen ? "h-[280px] w-full" : 
                   "h-[300px] w-full"
                 } />
               ) : statusData.length === 0 ? (
                 <div className={`flex items-center justify-center text-muted-foreground ${
-                  isSmallScreen ? "h-[250px]" : 
+                  isSmallScreen ? "h-[200px]" : 
                   isMediumScreen ? "h-[280px]" : 
                   "h-[300px]"
                 }`}>
                   No trip data available
                 </div>
               ) : (
-                <ChartContainer
-                  config={{
-                    value: {
-                      label: "Trips",
-                      color: "hsl(var(--chart-1))",
-                    },
-                  }}
-                  className={
-                    isSmallScreen ? "h-[250px]" : 
-                    isMediumScreen ? "h-[280px]" : 
-                    "h-[300px]"
-                  }
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={statusData}
-                        cx="50%"
-                        cy={isSmallScreen ? "45%" : isMediumScreen ? "47%" : "50%"}
-                        labelLine={false}
-                        label={
-                          isSmallScreen ? false : 
-                          isMediumScreen ? ({ name, value }) => `${name}: ${value}` :
-                          ({ name, value, percent }) => {
-                            const percentage = percent ? (percent * 100).toFixed(0) : 0
-                            return `${name}\n${value} (${percentage}%)`
+                <div className={isSmallScreen ? "overflow-x-auto -mx-3 px-3" : ""}>
+                  <ChartContainer
+                    config={{
+                      value: {
+                        label: "Trips",
+                        color: "hsl(var(--chart-1))",
+                      },
+                    }}
+                    className={
+                      isSmallScreen ? "h-[200px] min-w-[280px]" : 
+                      isMediumScreen ? "h-[280px]" : 
+                      "h-[300px]"
+                    }
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={statusData}
+                          cx="50%"
+                          cy={isSmallScreen ? "45%" : isMediumScreen ? "47%" : "50%"}
+                          labelLine={false}
+                          label={
+                            isSmallScreen ? false : 
+                            isMediumScreen ? ({ name, value }) => `${name}: ${value}` :
+                            ({ name, value, percent }) => {
+                              const percentage = percent ? (percent * 100).toFixed(0) : 0
+                              return `${name}\n${value} (${percentage}%)`
+                            }
                           }
-                        }
-                        outerRadius={
-                          isSmallScreen ? 60 : 
-                          isMediumScreen ? 75 : 
-                          90
-                        }
-                        innerRadius={isSmallScreen ? 20 : isMediumScreen ? 25 : 30}
-                        fill="#8884d8"
-                        dataKey="value"
-                        paddingAngle={2}
-                      >
-                        {statusData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip 
-                        content={<ChartTooltipContent />}
-                        formatter={(value: number, name: string) => {
-                          const total = statusData.reduce((sum, item) => sum + item.value, 0)
-                          const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0
-                          return [`${value} trips (${percent}%)`, name]
-                        }}
-                        wrapperStyle={{ 
-                          fontSize: isSmallScreen ? "11px" : 
-                                   isMediumScreen ? "12px" : 
-                                   "14px" 
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
+                          outerRadius={
+                            isSmallScreen ? 50 : 
+                            isMediumScreen ? 75 : 
+                            90
+                          }
+                          innerRadius={isSmallScreen ? 15 : isMediumScreen ? 25 : 30}
+                          fill="#8884d8"
+                          dataKey="value"
+                          paddingAngle={2}
+                        >
+                          {statusData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip 
+                          content={<ChartTooltipContent />}
+                          formatter={(value: number, name: string) => {
+                            const total = statusData.reduce((sum, item) => sum + item.value, 0)
+                            const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0
+                            return [`${value} trips (${percent}%)`, name]
+                          }}
+                          wrapperStyle={{ 
+                            fontSize: isSmallScreen ? "11px" : 
+                                     isMediumScreen ? "12px" : 
+                                     "14px" 
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
               )}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Status Summary</CardTitle>
-              <CardDescription>Detailed trip status counts</CardDescription>
+              <CardTitle className={isSmallScreen ? "text-base" : ""}>Status Summary</CardTitle>
+              <CardDescription className={isSmallScreen ? "text-xs" : ""}>Detailed trip status counts</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isSmallScreen ? "p-3" : ""}>
               {loading ? (
                 <div className="space-y-4">
                   {Array.from({ length: 4 }).map((_, i) => (
@@ -868,40 +870,40 @@ export default function MetricsPage() {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-green-50">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-green-50">
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-green-500" />
-                      <span className={`font-medium ${isMobile ? "text-sm" : ""}`}>Completed</span>
+                      <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0" />
+                      <span className={`font-medium ${isSmallScreen ? "text-xs" : isMobile ? "text-sm" : ""}`}>Completed</span>
                     </div>
-                    <div className={`font-bold text-green-700 ${isMobile ? "text-xl" : "text-2xl"}`}>
+                    <div className={`font-bold text-green-700 ${isSmallScreen ? "text-lg" : isMobile ? "text-xl" : "text-2xl"}`}>
                       {metrics?.tripsByStatus?.completed || 0}
                     </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50">
+                  <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-blue-50">
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-blue-500" />
-                      <span className={`font-medium ${isMobile ? "text-sm" : ""}`}>In Progress</span>
+                      <div className="w-3 h-3 rounded-full bg-blue-500 flex-shrink-0" />
+                      <span className={`font-medium ${isSmallScreen ? "text-xs" : isMobile ? "text-sm" : ""}`}>In Progress</span>
                     </div>
-                    <div className={`font-bold text-blue-700 ${isMobile ? "text-xl" : "text-2xl"}`}>
+                    <div className={`font-bold text-blue-700 ${isSmallScreen ? "text-lg" : isMobile ? "text-xl" : "text-2xl"}`}>
                       {metrics?.tripsByStatus?.in_progress || 0}
                     </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-50">
+                  <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-yellow-50">
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                      <span className={`font-medium ${isMobile ? "text-sm" : ""}`}>Scheduled</span>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500 flex-shrink-0" />
+                      <span className={`font-medium ${isSmallScreen ? "text-xs" : isMobile ? "text-sm" : ""}`}>Scheduled</span>
                     </div>
-                    <div className={`font-bold text-yellow-700 ${isMobile ? "text-xl" : "text-2xl"}`}>
+                    <div className={`font-bold text-yellow-700 ${isSmallScreen ? "text-lg" : isMobile ? "text-xl" : "text-2xl"}`}>
                       {metrics?.tripsByStatus?.scheduled || 0}
                     </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-red-50">
+                  <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-red-50">
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500" />
-                      <span className={`font-medium ${isMobile ? "text-sm" : ""}`}>Cancelled</span>
+                      <div className="w-3 h-3 rounded-full bg-red-500 flex-shrink-0" />
+                      <span className={`font-medium ${isSmallScreen ? "text-xs" : isMobile ? "text-sm" : ""}`}>Cancelled</span>
                     </div>
-                    <div className={`font-bold text-red-700 ${isMobile ? "text-xl" : "text-2xl"}`}>
+                    <div className={`font-bold text-red-700 ${isSmallScreen ? "text-lg" : isMobile ? "text-xl" : "text-2xl"}`}>
                       {metrics?.tripsByStatus?.cancelled || 0}
                     </div>
                   </div>
@@ -913,19 +915,19 @@ export default function MetricsPage() {
 
         {/* Revenue and Trips Charts */}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className={isSmallScreen ? "p-3 pb-2" : ""}>
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <CardTitle>Revenue Trend</CardTitle>
-                  <CardDescription>
+                  <CardTitle className={isSmallScreen ? "text-base" : ""}>Revenue Trend</CardTitle>
+                  <CardDescription className={isSmallScreen ? "text-xs" : ""}>
                     Revenue over time ({metrics?.revenueSeries?.granularity || "N/A"})
                   </CardDescription>
                 </div>
                 {revenueChartRangeOptions.length > 0 && (
                   <Select value={revenueChartRange} onValueChange={setRevenueChartRange}>
                     <SelectTrigger className={
-                      isSmallScreen ? "w-[120px] text-xs" : 
+                      isSmallScreen ? "w-[100px] text-xs h-7" : 
                       isMediumScreen ? "w-[140px] text-sm" : 
                       "w-[160px]"
                     }>
@@ -942,44 +944,45 @@ export default function MetricsPage() {
                 )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isSmallScreen ? "p-3 pt-0" : ""}>
               {loading ? (
                 <Skeleton className={
-                  isSmallScreen ? "h-[250px] w-full" : 
+                  isSmallScreen ? "h-[200px] w-full" : 
                   isMediumScreen ? "h-[280px] w-full" : 
                   "h-[300px] w-full"
                 } />
               ) : filteredRevenueChartData.length === 0 ? (
                 <div className={`flex items-center justify-center text-muted-foreground ${
-                  isSmallScreen ? "h-[250px]" : 
+                  isSmallScreen ? "h-[200px]" : 
                   isMediumScreen ? "h-[280px]" : 
                   "h-[300px]"
                 }`}>
                   No revenue data available
                 </div>
               ) : (
-                <ChartContainer
-                  config={{
-                    revenue: {
-                      label: "Revenue",
-                      color: "hsl(var(--chart-2))",
-                    },
-                  }}
-                  className={
-                    isSmallScreen ? "h-[250px]" : 
-                    isMediumScreen ? "h-[280px]" : 
-                    "h-[300px]"
-                  }
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart 
-                      data={filteredRevenueChartData} 
-                      margin={
-                        isSmallScreen ? { top: 10, right: 10, left: 0, bottom: 60 } : 
-                        isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
-                        { top: 10, right: 20, left: 10, bottom: 80 }
-                      }
-                    >
+                <div className={isSmallScreen ? "overflow-x-auto -mx-3 px-3" : ""}>
+                  <ChartContainer
+                    config={{
+                      revenue: {
+                        label: "Revenue",
+                        color: "hsl(var(--chart-2))",
+                      },
+                    }}
+                    className={
+                      isSmallScreen ? "h-[200px] min-w-[320px]" : 
+                      isMediumScreen ? "h-[280px]" : 
+                      "h-[300px]"
+                    }
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart 
+                        data={filteredRevenueChartData} 
+                        margin={
+                          isSmallScreen ? { top: 5, right: 5, left: -5, bottom: 50 } : 
+                          isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
+                          { top: 10, right: 20, left: 10, bottom: 80 }
+                        }
+                      >
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                       <XAxis 
                         dataKey="label" 
@@ -1065,23 +1068,24 @@ export default function MetricsPage() {
                     </LineChart>
                   </ResponsiveContainer>
                 </ChartContainer>
+                </div>
               )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className={isSmallScreen ? "p-3 pb-2" : ""}>
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <CardTitle>Trips Trend</CardTitle>
-                  <CardDescription>
+                  <CardTitle className={isSmallScreen ? "text-base" : ""}>Trips Trend</CardTitle>
+                  <CardDescription className={isSmallScreen ? "text-xs" : ""}>
                     Number of trips over time ({metrics?.tripsSeries?.granularity || "N/A"})
                   </CardDescription>
                 </div>
                 {tripsChartRangeOptions.length > 0 && (
                   <Select value={tripsChartRange} onValueChange={setTripsChartRange}>
                     <SelectTrigger className={
-                      isSmallScreen ? "w-[120px] text-xs" : 
+                      isSmallScreen ? "w-[100px] text-xs h-7" : 
                       isMediumScreen ? "w-[140px] text-sm" : 
                       "w-[160px]"
                     }>
@@ -1098,44 +1102,45 @@ export default function MetricsPage() {
                 )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isSmallScreen ? "p-3 pt-0" : ""}>
               {loading ? (
                 <Skeleton className={
-                  isSmallScreen ? "h-[250px] w-full" : 
+                  isSmallScreen ? "h-[200px] w-full" : 
                   isMediumScreen ? "h-[280px] w-full" : 
                   "h-[300px] w-full"
                 } />
               ) : filteredTripsChartData.length === 0 ? (
                 <div className={`flex items-center justify-center text-muted-foreground ${
-                  isSmallScreen ? "h-[250px]" : 
+                  isSmallScreen ? "h-[200px]" : 
                   isMediumScreen ? "h-[280px]" : 
                   "h-[300px]"
                 }`}>
                   No trips data available
                 </div>
               ) : (
-                <ChartContainer
-                  config={{
-                    trips: {
-                      label: "Trips",
-                      color: "hsl(var(--chart-1))",
-                    },
-                  }}
-                  className={
-                    isSmallScreen ? "h-[250px]" : 
-                    isMediumScreen ? "h-[280px]" : 
-                    "h-[300px]"
-                  }
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart 
-                      data={filteredTripsChartData} 
-                      margin={
-                        isSmallScreen ? { top: 10, right: 10, left: 0, bottom: 60 } : 
-                        isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
-                        { top: 10, right: 20, left: 10, bottom: 80 }
-                      }
-                    >
+                <div className={isSmallScreen ? "overflow-x-auto -mx-3 px-3" : ""}>
+                  <ChartContainer
+                    config={{
+                      trips: {
+                        label: "Trips",
+                        color: "hsl(var(--chart-1))",
+                      },
+                    }}
+                    className={
+                      isSmallScreen ? "h-[200px] min-w-[320px]" : 
+                      isMediumScreen ? "h-[280px]" : 
+                      "h-[300px]"
+                    }
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart 
+                        data={filteredTripsChartData} 
+                        margin={
+                          isSmallScreen ? { top: 5, right: 5, left: -5, bottom: 50 } : 
+                          isMediumScreen ? { top: 10, right: 15, left: 5, bottom: 70 } : 
+                          { top: 10, right: 20, left: 10, bottom: 80 }
+                        }
+                      >
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                       <XAxis 
                         dataKey="label" 
@@ -1215,74 +1220,75 @@ export default function MetricsPage() {
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartContainer>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
 
         {/* Additional Metrics */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Average Distance</CardTitle>
+            <CardHeader className={isSmallScreen ? "p-3 pb-2" : ""}>
+              <CardTitle className={isSmallScreen ? "text-sm" : "text-base"}>Average Distance</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isSmallScreen ? "p-3 pt-0" : ""}>
               {loading ? (
                 <Skeleton className="h-16 w-full" />
               ) : (
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-2xl font-bold">
+                    <div className={`font-bold ${isSmallScreen ? "text-lg" : "text-2xl"}`}>
                       {((metrics?.averageTripDistance || 0) / 1000).toFixed(2)} km
                     </div>
-                    <p className="text-sm text-muted-foreground">Per trip</p>
+                    <p className={`text-muted-foreground ${isSmallScreen ? "text-xs" : "text-sm"}`}>Per trip</p>
                   </div>
-                  <MapPin className="h-8 w-8 text-muted-foreground" />
+                  <MapPin className={`text-muted-foreground ${isSmallScreen ? "h-6 w-6" : "h-8 w-8"}`} />
                 </div>
               )}
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Average Duration</CardTitle>
+            <CardHeader className={isSmallScreen ? "p-3 pb-2" : ""}>
+              <CardTitle className={isSmallScreen ? "text-sm" : "text-base"}>Average Duration</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isSmallScreen ? "p-3 pt-0" : ""}>
               {loading ? (
                 <Skeleton className="h-16 w-full" />
               ) : (
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-2xl font-bold">
+                    <div className={`font-bold ${isSmallScreen ? "text-lg" : "text-2xl"}`}>
                       {Math.round((metrics?.averageTripDuration || 0) / 60)} min
                     </div>
-                    <p className="text-sm text-muted-foreground">Per trip</p>
+                    <p className={`text-muted-foreground ${isSmallScreen ? "text-xs" : "text-sm"}`}>Per trip</p>
                   </div>
-                  <Clock className="h-8 w-8 text-muted-foreground" />
+                  <Clock className={`text-muted-foreground ${isSmallScreen ? "h-6 w-6" : "h-8 w-8"}`} />
                 </div>
               )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Revenue from Completed</CardTitle>
+          <Card className="sm:col-span-2 md:col-span-1">
+            <CardHeader className={isSmallScreen ? "p-3 pb-2" : ""}>
+              <CardTitle className={isSmallScreen ? "text-sm" : "text-base"}>Revenue from Completed</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isSmallScreen ? "p-3 pt-0" : ""}>
               {loading ? (
                 <Skeleton className="h-16 w-full" />
               ) : (
                 <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xl font-bold">
+                  <div className="min-w-0 flex-1">
+                    <div className={`font-bold ${isSmallScreen ? "text-lg" : "text-2xl"} break-words`}>
                       {new Intl.NumberFormat("en-RW", {
                         style: "currency",
                         currency: "RWF",
                       }).format(metrics?.revenueFromCompletedTrips || 0)}
                     </div>
-                    <p className="text-sm text-muted-foreground">Completed trips only</p>
+                    <p className={`text-muted-foreground ${isSmallScreen ? "text-xs" : "text-sm"}`}>Completed trips only</p>
                   </div>
-                  <TrendingUp className="h-8 w-8 text-muted-foreground" />
+                  <TrendingUp className={`text-muted-foreground flex-shrink-0 ${isSmallScreen ? "h-6 w-6 ml-2" : "h-8 w-8"}`} />
                 </div>
               )}
             </CardContent>

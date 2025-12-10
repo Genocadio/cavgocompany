@@ -2,6 +2,7 @@
 
 import { Bus, BarChart3, UserCheck, Home, LogOut, Navigation, Calendar, User } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/components/auth-provider"
 
@@ -86,11 +87,17 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Bus className="h-4 w-4" />
+        <div className="flex items-center gap-2 px-2 py-2 md:justify-center lg:justify-start">
+          <div className="flex h-8 w-8 items-center justify-center flex-shrink-0">
+            <Image 
+              src="/logo.webp" 
+              alt="Logo" 
+              width={32} 
+              height={32} 
+              className="object-contain"
+            />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col md:hidden lg:flex">
             <span className="text-sm font-semibold">cavgoadmin</span>
             <span className="text-xs text-muted-foreground">{user?.companyName || "Company"}</span>
           </div>
@@ -99,15 +106,15 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="flex md:hidden lg:flex">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
                     <Link href={item.url}>
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span className="inline md:hidden lg:inline">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -126,16 +133,16 @@ export function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <button 
                   type="button"
-                  className="flex items-center gap-3 w-full p-2 rounded-md hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[44px]"
+                  className="flex items-center gap-3 w-full p-2 rounded-md hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[44px] justify-start md:justify-center lg:justify-start"
                   aria-label="User menu"
                 >
-                  <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-background shadow-sm">
+                  <Avatar className="flex-shrink-0 border-2 border-background shadow-sm h-8 w-8 md:h-8 md:w-8 lg:h-10 lg:w-10">
                     <AvatarImage src="/placeholder-user.jpg" alt={user?.name || user?.username || "User"} />
-                    <AvatarFallback className="text-sm font-semibold bg-primary text-primary-foreground border-2 border-primary/20">
+                    <AvatarFallback className="font-semibold bg-primary text-primary-foreground border-2 border-primary/20 text-xs md:text-xs lg:text-sm">
                       {getInitials(user?.name || user?.username || "User")}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex flex-col items-start flex-1 min-w-0">
+                  <div className="flex flex-col items-start flex-1 min-w-0 md:hidden lg:flex">
                     <span className="text-sm font-medium truncate w-full">
                       {user?.name || user?.username || "User"}
                     </span>

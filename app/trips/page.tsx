@@ -11,9 +11,10 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, Calendar, Clock, MapPin, Users, Eye } from "lucide-react"
+import { Search, Calendar, Clock, MapPin, Users, Eye, Navigation, Route } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useAuth } from "@/components/auth-provider"
 import { useLiveTrips } from "@/hooks/use-live-trips"
 import { LocationAddress } from "@/components/location-address"
@@ -30,15 +31,353 @@ interface ExtendedTrip extends Trip {
   currentLocationLon?: number | null
   currentLocationSpeed?: number | null
   completionTime?: string | null
+  originalTrip?: TripByCompany
+}
+
+// Helper functions
+function getStatusColor(status: Trip["status"]) {
+  switch (status.toLowerCase()) {
+    case "scheduled":
+      return "bg-blue-100 text-blue-800"
+    case "ongoing":
+    case "in_progress":
+      return "bg-green-100 text-green-800"
+    case "completed":
+      return "bg-gray-100 text-gray-800"
+    case "cancelled":
+      return "bg-red-100 text-red-800"
+    default:
+      return "bg-gray-100 text-gray-800"
+  }
+}
+
+function getStatusLabel(status: Trip["status"]) {
+  switch (status.toLowerCase()) {
+    case "scheduled":
+      return "Scheduled"
+    case "ongoing":
+    case "in_progress":
+      return "Ongoing"
+    case "completed":
+      return "Completed"
+    case "cancelled":
+      return "Cancelled"
+    default:
+      return status
+  }
 }
 
 // Remove dummy tripsData - using real data from GraphQL
+
+function TripDetailsDialog({ 
+  trip, 
+  isOpen, 
+  onClose 
+}: { 
+  trip: ExtendedTrip | null
+  isOpen: boolean
+  onClose: () => void 
+}) {
+  if (!trip || !trip.originalTrip) return null
+
+  const originalTrip = trip.originalTrip
+  const finalDestination = originalTrip.destinations[originalTrip.destinations.length - 1]
+  const tripStatus = trip.status.toLowerCase()
+  const isScheduled = tripStatus === "scheduled"
+  const isInProgress = tripStatus === "ongoing" || tripStatus === "in_progress"
+  const isCompleted = tripStatus === "completed" || tripStatus === "cancelled"
+
+  // Find next destination that hasn't been passed
+  const nextDestination = originalTrip.destinations.find((dest) => !dest.isPassede)
+  const passedDestinations = originalTrip.destinations.filter((dest) => dest.isPassede)
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Trip Details - {trip.id}</DialogTitle>
+          <DialogDescription>
+            Complete trip information for {trip.licensePlate} driven by {trip.driver}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Trip Overview */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Trip Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Badge className={getStatusColor(trip.status)}>{getStatusLabel(trip.status)}</Badge>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Total Distance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-semibold">
+                  {((originalTrip.totalDistance || 0) / 1000).toFixed(2)} km
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {isScheduled ? "Scheduled Departure" : isInProgress ? "Trip Started" : "Trip Created"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium">
+                  {new Date(originalTrip.createdAt).toLocaleString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+                {isCompleted && originalTrip.updatedAt && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Completed: {new Date(originalTrip.updatedAt).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Origin */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-green-600" />
+                Origin
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div>
+                <div className="text-sm font-medium">{originalTrip.origin.addres}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Coordinates: {originalTrip.origin.lat.toFixed(6)}, {originalTrip.origin.lng.toFixed(6)}
+                </div>
+              </div>
+              {isScheduled && (
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    <span className="font-medium">Departure Time:</span>{" "}
+                    {new Date(originalTrip.createdAt).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Waypoints/Destinations */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Route className="h-4 w-4 text-blue-600" />
+                Waypoints ({originalTrip.destinations.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {originalTrip.destinations.map((destination, index) => {
+                  const isPassed = destination.isPassede
+                  const isNext = !isPassed && destination === nextDestination
+                  
+                  return (
+                    <div
+                      key={destination.id}
+                      className={`p-4 rounded-lg border-2 ${
+                        isPassed
+                          ? "bg-green-50 border-green-200"
+                          : isNext
+                          ? "bg-blue-50 border-blue-300"
+                          : "bg-gray-50 border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
+                              isPassed
+                                ? "bg-green-500 text-white"
+                                : isNext
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-300 text-gray-700"
+                            }`}>
+                              {index + 1}
+                            </div>
+                            <div className="font-medium">{destination.addres}</div>
+                            {isNext && isInProgress && (
+                              <Badge variant="outline" className="text-xs">Next Stop</Badge>
+                            )}
+                            {isPassed && (
+                              <Badge variant="outline" className="text-xs bg-green-100">Passed</Badge>
+                            )}
+                          </div>
+                          
+                          <div className="ml-8 space-y-1 text-sm">
+                            <div className="text-muted-foreground">
+                              Coordinates: {destination.lat.toFixed(6)}, {destination.lng.toFixed(6)}
+                            </div>
+                            <div className="text-muted-foreground">
+                              Fare: {new Intl.NumberFormat("en-RW", {
+                                style: "currency",
+                                currency: "RWF",
+                              }).format(destination.fare || 0)}
+                            </div>
+                            
+                            {isInProgress && isNext && destination.remainingDistance != null && (
+                              <div className="text-blue-700 font-medium mt-2">
+                                <Navigation className="h-4 w-4 inline mr-1" />
+                                Remaining Distance: {(destination.remainingDistance / 1000).toFixed(2)} km
+                              </div>
+                            )}
+                            
+                            {isInProgress && !isNext && !isPassed && destination.remainingDistance != null && (
+                              <div className="text-muted-foreground mt-2">
+                                Distance to waypoint: {(destination.remainingDistance / 1000).toFixed(2)} km
+                              </div>
+                            )}
+                            
+                            {isPassed && destination.passedTime && (
+                              <div className="text-green-700 mt-2">
+                                <Clock className="h-4 w-4 inline mr-1" />
+                                Passed at: {new Date(destination.passedTime).toLocaleString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              
+              {isInProgress && nextDestination && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="text-sm font-medium text-blue-900 mb-1">Next Waypoint</div>
+                  <div className="text-sm text-blue-700">
+                    {nextDestination.addres}
+                    {nextDestination.remainingDistance != null && (
+                      <span className="ml-2">
+                        - {(nextDestination.remainingDistance / 1000).toFixed(2)} km remaining
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Final Destination */}
+          {finalDestination && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-red-600" />
+                  Final Destination
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div>
+                  <div className="text-sm font-medium">{finalDestination.addres}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Coordinates: {finalDestination.lat.toFixed(6)}, {finalDestination.lng.toFixed(6)}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Fare: {new Intl.NumberFormat("en-RW", {
+                      style: "currency",
+                      currency: "RWF",
+                    }).format(finalDestination.fare || 0)}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Additional Info for Completed Trips */}
+          {isCompleted && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Trip Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground">Trip Creation Time</div>
+                    <div className="text-sm font-medium mt-1">
+                      {new Date(originalTrip.createdAt).toLocaleString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  </div>
+                  {originalTrip.updatedAt && (
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground">Completion Time</div>
+                      <div className="text-sm font-medium mt-1">
+                        {new Date(originalTrip.updatedAt).toLocaleString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground">Total Waypoints</div>
+                    <div className="text-sm font-medium mt-1">{originalTrip.destinations.length}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground">Waypoints Passed</div>
+                    <div className="text-sm font-medium mt-1">
+                      {passedDestinations.length} / {originalTrip.destinations.length}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 export default function TripsPage() {
   const { user } = useAuth()
   const { liveTrips, loading: liveTripsLoading, error: liveTripsError } = useLiveTrips(user?.companyId)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRoute, setSelectedRoute] = useState("all")
+  const [selectedTrip, setSelectedTrip] = useState<ExtendedTrip | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   // Map TripByCompany to Trip interface
   const mappedLiveTrips = useMemo((): ExtendedTrip[] => {
@@ -93,6 +432,7 @@ export default function TripsPage() {
         departureLocation: trip.origin.addres,
         arrivalLocation: finalDestination?.addres || "N/A",
         distance: `${(trip.totalDistance / 1000).toFixed(1)}km`,
+        originalTrip: trip, // Store original trip data for details dialog
       }
     })
   }, [liveTrips])
@@ -115,37 +455,6 @@ export default function TripsPage() {
     })
   }
 
-  const getStatusColor = (status: Trip["status"]) => {
-    switch (status.toLowerCase()) {
-      case "scheduled":
-        return "bg-blue-100 text-blue-800"
-      case "ongoing":
-      case "in_progress":
-        return "bg-green-100 text-green-800"
-      case "completed":
-        return "bg-gray-100 text-gray-800"
-      case "cancelled":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
-
-  const getStatusLabel = (status: Trip["status"]) => {
-    switch (status.toLowerCase()) {
-      case "scheduled":
-        return "Scheduled"
-      case "ongoing":
-      case "in_progress":
-        return "Ongoing"
-      case "completed":
-        return "Completed"
-      case "cancelled":
-        return "Cancelled"
-      default:
-        return status
-    }
-  }
 
   const loading = liveTripsLoading
   const error = liveTripsError
@@ -371,7 +680,14 @@ export default function TripsPage() {
                           <Badge className={getStatusColor(trip.status)}>{getStatusLabel(trip.status)}</Badge>
                         </TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedTrip(trip)
+                              setIsDialogOpen(true)
+                            }}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                         </TableCell>
@@ -539,7 +855,14 @@ export default function TripsPage() {
                           <Badge className={getStatusColor(trip.status)}>{getStatusLabel(trip.status)}</Badge>
                         </TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedTrip(trip)
+                              setIsDialogOpen(true)
+                            }}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                         </TableCell>
@@ -573,6 +896,7 @@ export default function TripsPage() {
                       <TableHead>Revenue</TableHead>
                       <TableHead>Distance</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -619,6 +943,18 @@ export default function TripsPage() {
                         <TableCell>
                           <Badge className={getStatusColor(trip.status)}>{getStatusLabel(trip.status)}</Badge>
                         </TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedTrip(trip)
+                              setIsDialogOpen(true)
+                            }}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                       ))
                     )}
@@ -631,6 +967,16 @@ export default function TripsPage() {
         </Card>
 
       </main>
+
+      {/* Trip Details Dialog */}
+      <TripDetailsDialog 
+        trip={selectedTrip}
+        isOpen={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false)
+          setSelectedTrip(null)
+        }}
+      />
     </div>
   )
 }

@@ -68,6 +68,19 @@ function SidebarProvider({
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
+  const [isMediumScreen, setIsMediumScreen] = React.useState(false)
+
+  // Detect medium screens (768px - 1024px) for icon-only sidebar
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth
+      setIsMediumScreen(width >= 768 && width < 1024)
+    }
+    
+    checkScreenSize()
+    window.addEventListener("resize", checkScreenSize)
+    return () => window.removeEventListener("resize", checkScreenSize)
+  }, [])
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -126,6 +139,9 @@ function SidebarProvider({
     [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
   )
 
+  // On medium screens, use icon width when sidebar is open (to conserve space)
+  const effectiveWidth = isMediumScreen && !isMobile && open ? SIDEBAR_WIDTH_ICON : SIDEBAR_WIDTH
+
   return (
     <SidebarContext.Provider value={contextValue}>
       <TooltipProvider delayDuration={0}>
@@ -133,7 +149,7 @@ function SidebarProvider({
           data-slot="sidebar-wrapper"
           style={
             {
-              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width": effectiveWidth,
               "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
               ...style,
             } as React.CSSProperties
