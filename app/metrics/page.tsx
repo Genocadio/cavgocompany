@@ -22,7 +22,7 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { useCompanyMetrics } from "@/hooks/use-company-metrics"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { TrendingUp, DollarSign, Car, Users, Clock, MapPin } from "lucide-react"
+import { TrendingUp, DollarSign, Car, Users, MapPin } from "lucide-react"
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
 
@@ -1257,27 +1257,6 @@ export default function MetricsPage() {
                     <p className={`text-muted-foreground ${isSmallScreen ? "text-xs" : "text-sm"}`}>Per trip</p>
                   </div>
                   <MapPin className={`text-muted-foreground ${isSmallScreen ? "h-6 w-6" : "h-8 w-8"}`} />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className={isSmallScreen ? "p-3 pb-2" : ""}>
-              <CardTitle className={isSmallScreen ? "text-sm" : "text-base"}>Average Duration</CardTitle>
-            </CardHeader>
-            <CardContent className={isSmallScreen ? "p-3 pt-0" : ""}>
-              {loading ? (
-                <Skeleton className="h-16 w-full" />
-              ) : (
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className={`font-bold ${isSmallScreen ? "text-lg" : "text-2xl"}`}>
-                      {Math.round((metrics?.averageTripDuration || 0) / 60)} min
-                    </div>
-                    <p className={`text-muted-foreground ${isSmallScreen ? "text-xs" : "text-sm"}`}>Per trip</p>
-                  </div>
-                  <Clock className={`text-muted-foreground ${isSmallScreen ? "h-6 w-6" : "h-8 w-8"}`} />
                 </div>
               )}
             </CardContent>

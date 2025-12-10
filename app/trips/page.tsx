@@ -86,16 +86,20 @@ function TripDetailsDialog({
   const isInProgress = tripStatus === "ongoing" || tripStatus === "in_progress"
   const isCompleted = tripStatus === "completed" || tripStatus === "cancelled"
 
-  // Logic: If 1 destination = 0 waypoints (just origin and destination)
+  // Handle trips with 0 destinations
+  const hasDestinations = originalTrip.destinations && originalTrip.destinations.length > 0
+  
+  // Logic: If 0 destinations = no waypoints, no destination
+  // If 1 destination = 0 waypoints (just origin and destination)
   // If 2+ destinations = last is final destination, others are waypoints
-  const hasWaypoints = originalTrip.destinations.length > 1
+  const hasWaypoints = hasDestinations && originalTrip.destinations.length > 1
   const waypoints = hasWaypoints ? originalTrip.destinations.slice(0, -1) : []
-  const finalDestination = originalTrip.destinations[originalTrip.destinations.length - 1]
+  const finalDestination = hasDestinations ? originalTrip.destinations[originalTrip.destinations.length - 1] : null
 
   // Find next waypoint/destination that hasn't been passed
   // For waypoints, check waypoints array; for single destination trips, check the destination itself
-  const destinationsToCheck = hasWaypoints ? waypoints : [finalDestination]
-  const nextDestination = destinationsToCheck.find((dest) => !dest.isPassede)
+  const destinationsToCheck = hasWaypoints ? waypoints : (finalDestination ? [finalDestination] : [])
+  const nextDestination = destinationsToCheck.find((dest) => !dest.isPassede) || null
   const passedDestinations = destinationsToCheck.filter((dest) => dest.isPassede)
 
   return (
@@ -194,7 +198,7 @@ function TripDetailsDialog({
           </Card>
 
           {/* Waypoints - Only show if there are waypoints (2+ destinations) */}
-          {hasWaypoints && waypoints.length > 0 && (
+          {hasDestinations && hasWaypoints && waypoints.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
@@ -283,7 +287,7 @@ function TripDetailsDialog({
                   })}
                 </div>
                 
-                {isInProgress && nextDestination && waypoints.includes(nextDestination) && (
+                {isInProgress && nextDestination && waypoints.length > 0 && waypoints.includes(nextDestination) && (
                   <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="text-sm font-medium text-blue-900 mb-1">Next Waypoint</div>
                     <div className="text-sm text-blue-700">
@@ -300,8 +304,8 @@ function TripDetailsDialog({
             </Card>
           )}
 
-          {/* Final Destination */}
-          {finalDestination && (
+          {/* Final Destination - Only show if there's at least one destination */}
+          {hasDestinations && finalDestination ? (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
@@ -341,6 +345,18 @@ function TripDetailsDialog({
                 </div>
               </CardContent>
             </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-gray-400" />
+                  Destination
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm text-muted-foreground">No destination specified for this trip</div>
+              </CardContent>
+            </Card>
           )}
 
           {/* Additional Info for Completed Trips */}
@@ -377,24 +393,36 @@ function TripDetailsDialog({
                       </div>
                     </div>
                   )}
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground">Total Waypoints</div>
-                    <div className="text-sm font-medium mt-1">{waypoints.length}</div>
-                  </div>
-                  {hasWaypoints && (
-                    <div>
-                      <div className="text-sm font-medium text-muted-foreground">Waypoints Passed</div>
-                      <div className="text-sm font-medium mt-1">
-                        {passedDestinations.filter(dest => waypoints.includes(dest)).length} / {waypoints.length}
+                  {hasDestinations && (
+                    <>
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground">Total Waypoints</div>
+                        <div className="text-sm font-medium mt-1">{waypoints.length}</div>
                       </div>
+                      {hasWaypoints && (
+                        <div>
+                          <div className="text-sm font-medium text-muted-foreground">Waypoints Passed</div>
+                          <div className="text-sm font-medium mt-1">
+                            {passedDestinations.filter(dest => waypoints.includes(dest)).length} / {waypoints.length}
+                          </div>
+                        </div>
+                      )}
+                      {finalDestination !== null && (
+                        <div>
+                          <div className="text-sm font-medium text-muted-foreground">Destination Status</div>
+                          <div className="text-sm font-medium mt-1">
+                            {finalDestination.isPassede ? "Arrived" : "En Route"}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {!hasDestinations && (
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground">Destinations</div>
+                      <div className="text-sm font-medium mt-1">0 (No destinations)</div>
                     </div>
                   )}
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground">Destination Status</div>
-                    <div className="text-sm font-medium mt-1">
-                      {finalDestination.isPassede ? "Arrived" : "En Route"}
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -416,21 +444,27 @@ export default function TripsPage() {
   // Map TripByCompany to Trip interface
   const mappedLiveTrips = useMemo((): ExtendedTrip[] => {
     return liveTrips.map((trip: TripByCompany): ExtendedTrip => {
-      const finalDestination = trip.destinations[trip.destinations.length - 1]
-      const route = `${trip.origin.addres} → ${finalDestination?.addres || "N/A"}`
+      // Handle trips with 0 destinations
+      const hasDestinations = trip.destinations && trip.destinations.length > 0
+      const finalDestination = hasDestinations ? trip.destinations[trip.destinations.length - 1] : null
+      const route = hasDestinations 
+        ? `${trip.origin.addres} → ${finalDestination?.addres || "N/A"}`
+        : `${trip.origin.addres} → No destination`
       
       // Calculate revenue from destinations - set to 0 for ongoing and completed trips
       const tripStatus = trip.status === "scheduled" ? "scheduled" : trip.status === "in_progress" || trip.status === "IN_PROGRESS" ? "ongoing" : trip.status.toLowerCase()
-      const revenue = tripStatus === "scheduled" ? trip.destinations.reduce((sum, dest) => sum + (dest.fare || 0), 0) : 0
+      const revenue = tripStatus === "scheduled" && hasDestinations 
+        ? trip.destinations.reduce((sum, dest) => sum + (dest.fare || 0), 0) 
+        : 0
       
       // Find next destination that hasn't been passed
-      const nextDestination = trip.destinations.find((dest) => !dest.isPassede)
+      const nextDestination = hasDestinations ? trip.destinations.find((dest) => !dest.isPassede) : null
       const nextStopName = nextDestination?.addres || finalDestination?.addres || "N/A"
       const nextStopDistance = nextDestination?.remainingDistance ?? finalDestination?.remainingDistance ?? null
       
       // Calculate progress based on passed destinations
-      const totalDestinations = trip.destinations.length
-      const passedDestinations = trip.destinations.filter((dest) => dest.isPassede).length
+      const totalDestinations = trip.destinations?.length || 0
+      const passedDestinations = hasDestinations ? trip.destinations.filter((dest) => dest.isPassede).length : 0
       let progress = totalDestinations > 0 ? Math.round((passedDestinations / totalDestinations) * 100) : 0
       
       // If status is not completed, cap progress at 99%
@@ -464,7 +498,7 @@ export default function TripsPage() {
           remainingDistance: nextStopDistance,
         } : null,
         departureLocation: trip.origin.addres,
-        arrivalLocation: finalDestination?.addres || "N/A",
+        arrivalLocation: finalDestination?.addres || (hasDestinations ? "N/A" : "No destination"),
         distance: `${(trip.totalDistance / 1000).toFixed(1)}km`,
         originalTrip: trip, // Store original trip data for details dialog
       }
