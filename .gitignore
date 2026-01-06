@@ -9,7 +9,6 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-.pnpm-lock.yaml
 
 # testing
 /coverage
@@ -17,6 +16,7 @@
 # next.js
 /.next/
 /out/
+.turbo/
 
 # production
 /build
@@ -24,6 +24,9 @@
 # misc
 .DS_Store
 *.pem
+.vscode/
+.idea/
+*.swp
 
 # debug
 npm-debug.log*
@@ -31,12 +34,21 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Environment files (keep example)
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+
+# caches
+.cache/
+.temp/

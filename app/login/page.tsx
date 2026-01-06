@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useLogin } from "@/hooks/use-login"
 import { Button } from "@/components/ui/button"
@@ -51,8 +52,8 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
             <div className="bg-primary/10 p-3 rounded-xl border border-primary/20">
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
-                <span className="font-bold text-primary-foreground text-lg">V0</span>
+              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
+                <Image src="/logo.webp" alt="Cavgo" width={48} height={48} priority />
               </div>
             </div>
           </div>

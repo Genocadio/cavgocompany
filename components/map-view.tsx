@@ -135,7 +135,7 @@ export default function MapView({
         })
         setL(leaflet)
       } catch (e) {
-        console.error("[v0] Leaflet initialization failed:", e)
+        console.error("[cavgo] Leaflet initialization failed:", e)
       }
     }
     initLeaflet()

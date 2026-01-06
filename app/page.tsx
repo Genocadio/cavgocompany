@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
+import { Spinner } from "@/components/ui/spinner"
 import { type Car } from "@/lib/data"
 import MapView from "@/components/map-view"
 import CarManagement from "@/components/car-management"
@@ -75,6 +77,15 @@ export default function FleetDashboard() {
     }
   }
 
+  const handleViewTripOnMap = (car: Car) => {
+    // Close the trip dialog
+    setViewingTrip(null)
+    setViewingTripCar(null)
+    // Focus on the car and switch to map view
+    setMapFocusId(car.id)
+    setActiveTab("map")
+  }
+
   const getUserInitials = () => {
     if (!user?.username) return "U"
     const parts = user.username.trim().split(" ")
@@ -89,12 +100,8 @@ export default function FleetDashboard() {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="text-center">
-          <div className="bg-primary/10 p-3 rounded-xl border border-primary/20 inline-block mb-4">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 animate-pulse">
-              <span className="font-bold text-primary-foreground text-lg">V0</span>
-            </div>
-          </div>
-          <p className="text-muted-foreground">Loading...</p>
+          <Spinner className="w-10 h-10 text-primary inline-block mb-4" />
+          <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
     )
@@ -106,8 +113,8 @@ export default function FleetDashboard() {
         <header className="h-16 border-b border-border flex items-center px-6 bg-card/50 backdrop-blur-sm sticky top-0 z-10 gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-primary/10 p-2 rounded-xl border border-primary/20">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
-                <span className="font-bold text-primary-foreground text-xs">V0</span>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
+                <Image src="/logo.webp" alt="Cavgo" width={32} height={32} priority />
               </div>
             </div>
           </div>
@@ -274,6 +281,7 @@ export default function FleetDashboard() {
           }
         }}
         car={viewingTripCar || undefined}
+        onViewTripOnMap={handleViewTripOnMap}
       />
     </main>
   )

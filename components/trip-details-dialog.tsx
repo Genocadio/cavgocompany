@@ -2,19 +2,22 @@
 
 import type { Car } from "@/lib/data"
 import type { WaypointProgressDto } from "@/types"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MapPin, DollarSign, Navigation, Clock, Loader2 } from "lucide-react"
+import { MapPin, DollarSign, Navigation, Clock, Loader2, Map } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { useTripDetails } from "@/hooks/use-trip-details"
 
 export default function TripDetailsDialog({
   open,
   onOpenChange,
   car,
+  onViewTripOnMap,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   car?: Car
+  onViewTripOnMap?: (car: Car) => void
 }) {
   const { tripData, isLoading, error } = useTripDetails({
     tripId: car?.activeTripId,
@@ -240,6 +243,23 @@ export default function TripDetailsDialog({
             </Tabs>
           )}
         </div>
+
+        {/* View Trip on Map Button */}
+        {tripData?.trip && onViewTripOnMap && (
+          <DialogFooter className="mt-6 pt-4 border-t border-border">
+            <Button
+              onClick={() => {
+                if (car) {
+                  onViewTripOnMap(car)
+                }
+              }}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2"
+            >
+              <Map className="w-4 h-4" />
+              View Trip on Map
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   )
