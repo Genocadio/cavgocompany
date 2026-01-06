@@ -168,3 +168,60 @@ export interface AuthResponseDto {
   companyName: string | null
   companyUserRole: CompanyUserRole | null
 }
+// Navigation/Trip API Types
+export interface NavigationWaypoint {
+  id?: string | null
+  name?: string | null
+  latitude: number
+  longitude: number
+}
+
+export interface WaypointProgressDto {
+  waypointIndex: number
+  waypointId?: string | null
+  waypointName?: string | null
+  latitude: number
+  longitude: number
+  state: 'APPROACHING' | 'ARRIVED' | 'DONE'
+  arrivedAt?: string | null // ISO 8601
+  remainingDistance: number // meters
+  remainingTime: number // seconds
+}
+
+export interface RouteDto {
+  polyline: number[][] // [[lat, lon], ...]
+  cumulativeDistances: number[]
+  totalDistance: number
+  totalDuration: number
+  legStopIndices: number[]
+  legCumulativeDistances: number[]
+  legDurations: number[]
+}
+
+export interface NavigationCurrentLocation {
+  carId: string
+  latitude: number
+  longitude: number
+  speed: number
+  heading?: number | null
+  timestamp: string // ISO 8601
+}
+
+export interface TripDto {
+  id: number
+  carId: string
+  status: 'CREATED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
+  waypoints: NavigationWaypoint[]
+  route?: RouteDto | null
+  waypointProgresses: WaypointProgressDto[]
+  includeOrigin: boolean
+  isCityTrip: boolean
+  createdAt: string // ISO 8601
+  completedAt?: string | null // ISO 8601
+}
+
+export interface TripResponse {
+  trip: TripDto
+  currentLocation?: NavigationCurrentLocation | null
+  instructions?: any | null
+}

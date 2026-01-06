@@ -1,179 +1,280 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Bus, UserCheck, TrendingUp, Activity } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useAuth } from "@/components/auth-provider"
-import { useCompanyDashboard } from "@/hooks/use-company-dashboard"
+import { useState, useEffect, useCallback } from "react"
+import { type Car } from "@/lib/data"
+import MapView from "@/components/map-view"
+import CarManagement from "@/components/car-management"
+import CarDetails from "@/components/car-details"
+import TripDetailsDialog from "@/components/trip-details-dialog"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
+import { LayoutDashboard, MapIcon, ChevronRight, LogOut, Clock3, Moon, Sun } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import CarIcon from "@/components/car-icon" // Declare CarIcon here
+import { useTheme } from "next-themes"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useAuth } from "@/context/auth-context"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useCompanyCars, type CarWithTripId } from "@/hooks/use-company-cars"
+import { useTripSubscriptionsManager } from "@/hooks/use-trip-subscriptions-manager"
 
-export default function Dashboard() {
-  const { user } = useAuth()
-  const userName = user?.username || user?.name || "User"
-  const companyName = user?.companyName || null
-  const { dashboard, loading, error } = useCompanyDashboard(user?.companyId)
+export default function FleetDashboard() {
+  const { user, isLoading: authLoading, logout } = useAuth()
+  const { cars: fetchedCars, isLoading: carsLoading } = useCompanyCars({
+    companyId: user?.companyId ?? undefined,
+    limit: 50,
+    offset: 0,
+  })
+  
+  // Apply real-time trip subscriptions
+  const cars = useTripSubscriptionsManager(fetchedCars)
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null)
+  const [mapFocusId, setMapFocusId] = useState<string | undefined>(undefined)
+  const [activeTab, setActiveTab] = useState("management")
+  const [viewingCarDetails, setViewingCarDetails] = useState<Car | null>(null)
+  const [viewingTripCar, setViewingTripCar] = useState<Car | null>(null)
+  const [viewingTrip, setViewingTrip] = useState<Car["currentTrip"] | null>(null)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
-  // Calculate percentages
-  const activeBusesPercentage = dashboard
-    ? Math.round((dashboard.activeBuses / dashboard.totalCars) * 100)
-    : 0
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-  const statsCards = dashboard
-    ? [
-        {
-          title: "Active Buses",
-          value: dashboard.activeBuses.toString(),
-          description: `Out of ${dashboard.totalCars} total buses`,
-          icon: Bus,
-          color: "text-green-600",
-        },
-        {
-          title: "Ongoing Trips",
-          value: dashboard.ongoingTrips.toString(),
-          description: "Currently in progress",
-          icon: Activity,
-          color: "text-blue-600",
-        },
-        {
-          title: "Today's Trips",
-          value: dashboard.todayTrips.toString(),
-          description: "Trips completed today",
-          icon: TrendingUp,
-          color: "text-purple-600",
-        },
-        {
-          title: "Total Drivers",
-          value: dashboard.totalDrivers.toString(),
-          description: "Registered drivers",
-          icon: UserCheck,
-          color: "text-indigo-600",
-        },
-        {
-          title: "Total Buses",
-          value: dashboard.totalCars.toString(),
-          description: "Fleet size",
-          icon: Bus,
-          color: "text-orange-600",
-        },
-      ]
-    : []
+  const toggleView = () => {
+    setActiveTab((prev) => (prev === "management" ? "map" : "management"))
+  }
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark")
+  }
+
+  const handleFocusFromMap = (id: string | undefined) => {
+    setMapFocusId(id)
+  }
+
+  const handleViewOnMap = (car: Car) => {
+    setMapFocusId(car.id)
+    setActiveTab("map")
+  }
+
+  const handleViewDetails = (car: Car) => {
+    setViewingCarDetails(car)
+  }
+
+  const handleViewTrip = (car: Car, trip: Car["currentTrip"]) => {
+    if (trip) {
+      setViewingTripCar(car)
+      setViewingTrip(trip)
+    }
+  }
+
+  const getUserInitials = () => {
+    if (!user?.username) return "U"
+    const parts = user.username.trim().split(" ")
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    }
+    return user.username.slice(0, 2).toUpperCase()
+  }
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="bg-primary/10 p-3 rounded-xl border border-primary/20 inline-block mb-4">
+            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 animate-pulse">
+              <span className="font-bold text-primary-foreground text-lg">V0</span>
+            </div>
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col">
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger className="-ml-1" />
-        <div className="flex flex-1 items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Welcome back, {userName}! Here&apos;s your fleet overview.</p>
+    <main className="flex h-screen w-full bg-background flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="h-16 border-b border-border flex items-center px-6 bg-card/50 backdrop-blur-sm sticky top-0 z-10 gap-4">
+          <div className="flex items-center gap-2">
+            <div className="bg-primary/10 p-2 rounded-xl border border-primary/20">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
+                <span className="font-bold text-primary-foreground text-xs">V0</span>
+              </div>
+            </div>
           </div>
-          <Badge variant="outline" className="text-green-600 border-green-200">
-            System Online
-          </Badge>
-        </div>
-      </header>
 
-      <main className="flex-1 space-y-6 p-6">
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-            <p className="text-sm text-red-800">Error loading dashboard data. Please try again later.</p>
+          <div className="flex-1 flex items-center justify-center">
+            <button
+              onClick={toggleView}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-muted/50 hover:bg-muted transition-colors shadow-sm"
+              title="Switch view"
+            >
+              {activeTab === "management" ? (
+                <>
+                  <MapIcon className="w-4 h-4" />
+                  <span className="text-sm font-medium hidden sm:inline">Map View</span>
+                </>
+              ) : (
+                <>
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span className="text-sm font-medium hidden sm:inline">Management</span>
+                </>
+              )}
+            </button>
           </div>
-        )}
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {loading
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <Card key={index}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-4" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-8 w-20 mb-2" />
-                    <Skeleton className="h-3 w-32" />
-                  </CardContent>
-                </Card>
-              ))
-            : statsCards.map((card, index) => (
-                <Card key={index}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                    <card.icon className={`h-4 w-4 ${card.color}`} />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{card.value}</div>
-                    <p className="text-xs text-muted-foreground">{card.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
+          <div className="flex items-center gap-3">
+            <div className="px-3 py-1 bg-secondary rounded-full text-xs font-medium border border-border hidden sm:flex items-center gap-2">
+              <Clock3 className="w-3.5 h-3.5" />
+              14:32
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-9 h-9 border border-border bg-muted rounded-full overflow-hidden hover:border-primary/50 transition-colors">
+                  <Avatar className="w-9 h-9">
+                    <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 z-[2001]">
+                <DropdownMenuLabel className="flex flex-col gap-1">
+                  <span className="font-medium">{user?.username || "User"}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{user?.email}</span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+                  <Clock3 className="w-4 h-4" />
+                  14:32
+                </DropdownMenuLabel>
+                <DropdownMenuItem onClick={toggleTheme} className="flex items-center justify-between cursor-pointer">
+                  <span className="text-sm">Dark / Light</span>
+                  {mounted && (theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />)}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout} className="flex items-center gap-2 text-destructive cursor-pointer">
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-hidden relative">
+          {viewingCarDetails ? (
+            <CarDetails car={viewingCarDetails} onBack={() => setViewingCarDetails(null)} />
+          ) : (
+            <Tabs value={activeTab} className="h-full">
+              <TabsContent value="management" className="m-0 h-full">
+                <CarManagement
+                  cars={cars}
+                  onSelectCar={(car) => setSelectedCar(car)}
+                  onViewOnMap={handleViewOnMap}
+                  onViewDetails={handleViewDetails}
+                  onViewTrip={handleViewTrip}
+                />
+              </TabsContent>
+
+              <TabsContent value="map" className="m-0 h-full p-4">
+                <MapView cars={cars} focusedCarId={mapFocusId} onFocusCar={handleFocusFromMap} />
+              </TabsContent>
+            </Tabs>
+          )}
         </div>
+      </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Fleet Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Fleet Status</CardTitle>
-              <CardDescription>Current operational status of your fleet</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {loading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-16 w-full" />
-                </div>
-              ) : dashboard ? (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Active Buses</span>
-                    <span>
-                      {dashboard.activeBuses}/{dashboard.totalCars} ({activeBusesPercentage}%)
-                    </span>
-                  </div>
-                  <Progress value={activeBusesPercentage} className="h-2" />
-                </div>
-              ) : null}
-            </CardContent>
-          </Card>
+      {/* Detail Overlay */}
+      <Dialog open={!!selectedCar} onOpenChange={() => setSelectedCar(null)}>
+        <DialogContent className="sm:max-w-[600px] bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-2xl">
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <CarIcon className="text-primary" />
+              </div>
+              {selectedCar?.plateNumber}
+            </DialogTitle>
+          </DialogHeader>
 
-          {/* Company Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Company Information</CardTitle>
-              <CardDescription>Your company details</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              ) : dashboard ? (
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Company Name</p>
-                    <p className="text-sm font-semibold">{companyName || dashboard.company.name || "N/A"}</p>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="p-4 bg-muted/50 rounded-xl border border-border">
+              <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Status</p>
+              <p className="text-lg font-semibold capitalize">{selectedCar?.status}</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-xl border border-border">
+              <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Live Speed</p>
+              <p className="text-lg font-semibold">{selectedCar?.speed} km/h</p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <h3 className="text-sm font-bold uppercase text-muted-foreground mb-3 px-1">Trip History</h3>
+            <div className="space-y-2">
+              {selectedCar?.tripHistory.length ? (
+                selectedCar.tripHistory.map((trip) => (
+                  <div
+                    key={trip.id}
+                    className="p-4 bg-secondary/30 rounded-lg border border-border flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="font-medium">{trip.destinationName}</p>
+                      <p className="text-xs text-muted-foreground">{trip.distanceKm} km trip • Completed</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Company Code</p>
-                    <p className="text-sm font-semibold">{dashboard.company.companyCode}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Address</p>
-                    <p className="text-sm font-semibold">{dashboard.company.address || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Buses</p>
-                    <p className="text-sm font-semibold">{dashboard.totalCars} vehicles</p>
-                  </div>
-                </div>
-              ) : null}
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    </div>
+                ))
+              ) : (
+                <p className="text-sm text-center py-8 text-muted-foreground bg-secondary/20 rounded-lg">
+                  No previous trips recorded
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 pt-4 border-t flex justify-end gap-3">
+            <button
+              onClick={() => setSelectedCar(null)}
+              className="px-4 py-2 bg-secondary rounded-md text-sm font-medium hover:bg-secondary/80"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => {
+                if (selectedCar) {
+                  setMapFocusId(selectedCar.id)
+                  setActiveTab("map")
+                  setSelectedCar(null)
+                }
+              }}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
+            >
+              View on Map
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Trip Details Dialog */}
+      <TripDetailsDialog
+        open={!!viewingTrip && !!viewingTripCar}
+        onOpenChange={(open) => {
+          if (!open) {
+            setViewingTrip(null)
+            setViewingTripCar(null)
+          }
+        }}
+        car={viewingTripCar || undefined}
+      />
+    </main>
   )
 }
