@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import type { Car } from "@/lib/data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -34,6 +35,21 @@ const formatTimestamp = (timestamp?: string) => {
   }
 }
 
+const formatDateTime = (timestamp?: string) => {
+  if (!timestamp) return null
+  try {
+    const date = new Date(timestamp)
+    return date.toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch (e) {
+    return null
+  }
+}
+
 export default function CarManagement({
   cars,
   onSelectCar,
@@ -47,6 +63,7 @@ export default function CarManagement({
   onViewDetails?: (car: Car) => void
   onViewTrip?: (car: Car, trip: Car["currentTrip"]) => void
 }) {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [filterActive, setFilterActive] = useState(false)
@@ -171,7 +188,7 @@ export default function CarManagement({
                 ? "border-primary border-2 bg-primary/5 ring-2 ring-primary/20"
                 : "hover:border-primary/50"
             }`}
-            onClick={() => onSelectCar(car)}
+            onClick={() => router.push(`/car/${car.id}`)}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl font-bold font-mono">{car.plateNumber}</CardTitle>
@@ -223,12 +240,37 @@ export default function CarManagement({
                     <Navigation className="w-4 h-4 text-emerald-500" />
                   </div>
                   <p className="text-sm font-medium truncate">{car.currentTrip.destinationName}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="h-1 flex-1 bg-emerald-500/20 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 w-2/3" />
-                    </div>
-                    <span className="text-xs font-bold text-emerald-500">{car.currentTrip.distanceKm}km left</span>
-                  </div>
+                  {(() => {
+                    const status = (car.currentTrip?.status || '').toLowerCase()
+                    const isScheduled = status.includes('scheduled') || status.includes('created')
+                    const isInProgress = status.includes('in_progress')
+
+                    if (isScheduled) {
+                      return (
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          <span className="font-semibold">Departure Time:</span>{' '}
+                          {formatDateTime(car.currentTrip.createdAt) || 'Not set'}
+                        </div>
+                      )
+                    }
+
+                    if (isInProgress && car.currentTrip.totalDistanceKm && car.currentTrip.totalDistanceKm > 0) {
+                      const remaining = Math.max(0, car.currentTrip.distanceKm || 0)
+                      const total = car.currentTrip.totalDistanceKm
+                      const ratio = Math.max(0, Math.min(1, 1 - remaining / total))
+                      const percent = Math.round(ratio * 100)
+                      return (
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="h-1 flex-1 bg-emerald-500/20 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500" style={{ width: `${percent}%` }} />
+                          </div>
+                          <span className="text-xs font-bold text-emerald-500">{remaining}km left</span>
+                        </div>
+                      )
+                    }
+
+                    return null
+                  })()}
                 </div>
               ) : (
                 <div className="mt-6 p-4 rounded-lg bg-secondary/50 border border-border">
@@ -239,7 +281,7 @@ export default function CarManagement({
                 </div>
               )}
 
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 space-y-2">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -251,19 +293,10 @@ export default function CarManagement({
                     !car.currentTrip &&
                     !(car as any).activeTripId
                   }
-                  className="flex-1 bg-primary text-primary-foreground py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
+                  className="w-full bg-primary text-primary-foreground py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
                 >
                   <MapIcon className="w-4 h-4" />
                   View on Map
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onViewDetails?.(car)
-                  }}
-                  className="px-3 bg-secondary hover:bg-accent rounded-md transition-colors"
-                >
-                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </CardContent>

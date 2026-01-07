@@ -74,10 +74,13 @@ export function useTripSubscriptionsManager(cars: CarWithTripId[]): CarWithTripI
             destinationName: finalDestination?.addres || "Destination",
             history,
             distanceKm: remainingKm > 0 ? Math.round(remainingKm * 10) / 10 : 0,
+            totalDistanceKm: tripData.totalDistance ? Math.round((tripData.totalDistance / 1000) * 10) / 10 : undefined,
             totalSeats: 48,
             bookedSeats,
             totalRevenue,
             currency: "USD",
+            status: tripData.status,
+            createdAt: tripData.createdAt,
           },
         }
       })

@@ -153,10 +153,13 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
           destinationName: finalDestination?.addres || "Destination",
           history,
           distanceKm: Math.round((remainingDistance / 1000) * 10) / 10,
+          totalDistanceKm: trip.totalDistance ? Math.round((trip.totalDistance / 1000) * 10) / 10 : undefined,
           totalSeats: 48, // Default, can be updated from API if available
           bookedSeats: 0, // Can be updated from booking data
           totalRevenue: 0, // Can be calculated from destinations' fare
           currency: "USD",
+          status: trip.status,
+          createdAt: trip.createdAt,
         }
       }
 

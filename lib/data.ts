@@ -5,10 +5,15 @@ export interface Trip {
   destinationName: string
   history: [number, number][]
   distanceKm: number
+  // Optional total distance of the trip (km)
+  totalDistanceKm?: number
   totalSeats: number
   bookedSeats: number
   totalRevenue: number
   currency?: string
+  // Optional metadata coming from API mapping
+  status?: string
+  createdAt?: string
 }
 
 export interface Car {
