@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useCompanyCars, type CarWithTripId } from "@/hooks/use-company-cars"
+import { useTripDetails } from "@/hooks/use-trip-details"
 import { useToast } from "@/hooks/use-toast"
 import { useTripSubscriptionsManager } from "@/hooks/use-trip-subscriptions-manager"
 
@@ -46,6 +47,7 @@ export default function FleetDashboard() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
+  const { refetchById: fetchTripById } = useTripDetails({ tripId: undefined, enabled: false })
 
   useEffect(() => {
     setMounted(true)
@@ -63,9 +65,10 @@ export default function FleetDashboard() {
     setMapFocusId(id)
   }
 
-  const handleViewOnMap = (car: Car) => {
+  const handleViewOnMap = async (car: Car) => {
     const hasLocation = !!car.position && car.position[0] !== 0 && car.position[1] !== 0
-    const hasActiveTrip = !!car.currentTrip || !!(car as unknown as CarWithTripId)?.activeTripId
+    const activeTripId = (car as unknown as CarWithTripId)?.activeTripId
+    const hasActiveTrip = !!car.currentTrip || !!activeTripId
 
     if (!hasLocation && !hasActiveTrip) {
       toast({
@@ -75,8 +78,34 @@ export default function FleetDashboard() {
       return
     }
 
-    setMapFocusId(car.id)
-    setActiveTab("map")
+    // If only location exists, go straight to map
+    if (hasLocation && !hasActiveTrip) {
+      setMapFocusId(car.id)
+      setActiveTab("map")
+      return
+    }
+
+    // If only active trip exists (no location), fetch trip first; if fails, do not navigate
+    if (!hasLocation && hasActiveTrip && activeTripId) {
+      const data = await fetchTripById(activeTripId)
+      if (!data) {
+        toast({ title: "Trip details unavailable", description: "Couldn’t fetch trip details for this car." })
+        return
+      }
+      setMapFocusId(car.id)
+      setActiveTab("map")
+      return
+    }
+
+    // If both exist, try to fetch; if it fails, still navigate and show location
+    if (hasLocation && hasActiveTrip && activeTripId) {
+      const data = await fetchTripById(activeTripId)
+      if (!data) {
+        toast({ title: "Trip details unavailable", description: "Showing live location; route could not be loaded." })
+      }
+      setMapFocusId(car.id)
+      setActiveTab("map")
+    }
   }
 
   const handleViewDetails = (car: Car) => {
@@ -272,9 +301,9 @@ export default function FleetDashboard() {
               disabled={
                 selectedCar ? (!selectedCar.position || selectedCar.position[0] === 0 || selectedCar.position[1] === 0) && !selectedCar.currentTrip : false
               }
-              onClick={() => {
+              onClick={async () => {
                 if (selectedCar) {
-                  handleViewOnMap(selectedCar)
+                  await handleViewOnMap(selectedCar)
                   setSelectedCar(null)
                 }
               }}

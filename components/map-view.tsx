@@ -119,7 +119,7 @@ export default function MapView({
   const { toast } = useToast()
   const lastNotifiedTripIdRef = useRef<string | undefined>(undefined)
 
-  const { tripData, isLoading: tripLoading, error: tripError, notFound } = useTripDetails({
+  const { tripData, isLoading: tripLoading, error: tripError, notFound, refetchById } = useTripDetails({
     tripId: focusedCar?.activeTripId,
     enabled: !!focusedCar && !!focusedCar.activeTripId,
     pollInterval: 60000, // 1 minute
@@ -264,7 +264,20 @@ export default function MapView({
                   position={car.position}
                   icon={icon}
                   eventHandlers={{
-                    click: () => onFocusCar(car.id),
+                    click: async () => {
+                      const activeTripId = (car as any)?.activeTripId
+                      if (activeTripId) {
+                        const data = await refetchById(activeTripId)
+                        if (!data) {
+                          toast({
+                            title: "Trip details unavailable",
+                            description: "Couldn’t load route for this car.",
+                          })
+                          return
+                        }
+                      }
+                      onFocusCar(car.id)
+                    },
                   }}
                 >
                   <Popup className="dark-popup">
