@@ -225,3 +225,72 @@ export interface TripResponse {
   currentLocation?: NavigationCurrentLocation | null
   instructions?: any | null
 }
+
+// Trip Snapshot Types
+export interface TripSnapshotCapacity {
+  totalSeats: number
+  availableSeats: number
+  occupiedSeats: number
+  pendingPaymentSeats: number
+}
+
+export interface TripSnapshotLocationSeats {
+  pickup: number
+  dropoff: number
+  pendingPayment: number
+  availableFromHere: number
+}
+
+export interface TripSnapshotLocation {
+  locationId: string
+  type: 'ORIGIN' | 'DESTINATION'
+  order: number
+  status: 'PENDING' | 'ACTIVE' | 'COMPLETED'
+  seats: TripSnapshotLocationSeats
+}
+
+export interface TripSnapshotSummary {
+  totalTickets: number
+  paidTickets: number
+  pendingPayments: number
+  completedDropoffs: number
+}
+
+export interface TripSnapshot {
+  tripId: string
+  tripStatus: string
+  lastUpdated: string
+  capacity: TripSnapshotCapacity
+  locations: TripSnapshotLocation[]
+  summary: TripSnapshotSummary
+}
+
+// Trips By Car Types
+export interface CarTripDestination {
+  id: string
+  addres: string
+  lat: number
+  lng: number
+  index: number
+  fare?: number
+  remainingDistance?: number
+  isPassede?: boolean
+  passedTime?: string
+}
+
+export interface CarTripOrigin {
+  id: string
+  addres: string
+  lat: number
+  lng: number
+}
+
+export interface CarTrip {
+  id: string
+  createdAt: string
+  updatedAt: string
+  status: string
+  totalDistance: number
+  origin: CarTripOrigin
+  destinations: CarTripDestination[]
+}

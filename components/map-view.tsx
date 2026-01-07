@@ -5,10 +5,11 @@ import { useEffect, useState, useMemo, useCallback, useRef } from "react"
 import type { Car } from "@/lib/data"
 import type { WaypointProgressDto } from "@/types"
 import { Card } from "@/components/ui/card"
-import { Navigation, Search, Ticket, Map, Maximize2, MapPin, Clock } from "lucide-react"
+import { Navigation, Search, Ticket, Map, Maximize2, MapPin, Clock, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { useTripDetails } from "@/hooks/use-trip-details"
+import { useTripSnapshot } from "@/hooks/use-trip-snapshot"
 import {
   CommandDialog,
   CommandInput,
@@ -124,6 +125,37 @@ export default function MapView({
     enabled: !!focusedCar && !!focusedCar.activeTripId,
     pollInterval: 60000, // 1 minute
   })
+
+  // Fetch trip snapshot for booking details
+  const { snapshot, isLoading: snapshotLoading, error: snapshotError } = useTripSnapshot({
+    tripId: focusedCar?.currentTrip?.id,
+    enabled: bookingDialogOpen && !!focusedCar?.currentTrip,
+  })
+
+  // Get location name from trip data
+  const getLocationName = useCallback((locationId: string, type: string, order: number) => {
+    // Try to match from trip waypoints
+    if (tripData?.trip?.waypoints) {
+      const waypoint = tripData.trip.waypoints.find(w => w.id === locationId)
+      if (waypoint?.name) {
+        return waypoint.name
+      }
+    }
+    
+    // Fallback to type-based names
+    if (type === 'ORIGIN') {
+      return 'Origin'
+    }
+    
+    if (type === 'DESTINATION') {
+      if (order === 1 && focusedCar?.currentTrip?.destinationName) {
+        return focusedCar.currentTrip.destinationName
+      }
+      return `Stop ${order}`
+    }
+    
+    return `Location ${locationId.substring(0, 8)}`
+  }, [tripData, focusedCar])
 
   useEffect(() => {
     const activeTripId = focusedCar?.activeTripId
@@ -632,63 +664,153 @@ export default function MapView({
       {/* Booking Details Dialog */}
       {focusedCar?.currentTrip && (
         <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
-          <DialogContent className="sm:max-w-[400px] bg-card border-border">
+          <DialogContent className="sm:max-w-[500px] bg-card border-border max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Ticket className="w-5 h-5 text-blue-500" />
-                Trip Bookings
+                Trip Bookings - {focusedCar.plateNumber}
               </DialogTitle>
             </DialogHeader>
+            
             <div className="space-y-4 mt-4">
-              <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Trip Destination</p>
-                <p className="text-lg font-bold">{focusedCar.currentTrip.destinationName}</p>
-                <p className="text-xs text-muted-foreground mt-1">{focusedCar.currentTrip.distanceKm} km</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                  <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Total Seats</p>
-                  <p className="text-2xl font-bold text-primary">{focusedCar.currentTrip.totalSeats}</p>
+              {snapshotLoading && (
+                <div className="flex items-center justify-center p-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
-                <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                  <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Booked Seats</p>
-                  <p className="text-2xl font-bold text-green-500">{focusedCar.currentTrip.bookedSeats}</p>
+              )}
+
+              {snapshotError && (
+                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <p className="text-sm text-destructive">{snapshotError}</p>
                 </div>
-              </div>
+              )}
 
-              <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Remaining Seats</p>
-                <p className="text-2xl font-bold text-yellow-500">
-                  {focusedCar.currentTrip.totalSeats - focusedCar.currentTrip.bookedSeats}
-                </p>
-              </div>
+              {!snapshotLoading && !snapshotError && snapshot && (
+                <>
+                  <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Trip Destination</p>
+                    <p className="text-lg font-bold">{focusedCar.currentTrip.destinationName}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{focusedCar.currentTrip.distanceKm} km</p>
+                  </div>
 
-              <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Total Revenue</p>
-                <p className="text-2xl font-bold text-emerald-500">
-                  {focusedCar.currentTrip.currency || "USD"} {focusedCar.currentTrip.totalRevenue.toLocaleString()}
-                </p>
-              </div>
+                  {/* Capacity Summary */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                      <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Total Seats</p>
+                      <p className="text-2xl font-bold text-emerald-500">{snapshot.capacity.totalSeats}</p>
+                    </div>
+                    <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                      <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Occupied Seats</p>
+                      <p className="text-2xl font-bold text-blue-500">{snapshot.capacity.occupiedSeats}</p>
+                    </div>
+                  </div>
 
-              <div className="pt-3 border-t border-border">
-                <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Occupancy Rate</p>
-                <div className="w-full bg-border rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-blue-500 h-full transition-all"
-                    style={{
-                      width: `${
-                        (focusedCar.currentTrip.bookedSeats / focusedCar.currentTrip.totalSeats) * 100
-                      }%`,
-                    }}
-                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                      <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Available</p>
+                      <p className="text-2xl font-bold text-green-500">{snapshot.capacity.availableSeats}</p>
+                    </div>
+                    <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                      <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Pending Payment</p>
+                      <p className="text-2xl font-bold text-amber-500">{snapshot.capacity.pendingPaymentSeats}</p>
+                    </div>
+                  </div>
+
+                  {/* Trip Summary */}
+                  <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Trip Summary</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Total Tickets</p>
+                        <p className="text-lg font-bold">{snapshot.summary.totalTickets}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Paid Tickets</p>
+                        <p className="text-lg font-bold text-green-500">{snapshot.summary.paidTickets}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Pending Payments</p>
+                        <p className="text-lg font-bold text-amber-500">{snapshot.summary.pendingPayments}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Completed Dropoffs</p>
+                        <p className="text-lg font-bold text-blue-500">{snapshot.summary.completedDropoffs}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Location Details */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Locations</p>
+                    {snapshot.locations.map((location, idx) => (
+                      <div
+                        key={`${location.locationId}-${idx}`}
+                        className="p-3 bg-muted/50 rounded-lg border border-border"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${
+                              location.type === 'ORIGIN' ? 'bg-green-500' : 'bg-red-500'
+                            }`} />
+                            <div>
+                              <p className="text-sm font-semibold">
+                                {getLocationName(location.locationId, location.type, location.order)}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {location.type === 'ORIGIN' ? 'Origin' : `Stop ${location.order}`} • {location.status}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-border/50">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Pickup</p>
+                            <p className="text-sm font-bold text-green-500">{location.seats.pickup}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Dropoff</p>
+                            <p className="text-sm font-bold text-blue-500">{location.seats.dropoff}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Pending</p>
+                            <p className="text-sm font-bold text-amber-500">{location.seats.pendingPayment}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Available</p>
+                            <p className="text-sm font-bold">{location.seats.availableFromHere}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Occupancy Rate */}
+                  <div className="pt-3 border-t border-border">
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Occupancy Rate</p>
+                    <div className="w-full bg-border rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-blue-500 h-full transition-all"
+                        style={{
+                          width: `${
+                            (snapshot.capacity.occupiedSeats / snapshot.capacity.totalSeats) * 100
+                          }%`,
+                        }}
+                      />
+                    </div>
+                    <p className="text-sm font-bold mt-2">
+                      {Math.round(
+                        (snapshot.capacity.occupiedSeats / snapshot.capacity.totalSeats) * 100
+                      )}%
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {!snapshotLoading && !snapshotError && !snapshot && (
+                <div className="p-4 bg-muted/50 border border-border rounded-lg">
+                  <p className="text-sm text-muted-foreground">No booking data available</p>
                 </div>
-                <p className="text-sm font-bold mt-2">
-                  {Math.round(
-                    (focusedCar.currentTrip.bookedSeats / focusedCar.currentTrip.totalSeats) * 100
-                  )}%
-                </p>
-              </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
