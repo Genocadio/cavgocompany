@@ -245,7 +245,13 @@ export default function CarManagement({
                     e.stopPropagation()
                     onViewOnMap?.(car)
                   }}
-                  className="flex-1 bg-primary text-primary-foreground py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                  disabled={
+                    // Disable when no valid location and no active trip
+                    (!car.position || car.position[0] === 0 || car.position[1] === 0) &&
+                    !car.currentTrip &&
+                    !(car as any).activeTripId
+                  }
+                  className="flex-1 bg-primary text-primary-foreground py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
                 >
                   <MapIcon className="w-4 h-4" />
                   View on Map

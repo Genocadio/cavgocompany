@@ -1,12 +1,13 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useCallback, useRef } from "react"
 import type { Car } from "@/lib/data"
 import type { WaypointProgressDto } from "@/types"
 import { Card } from "@/components/ui/card"
 import { Navigation, Search, Ticket, Map, Maximize2, MapPin, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import {
   CommandDialog,
@@ -112,13 +113,36 @@ export default function MapView({
   )
 
   const focusedCar = useMemo(() => carsWithLocation.find((c) => c.id === focusedCarId), [carsWithLocation, focusedCarId])
+  const hasValidPosition = useCallback((pos?: [number, number]) => !!pos && pos[0] !== 0 && pos[1] !== 0, [])
   
   // Fetch trip details for focused car if it has a trip
-  const { tripData, isLoading: tripLoading } = useTripDetails({
+  const { toast } = useToast()
+  const lastNotifiedTripIdRef = useRef<string | undefined>(undefined)
+
+  const { tripData, isLoading: tripLoading, error: tripError, notFound } = useTripDetails({
     tripId: focusedCar?.activeTripId,
     enabled: !!focusedCar && !!focusedCar.activeTripId,
     pollInterval: 60000, // 1 minute
   })
+
+  useEffect(() => {
+    const activeTripId = focusedCar?.activeTripId
+    if (!activeTripId) {
+      lastNotifiedTripIdRef.current = undefined
+      return
+    }
+    if (notFound && lastNotifiedTripIdRef.current !== activeTripId) {
+      toast({
+        title: "Map data not found",
+        description: "Trip details for this car could not be found.",
+      })
+      lastNotifiedTripIdRef.current = activeTripId
+    }
+    if (!notFound && lastNotifiedTripIdRef.current === activeTripId) {
+      // reset if later becomes available (rare)
+      lastNotifiedTripIdRef.current = undefined
+    }
+  }, [notFound, focusedCar?.activeTripId, toast])
 
   // by using a lazy import that only triggers on the client.
   useEffect(() => {
@@ -141,15 +165,21 @@ export default function MapView({
     initLeaflet()
   }, [])
 
-  const displayCars = useMemo(() => (focusedCar ? [focusedCar] : carsWithLocation), [focusedCar, carsWithLocation])
+  const displayCars = useMemo(() => {
+    if (focusedCar) {
+      const others = carsWithLocation.filter((c) => c.id !== focusedCar.id)
+      return [focusedCar, ...others]
+    }
+    return carsWithLocation
+  }, [focusedCar, carsWithLocation])
 
   // Kigali, Rwanda coordinates as default center
   const KIGALI_CENTER: [number, number] = [-1.9536, 30.0606]
   const defaultCenter = useMemo(() => {
-    if (focusedCar?.position) return focusedCar.position
+    if (focusedCar?.position && hasValidPosition(focusedCar.position)) return focusedCar.position
     if (carsWithLocation.length > 0) return carsWithLocation[0].position
     return KIGALI_CENTER
-  }, [focusedCar, carsWithLocation])
+  }, [focusedCar, carsWithLocation, hasValidPosition])
 
   // Close dialogs when exiting focus
   useEffect(() => {
@@ -229,32 +259,34 @@ export default function MapView({
 
           return (
             <div key={car.id}>
-              <Marker
-                position={car.position}
-                icon={icon}
-                eventHandlers={{
-                  click: () => onFocusCar(car.id),
-                }}
-              >
-                <Popup className="dark-popup">
-                  <div className="p-2 min-w-[150px]">
-                    <h3 className="font-bold text-lg leading-none mb-1">{car.plateNumber}</h3>
-                    <div className="flex justify-between text-xs mt-2 border-t pt-2 border-border/50">
-                      <span className="text-muted-foreground uppercase font-bold tracking-tighter">Speed</span>
-                      <span className="font-mono">{car.speed} km/h</span>
-                    </div>
-                    {car.currentTrip && (
-                      <div className="mt-3 bg-red-500/10 p-2 rounded border border-red-500/20">
-                        <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">
-                          Active Trip
-                        </p>
-                        <p className="text-xs font-medium truncate opacity-90">{car.currentTrip.destinationName}</p>
-                        <p className="text-xs font-bold mt-1 text-red-400">{car.currentTrip.distanceKm} km remaining</p>
+              {hasValidPosition(car.position) && (
+                <Marker
+                  position={car.position}
+                  icon={icon}
+                  eventHandlers={{
+                    click: () => onFocusCar(car.id),
+                  }}
+                >
+                  <Popup className="dark-popup">
+                    <div className="p-2 min-w-[150px]">
+                      <h3 className="font-bold text-lg leading-none mb-1">{car.plateNumber}</h3>
+                      <div className="flex justify-between text-xs mt-2 border-t pt-2 border-border/50">
+                        <span className="text-muted-foreground uppercase font-bold tracking-tighter">Speed</span>
+                        <span className="font-mono">{car.speed} km/h</span>
                       </div>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
+                      {car.currentTrip && (
+                        <div className="mt-3 bg-red-500/10 p-2 rounded border border-red-500/20">
+                          <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">
+                            Active Trip
+                          </p>
+                          <p className="text-xs font-medium truncate opacity-90">{car.currentTrip.destinationName}</p>
+                          <p className="text-xs font-bold mt-1 text-red-400">{car.currentTrip.distanceKm} km remaining</p>
+                        </div>
+                      )}
+                    </div>
+                  </Popup>
+                </Marker>
+              )}
 
               {/* Show trip route when this car is focused and has trip data from API */}
               {focusedCar?.id === car.id && tripData?.trip && (
@@ -417,8 +449,8 @@ export default function MapView({
             </div>
           )
         })}
-        {focusedCar ? (
-          <MapController position={focusedCar.position} L={L} />
+          {focusedCar ? (
+          <MapController position={defaultCenter} L={L} />
         ) : carsWithLocation.length > 0 ? (
           <FitAllController positions={carsWithLocation.map((c) => c.position)} />
         ) : null}

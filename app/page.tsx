@@ -24,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useCompanyCars, type CarWithTripId } from "@/hooks/use-company-cars"
-import { useTripDetails } from "@/hooks/use-trip-details"
 import { useToast } from "@/hooks/use-toast"
 import { useTripSubscriptionsManager } from "@/hooks/use-trip-subscriptions-manager"
 
@@ -47,7 +46,6 @@ export default function FleetDashboard() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
-  const { refetchById: fetchTripById } = useTripDetails({ tripId: undefined, enabled: false })
 
   useEffect(() => {
     setMounted(true)
@@ -65,30 +63,14 @@ export default function FleetDashboard() {
     setMapFocusId(id)
   }
 
-  const handleViewOnMap = async (car: Car) => {
-    const maybeTripId = (car as unknown as CarWithTripId)?.activeTripId
-    if (!maybeTripId) {
-      toast({
-        title: "No active trip",
-        description: "This car has no active trip to show on the map.",
-      })
-      return
-    }
+  const handleViewOnMap = (car: Car) => {
+    const hasLocation = !!car.position && car.position[0] !== 0 && car.position[1] !== 0
+    const hasActiveTrip = !!car.currentTrip || !!(car as unknown as CarWithTripId)?.activeTripId
 
-    const data = await fetchTripById(maybeTripId)
-    if (!data) {
+    if (!hasLocation && !hasActiveTrip) {
       toast({
-        title: "Trip fetch failed",
-        description: "Couldn’t fetch trip details. Please try again.",
-      })
-      return
-    }
-
-    const hasRoute = Boolean(data.trip?.route && data.trip.route.polyline && data.trip.route.polyline.length > 0)
-    if (!hasRoute) {
-      toast({
-        title: "No route data",
-        description: "Trip has no route to render on the map.",
+        title: "Cannot view on map",
+        description: "No location or active trip available for this car.",
       })
       return
     }
@@ -108,34 +90,7 @@ export default function FleetDashboard() {
     }
   }
 
-  const handleViewTripOnMap = async (car: Car) => {
-    const maybeTripId = (car as unknown as CarWithTripId)?.activeTripId
-    if (!maybeTripId) {
-      toast({
-        title: "No active trip",
-        description: "This car has no active trip to show on the map.",
-      })
-      return
-    }
-
-    const data = await fetchTripById(maybeTripId)
-    if (!data) {
-      toast({
-        title: "Trip fetch failed",
-        description: "Couldn’t fetch trip details. Please try again.",
-      })
-      return
-    }
-
-    const hasRoute = Boolean(data.trip?.route && data.trip.route.polyline && data.trip.route.polyline.length > 0)
-    if (!hasRoute) {
-      toast({
-        title: "No route data",
-        description: "Trip has no route to render on the map.",
-      })
-      return
-    }
-
+  const handleViewTripOnMap = (car: Car) => {
     // Close the trip dialog
     setViewingTrip(null)
     setViewingTripCar(null)
@@ -314,9 +269,12 @@ export default function FleetDashboard() {
               Close
             </button>
             <button
-              onClick={async () => {
+              disabled={
+                selectedCar ? (!selectedCar.position || selectedCar.position[0] === 0 || selectedCar.position[1] === 0) && !selectedCar.currentTrip : false
+              }
+              onClick={() => {
                 if (selectedCar) {
-                  await handleViewOnMap(selectedCar)
+                  handleViewOnMap(selectedCar)
                   setSelectedCar(null)
                 }
               }}
