@@ -4,7 +4,7 @@ import type { Car } from "@/lib/data"
 import type { WaypointProgressDto, CarTrip } from "@/types"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MapPin, DollarSign, Navigation, Clock, Loader2, Map, Ticket, Package, ArrowLeft, History, Eye } from "lucide-react"
+import { MapPin, DollarSign, Navigation, Clock, Loader2, Map, Ticket, Package, ArrowLeft, History, Eye, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useTripDetails } from "@/hooks/use-trip-details"
@@ -405,67 +405,46 @@ export default function TripDetailsDialog({
                   <p className="text-xs text-muted-foreground uppercase font-bold mb-2">
                     {trips.length} Trip{trips.length !== 1 ? 's' : ''} Found
                   </p>
-                  {trips.map((trip) => (
-                    <div
-                      key={trip.id}
-                      className="p-4 bg-muted/50 rounded-lg border border-border hover:border-primary/50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm font-bold font-mono">Trip #{trip.id}</p>
-                            <Badge variant={getStatusColor(trip.status)} className="text-xs">
-                              {trip.status}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(trip.createdAt)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 mb-3">
-                        <div className="flex items-start gap-2">
-                          <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5" />
+                  {trips.map((trip) => {
+                    const originName = trip.origin.addres || 'Unknown'
+                    const destName = trip.destinations[trip.destinations.length - 1]?.addres || 'Unknown'
+                    return (
+                      <div
+                        key={trip.id}
+                        onClick={() => setSelectedHistoryTripId(trip.id)}
+                        className="p-4 bg-muted/50 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between mb-2">
                           <div className="flex-1">
-                            <p className="text-xs text-muted-foreground">From</p>
-                            <p className="text-sm font-medium">{trip.origin.addres}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5" />
-                          <div className="flex-1">
-                            <p className="text-xs text-muted-foreground">
-                              To ({trip.destinations.length} stop{trip.destinations.length !== 1 ? 's' : ''})
+                            <p className="text-base font-bold mb-1">
+                              {originName} → {destName}
                             </p>
-                            <p className="text-sm font-medium">{trip.destinations[trip.destinations.length - 1]?.addres}</p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge variant={getStatusColor(trip.status)} className="text-xs">
+                                {trip.status}
+                              </Badge>
+                              <p className="text-xs text-muted-foreground">
+                                {formatDate(trip.createdAt)}
+                              </p>
+                            </div>
                           </div>
+                          <ArrowRight className="w-5 h-5 text-muted-foreground flex-shrink-0 ml-2" />
                         </div>
-                      </div>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Distance: </span>
-                          <span className="font-bold">{(trip.totalDistance / 1000).toFixed(1)} km</span>
+                        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/50 text-xs text-muted-foreground">
+                          <span>{trip.destinations.length} stop{trip.destinations.length !== 1 ? 's' : ''}</span>
+                          <span>•</span>
+                          <span>{(trip.totalDistance / 1000).toFixed(1)} km</span>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setSelectedHistoryTripId(trip.id)}
-                          className="flex items-center gap-1"
-                        >
-                          <Eye className="w-3 h-3" />
-                          View Bookings
-                        </Button>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </>
               )}
             </div>
           )}
 
-          {/* Selected History Trip Bookings */}
+          {/* Selected History Trip Details */}
           {view === 'history' && selectedHistoryTripId && (
             <div className="space-y-4">
               <Button
@@ -478,148 +457,263 @@ export default function TripDetailsDialog({
                 Back to Trip List
               </Button>
 
-              {snapshotLoading && (
-                <div className="flex items-center justify-center p-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                </div>
-              )}
+              {/* Get selected trip details */}
+              {(() => {
+                const selectedTrip = trips.find(t => t.id === selectedHistoryTripId)
+                if (!selectedTrip) return null
 
-              {snapshotError && (
-                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-                  <p className="text-sm text-destructive">{snapshotError}</p>
-                </div>
-              )}
+                return (
+                  <Tabs defaultValue="details" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="details">Trip Details</TabsTrigger>
+                      <TabsTrigger value="bookings">Booking Summary</TabsTrigger>
+                    </TabsList>
 
-              {!snapshotLoading && !snapshotError && snapshot && (
-                <>
-                  {/* Summary Cards */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                      <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Total Seats</p>
-                      <p className="text-2xl font-bold text-emerald-500">{snapshot.capacity.totalSeats}</p>
-                    </div>
-                    <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                      <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Occupied</p>
-                      <p className="text-2xl font-bold text-blue-500">{snapshot.capacity.occupiedSeats}</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                      <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Available</p>
-                      <p className="text-2xl font-bold text-green-500">{snapshot.capacity.availableSeats}</p>
-                    </div>
-                    <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                      <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Pending Payment</p>
-                      <p className="text-2xl font-bold text-amber-500">{snapshot.capacity.pendingPaymentSeats}</p>
-                    </div>
-                  </div>
-
-                  {/* Trip Summary */}
-                  <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                    <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Trip Summary</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Total Tickets</p>
-                        <p className="text-lg font-bold">{snapshot.summary.totalTickets}</p>
+                    {/* Trip Details Tab */}
+                    <TabsContent value="details" className="mt-4 space-y-4">
+                      <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge variant={getStatusColor(selectedTrip.status)}>
+                            {selectedTrip.status}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(selectedTrip.createdAt)}
+                          </p>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Trip ID</p>
+                            <p className="text-lg font-bold font-mono">{selectedTrip.id}</p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Total Distance</p>
+                            <p className="text-lg font-bold">{(selectedTrip.totalDistance / 1000).toFixed(2)} km</p>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Paid Tickets</p>
-                        <p className="text-lg font-bold text-green-500">{snapshot.summary.paidTickets}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Pending Payments</p>
-                        <p className="text-lg font-bold text-amber-500">{snapshot.summary.pendingPayments}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Completed Dropoffs</p>
-                        <p className="text-lg font-bold text-blue-500">{snapshot.summary.completedDropoffs}</p>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Location Details */}
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Locations</p>
-                    {snapshot.locations.map((location, idx) => (
-                      <div
-                        key={`${location.locationId}-${idx}`}
-                        className="p-3 bg-muted/50 rounded-lg border border-border"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${
-                              location.type === 'ORIGIN' ? 'bg-green-500' : 'bg-red-500'
-                            }`} />
-                            <div>
-                              <p className="text-sm font-semibold">
-                                {getLocationName(location.locationId, location.type, location.order)}
+                      {/* Route */}
+                      <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                        <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Route</p>
+                        <div className="space-y-3">
+                          <div className="flex items-start gap-3">
+                            <div className="w-3 h-3 rounded-full bg-green-500 mt-1" />
+                            <div className="flex-1">
+                              <p className="text-xs text-muted-foreground">Origin</p>
+                              <p className="text-sm font-semibold">{selectedTrip.origin.addres}</p>
+                              <p className="text-xs text-muted-foreground font-mono mt-1">
+                                {selectedTrip.origin.lat.toFixed(4)}, {selectedTrip.origin.lng.toFixed(4)}
                               </p>
+                            </div>
+                          </div>
+
+                          {selectedTrip.destinations.length > 1 && (
+                            <div className="flex items-center gap-3 pl-1.5">
+                              <div className="w-1 h-8 bg-gradient-to-b from-green-500 to-red-500" />
                               <p className="text-xs text-muted-foreground">
-                                {location.type === 'ORIGIN' ? 'Origin' : `Stop ${location.order}`} • {location.status}
+                                {selectedTrip.destinations.length - 1} intermediate stop{selectedTrip.destinations.length - 1 !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="flex items-start gap-3">
+                            <div className="w-3 h-3 rounded-full bg-red-500 mt-1" />
+                            <div className="flex-1">
+                              <p className="text-xs text-muted-foreground">Final Destination</p>
+                              <p className="text-sm font-semibold">
+                                {selectedTrip.destinations[selectedTrip.destinations.length - 1]?.addres}
+                              </p>
+                              <p className="text-xs text-muted-foreground font-mono mt-1">
+                                {selectedTrip.destinations[selectedTrip.destinations.length - 1]?.lat.toFixed(4)}, {selectedTrip.destinations[selectedTrip.destinations.length - 1]?.lng.toFixed(4)}
                               </p>
                             </div>
                           </div>
                         </div>
-                        <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-border/50">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Pickup</p>
-                            <p className="text-sm font-bold text-green-500">{location.seats.pickup}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Dropoff</p>
-                            <p className="text-sm font-bold text-blue-500">{location.seats.dropoff}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Pending</p>
-                            <p className="text-sm font-bold text-amber-500">{location.seats.pendingPayment}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Available</p>
-                            <p className="text-sm font-bold">{location.seats.availableFromHere}</p>
+                      </div>
+
+                      {/* All Destinations */}
+                      {selectedTrip.destinations.length > 0 && (
+                        <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                          <p className="text-xs text-muted-foreground uppercase font-bold mb-3">
+                            All Stops ({selectedTrip.destinations.length})
+                          </p>
+                          <div className="space-y-2">
+                            {selectedTrip.destinations.map((dest, idx) => (
+                              <div key={dest.id} className="p-2 bg-background rounded border border-border/50">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium">{dest.addres}</p>
+                                    <p className="text-xs text-muted-foreground">Stop {dest.index}</p>
+                                  </div>
+                                  {dest.fare && (
+                                    <p className="text-sm font-bold text-emerald-500">
+                                      {dest.fare.toLocaleString()} RWF
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
+                      )}
+                    </TabsContent>
 
-              {!snapshotLoading && !snapshotError && !snapshot && (
-                <div className="p-4 bg-muted/50 border border-border rounded-lg">
-                  <p className="text-sm text-muted-foreground">No booking data available for this trip</p>
-                </div>
-              )}
+                    {/* Booking Summary Tab */}
+                    <TabsContent value="bookings" className="mt-4 space-y-4">{snapshotLoading && (
+                        <div className="flex items-center justify-center p-8">
+                          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                        </div>
+                      )}
+
+                      {snapshotError && (
+                        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                          <p className="text-sm text-destructive">{snapshotError}</p>
+                        </div>
+                      )}
+
+                      {snapshotError && (
+                        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                          <p className="text-sm text-destructive">{snapshotError}</p>
+                        </div>
+                      )}
+
+                      {!snapshotLoading && !snapshotError && snapshot && (
+                        <>
+                          {/* Summary Cards */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                              <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Total Seats</p>
+                              <p className="text-2xl font-bold text-emerald-500">{snapshot.capacity.totalSeats}</p>
+                            </div>
+                            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                              <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Occupied</p>
+                              <p className="text-2xl font-bold text-blue-500">{snapshot.capacity.occupiedSeats}</p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                              <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Available</p>
+                              <p className="text-2xl font-bold text-green-500">{snapshot.capacity.availableSeats}</p>
+                            </div>
+                            <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                              <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Pending Payment</p>
+                              <p className="text-2xl font-bold text-amber-500">{snapshot.capacity.pendingPaymentSeats}</p>
+                            </div>
+                          </div>
+
+                          {/* Trip Summary */}
+                          <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Trip Summary</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <p className="text-xs text-muted-foreground">Total Tickets</p>
+                                <p className="text-lg font-bold">{snapshot.summary.totalTickets}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground">Paid Tickets</p>
+                                <p className="text-lg font-bold text-green-500">{snapshot.summary.paidTickets}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground">Pending Payments</p>
+                                <p className="text-lg font-bold text-amber-500">{snapshot.summary.pendingPayments}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground">Completed Dropoffs</p>
+                                <p className="text-lg font-bold text-blue-500">{snapshot.summary.completedDropoffs}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Location Details */}
+                          <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Locations</p>
+                            {snapshot.locations.map((location, idx) => (
+                              <div
+                                key={`${location.locationId}-${idx}`}
+                                className="p-3 bg-muted/50 rounded-lg border border-border"
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${
+                                      location.type === 'ORIGIN' ? 'bg-green-500' : 'bg-red-500'
+                                    }`} />
+                                    <div>
+                                      <p className="text-sm font-semibold">
+                                        {getLocationName(location.locationId, location.type, location.order)}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {location.type === 'ORIGIN' ? 'Origin' : `Stop ${location.order}`} • {location.status}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-border/50">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Pickup</p>
+                                    <p className="text-sm font-bold text-green-500">{location.seats.pickup}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Dropoff</p>
+                                    <p className="text-sm font-bold text-blue-500">{location.seats.dropoff}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Pending</p>
+                                    <p className="text-sm font-bold text-amber-500">{location.seats.pendingPayment}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Available</p>
+                                    <p className="text-sm font-bold">{location.seats.availableFromHere}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+
+                      {!snapshotLoading && !snapshotError && !snapshot && (
+                        <div className="p-4 bg-muted/50 border border-border rounded-lg">
+                          <p className="text-sm text-muted-foreground">No booking data available for this trip</p>
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
+                )
+              })()}
             </div>
           )}
         </div>
 
         {/* Footer Buttons */}
-        <DialogFooter className="mt-6 pt-4 border-t border-border flex-col sm:flex-row gap-2">
-          {view === 'current' && (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => setView('history')}
-                className="w-full sm:w-auto flex items-center justify-center gap-2"
-              >
-                <History className="w-4 h-4" />
-                View Trip History
-              </Button>
-              {car.currentTrip && onViewTripOnMap && (
+        <DialogFooter className="mt-6 pt-4 border-t border-border">
+          {view === 'current' && car.currentTrip && (
+            <div className="flex gap-2 w-full">
+              {onViewTripOnMap && (
                 <Button
                   onClick={() => {
                     if (car) {
                       onViewTripOnMap(car)
                     }
                   }}
-                  className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2"
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2"
                 >
                   <Map className="w-4 h-4" />
                   View Trip on Map
                 </Button>
               )}
-            </>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setView('history')}
+                className="flex-shrink-0"
+                title="View Trip History"
+              >
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
           )}
         </DialogFooter>
       </DialogContent>
