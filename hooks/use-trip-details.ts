@@ -13,7 +13,8 @@ interface UseTripDetailsResult {
   tripData: TripResponse | null
   isLoading: boolean
   error: string | null
-  refetch: () => Promise<void>
+  refetch: () => Promise<TripResponse | null>
+  refetchById: (id: string | number) => Promise<TripResponse | null>
 }
 
 export function useTripDetails({ 
@@ -26,14 +27,16 @@ export function useTripDetails({
   const [error, setError] = useState<string | null>(null)
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  const fetchTrip = useCallback(async () => {
-    if (!tripId) {
+  const fetchTrip = useCallback(async (overrideTripId?: string | number) => {
+    const effectiveTripId = overrideTripId ?? tripId
+
+    if (!effectiveTripId) {
       setTripData(null)
-      return
+      return null
     }
 
     const apiUrl = process.env.NEXT_PUBLIC_NAVIGATION_API_URL || "http://localhost:8080"
-    const endpoint = `${apiUrl}/api/trips/${tripId}?render=true`
+    const endpoint = `${apiUrl}/api/trips/${effectiveTripId}?render=true`
 
     setIsLoading(true)
     setError(null)
@@ -63,11 +66,13 @@ export function useTripDetails({
       const data: TripResponse = await response.json()
       setTripData(data)
       setError(null)
+      return data
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch trip"
       setError(errorMessage)
       console.error("[useTripDetails] Error fetching trip:", err)
       setTripData(null)
+      return null
     } finally {
       setIsLoading(false)
     }
@@ -110,6 +115,7 @@ export function useTripDetails({
     tripData,
     isLoading,
     error,
-    refetch: fetchTrip,
+    refetch: () => fetchTrip(),
+    refetchById: (id: string | number) => fetchTrip(id),
   }
 }
