@@ -376,69 +376,118 @@ export default function TripDetailsDialog({
                     )}
 
                     {snapshot && !snapshotLoading && (
-                      <div className="space-y-4">
-                        {/* Occupancy Overview */}
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Total Seats</p>
-                            <p className="text-2xl font-bold">{snapshot.totalSeats}</p>
+                      <>
+                        {/* Capacity Summary Cards */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Total Seats</p>
+                            <p className="text-2xl font-bold text-emerald-500">{snapshot.capacity.totalSeats}</p>
                           </div>
-                          <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Booked</p>
-                            <p className="text-2xl font-bold text-blue-500">{snapshot.bookedSeats}</p>
+                          <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Occupied Seats</p>
+                            <p className="text-2xl font-bold text-blue-500">{snapshot.capacity.occupiedSeats}</p>
                           </div>
-                          <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Available</p>
-                            <p className="text-2xl font-bold text-emerald-500">{snapshot.totalSeats - snapshot.bookedSeats}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Available</p>
+                            <p className="text-2xl font-bold text-green-500">{snapshot.capacity.availableSeats}</p>
                           </div>
+                          <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Pending Payment</p>
+                            <p className="text-2xl font-bold text-amber-500">{snapshot.capacity.pendingPaymentSeats}</p>
+                          </div>
+                        </div>
+
+                        {/* Trip Summary */}
+                        <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                          <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Trip Summary</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <p className="text-xs text-muted-foreground">Total Tickets</p>
+                              <p className="text-lg font-bold">{snapshot.summary.totalTickets}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Paid Tickets</p>
+                              <p className="text-lg font-bold text-green-500">{snapshot.summary.paidTickets}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Pending Payments</p>
+                              <p className="text-lg font-bold text-amber-500">{snapshot.summary.pendingPayments}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Completed Dropoffs</p>
+                              <p className="text-lg font-bold text-blue-500">{snapshot.summary.completedDropoffs}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Location Details */}
+                        <div className="space-y-2">
+                          <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Locations</p>
+                          {snapshot.locations.map((location, idx) => (
+                            <div
+                              key={`${location.locationId}-${idx}`}
+                              className="p-3 bg-muted/50 rounded-lg border border-border"
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-2 h-2 rounded-full ${
+                                    location.type === 'ORIGIN' ? 'bg-green-500' : 'bg-red-500'
+                                  }`} />
+                                  <div>
+                                    <p className="text-sm font-semibold">
+                                      {getLocationName(location.locationId, location.type, location.order)}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {location.type === 'ORIGIN' ? 'Origin' : `Stop ${location.order}`} • {location.status}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-border/50">
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Pickup</p>
+                                  <p className="text-sm font-bold text-green-500">{location.seats.pickup}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Dropoff</p>
+                                  <p className="text-sm font-bold text-blue-500">{location.seats.dropoff}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Pending</p>
+                                  <p className="text-sm font-bold text-amber-500">{location.seats.pendingPayment}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Available</p>
+                                  <p className="text-sm font-bold">{location.seats.availableFromHere}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
 
                         {/* Occupancy Rate */}
-                        <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                          <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Occupancy Rate</p>
-                          <div className="flex items-center gap-3">
-                            <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-500"
-                                style={{ width: `${(snapshot.bookedSeats / snapshot.totalSeats) * 100}%` }}
-                              />
-                            </div>
-                            <span className="text-lg font-bold text-blue-500">
-                              {Math.round((snapshot.bookedSeats / snapshot.totalSeats) * 100)}%
-                            </span>
+                        <div className="pt-3 border-t border-border">
+                          <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Occupancy Rate</p>
+                          <div className="w-full bg-border rounded-full h-2 overflow-hidden">
+                            <div
+                              className="bg-blue-500 h-full transition-all"
+                              style={{
+                                width: `${
+                                  (snapshot.capacity.occupiedSeats / snapshot.capacity.totalSeats) * 100
+                                }%`,
+                              }}
+                            />
                           </div>
-                        </div>
-
-                        {/* Revenue */}
-                        <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                          <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Total Revenue</p>
-                          <p className="text-2xl font-bold">
-                            {snapshot.totalRevenue ? snapshot.totalRevenue.toLocaleString() : '0'} RWF
+                          <p className="text-sm font-bold mt-2">
+                            {Math.round(
+                              (snapshot.capacity.occupiedSeats / snapshot.capacity.totalSeats) * 100
+                            )}%
                           </p>
                         </div>
-
-                        {/* Passengers List */}
-                        {snapshot.bookings && snapshot.bookings.length > 0 && (
-                          <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                            <p className="text-xs text-muted-foreground uppercase font-bold mb-3">
-                              {snapshot.bookings.length} Passenger{snapshot.bookings.length !== 1 ? 's' : ''}
-                            </p>
-                            <div className="space-y-2 max-h-64 overflow-y-auto">
-                              {snapshot.bookings.map((booking, idx) => (
-                                <div key={idx} className="p-3 bg-background rounded-lg border border-border/50 flex items-center justify-between">
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold truncate">{booking.passengerName}</p>
-                                    <p className="text-xs text-muted-foreground">{booking.destination || 'Final destination'}</p>
-                                  </div>
-                                  <p className="text-sm font-bold text-emerald-500 ml-2">
-                                    {booking.fare} RWF
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      </>
                     )}
 
                     {!snapshotLoading && !snapshotError && !snapshot && (
