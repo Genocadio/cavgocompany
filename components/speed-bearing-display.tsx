@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Activity, Compass, AlertCircle } from "lucide-react"
-import { formatSpeed, reverseGeocode } from "@/lib/utils"
+import { Activity, AlertCircle } from "lucide-react"
+import { formatSpeed, formatBearing, reverseGeocode } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface SpeedBearingDisplayProps {
@@ -70,12 +70,8 @@ export default function SpeedBearingDisplay({
           </div>
           <div className="flex items-center justify-center">
             {hasLocation ? (
-              <div className="relative flex items-center justify-center">
-                <Compass 
-                  className="w-8 h-8 text-muted-foreground" 
-                  style={{ transform: `rotate(${bearing || 0}deg)` }}
-                />
-                <div className="absolute top-0 text-xs font-bold text-muted-foreground">N</div>
+              <div className="flex items-center justify-center w-8 h-8 text-lg font-extrabold text-muted-foreground">
+                {formatBearing(bearing)}
               </div>
             ) : (
               <AlertCircle className="w-8 h-8 text-muted-foreground" />
@@ -86,12 +82,8 @@ export default function SpeedBearingDisplay({
         <div className="flex items-center gap-4">
           <div className="bg-muted p-2 rounded-lg">
             {hasLocation ? (
-              <div className="relative flex items-center justify-center">
-                <Compass 
-                  className={iconSize + " text-muted-foreground"}
-                  style={{ transform: `rotate(${bearing || 0}deg)` }}
-                />
-                <div className="absolute top-0 text-xs font-bold text-muted-foreground">N</div>
+              <div className="flex items-center justify-center w-5 h-5 text-sm font-extrabold text-muted-foreground">
+                {formatBearing(bearing)}
               </div>
             ) : (
               <AlertCircle className={iconSize + " text-muted-foreground"} />

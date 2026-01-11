@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import type { Car, Trip } from "@/lib/data"
-import { formatSpeed } from "@/lib/utils"
 import SpeedBearingDisplay from "@/components/speed-bearing-display"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -37,7 +36,7 @@ export default function CarDetails({
             <h1 className="text-3xl font-bold font-mono">{car.plateNumber}</h1>
             <p className="text-muted-foreground">Fleet ID: {car.id}</p>
           </div>
-          <Badge variant={car.status === "active" ? "default" : "secondary"} className="capitalize text-base py-1.5">
+          <Badge variant={car.status === "with-trips" ? "default" : "secondary"} className="capitalize text-base py-1.5">
             {car.status}
           </Badge>
         </div>
