@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SkeletonLoginForm } from "@/components/ui/skeleton-card"
+import { Spinner } from "@/components/ui/spinner"
 
 export default function LoginPage() {
   const router = useRouter()
