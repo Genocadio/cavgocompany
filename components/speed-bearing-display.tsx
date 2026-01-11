@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Activity } from "lucide-react"
-import { formatSpeed, formatBearing, reverseGeocode } from "@/lib/utils"
+import { Activity, Compass } from "lucide-react"
+import { formatSpeed, reverseGeocode } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface SpeedBearingDisplayProps {
@@ -66,20 +66,25 @@ export default function SpeedBearingDisplay({
             <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Speed</p>
             <p className="text-2xl font-bold">{formatSpeed(speed)} km/h</p>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Heading</p>
-            <p className="text-2xl font-bold">{formatBearing(bearing)}</p>
+          <div className="flex items-center justify-center">
+            <Compass 
+              className="w-8 h-8 text-muted-foreground" 
+              style={{ transform: `rotate(${bearing || 0}deg)` }}
+            />
           </div>
         </div>
       ) : (
         <div className="flex items-center gap-4">
           <div className="bg-muted p-2 rounded-lg">
-            <Activity className={iconSize + " text-muted-foreground"} />
+            <Compass 
+              className={iconSize + " text-muted-foreground"}
+              style={{ transform: `rotate(${bearing || 0}deg)` }}
+            />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Speed / Bearing</p>
+            <p className="text-sm text-muted-foreground">Speed</p>
             <p className="font-semibold">
-              {formatSpeed(speed)} km/h • {formatBearing(bearing)}
+              {formatSpeed(speed)} km/h
             </p>
           </div>
         </div>
