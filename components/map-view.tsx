@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import { useTripSnapshot } from "@/hooks/use-trip-snapshot"
+import { formatSpeed, reverseGeocode } from "@/lib/utils"
 import {
   CommandDialog,
   CommandInput,
@@ -27,6 +28,69 @@ import {
 
 // Import CSS normally
 import "leaflet/dist/leaflet.css"
+
+// MapPopupContent component with geocoding
+function MapPopupContent({ car }: { car: Car }) {
+  const [location, setLocation] = useState<string | null>(null)
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false)
+  const hoverTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const hasLoadedRef = useRef(false)
+
+  const handleMouseEnter = () => {
+    if (!car.position || hasLoadedRef.current) return
+
+    hoverTimerRef.current = setTimeout(async () => {
+      setIsLoadingLocation(true)
+      const locationName = await reverseGeocode(car.position[0], car.position[1])
+      setLocation(locationName)
+      setIsLoadingLocation(false)
+      hasLoadedRef.current = true
+    }, 3000)
+  }
+
+  const handleMouseLeave = () => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current)
+      hoverTimerRef.current = null
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) {
+        clearTimeout(hoverTimerRef.current)
+      }
+    }
+  }, [])
+
+  return (
+    <div className="p-2 min-w-[150px]">
+      <h3 className="font-bold text-lg leading-none mb-1">{car.plateNumber}</h3>
+      <div
+        className="flex justify-between text-xs mt-2 border-t pt-2 border-border/50"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <span className="text-muted-foreground uppercase font-bold tracking-tighter">Speed</span>
+        <span className="font-mono">{formatSpeed(car.speed)} km/h</span>
+      </div>
+      {(isLoadingLocation || location) && (
+        <div className="text-[10px] text-muted-foreground mt-1 italic">
+          {isLoadingLocation ? "Loading location..." : location}
+        </div>
+      )}
+      {car.currentTrip && (
+        <div className="mt-3 bg-red-500/10 p-2 rounded border border-red-500/20">
+          <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">
+            Active Trip
+          </p>
+          <p className="text-xs font-medium truncate opacity-90">{car.currentTrip.destinationName}</p>
+          <p className="text-xs font-bold mt-1 text-red-400">{car.currentTrip.distanceKm} km remaining</p>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // to ensure they only initialize when the window is ready.
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
@@ -313,22 +377,7 @@ export default function MapView({
                   }}
                 >
                   <Popup className="dark-popup">
-                    <div className="p-2 min-w-[150px]">
-                      <h3 className="font-bold text-lg leading-none mb-1">{car.plateNumber}</h3>
-                      <div className="flex justify-between text-xs mt-2 border-t pt-2 border-border/50">
-                        <span className="text-muted-foreground uppercase font-bold tracking-tighter">Speed</span>
-                        <span className="font-mono">{car.speed} km/h</span>
-                      </div>
-                      {car.currentTrip && (
-                        <div className="mt-3 bg-red-500/10 p-2 rounded border border-red-500/20">
-                          <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">
-                            Active Trip
-                          </p>
-                          <p className="text-xs font-medium truncate opacity-90">{car.currentTrip.destinationName}</p>
-                          <p className="text-xs font-bold mt-1 text-red-400">{car.currentTrip.distanceKm} km remaining</p>
-                        </div>
-                      )}
-                    </div>
+                    <MapPopupContent car={car} />
                   </Popup>
                 </Marker>
               )}

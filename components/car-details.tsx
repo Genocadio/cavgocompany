@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import type { Car, Trip } from "@/lib/data"
+import { formatSpeed } from "@/lib/utils"
+import SpeedBearingDisplay from "@/components/speed-bearing-display"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -51,13 +53,13 @@ export default function CarDetails({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Speed</p>
-              <p className="text-2xl font-bold">{car.speed} km/h</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Bearing</p>
-              <p className="text-2xl font-bold">{car.bearing}°</p>
+            <div className="col-span-2">
+              <SpeedBearingDisplay
+                speed={car.speed}
+                bearing={car.bearing}
+                position={car.position}
+                compact
+              />
             </div>
             <div>
               <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Status</p>

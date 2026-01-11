@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Spinner } from "@/components/ui/spinner"
 import { type Car } from "@/lib/data"
 import MapView from "@/components/map-view"
@@ -27,6 +27,7 @@ import { useCompanyCars, type CarWithTripId } from "@/hooks/use-company-cars"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import { useToast } from "@/hooks/use-toast"
 import { useTripSubscriptionsManager } from "@/hooks/use-trip-subscriptions-manager"
+import { formatSpeed, reverseGeocode } from "@/lib/utils"
 
 export default function FleetDashboard() {
   const { user, isLoading: authLoading, logout } = useAuth()
@@ -44,6 +45,10 @@ export default function FleetDashboard() {
   const [viewingCarDetails, setViewingCarDetails] = useState<Car | null>(null)
   const [viewingTripCar, setViewingTripCar] = useState<Car | null>(null)
   const [viewingTrip, setViewingTrip] = useState<Car["currentTrip"] | null>(null)
+  const [speedLocation, setSpeedLocation] = useState<string | null>(null)
+  const [isLoadingSpeedLocation, setIsLoadingSpeedLocation] = useState(false)
+  const speedHoverTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const hasLoadedSpeedLocationRef = useRef(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
@@ -194,9 +199,32 @@ export default function FleetDashboard() {
               <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Status</p>
               <p className="text-lg font-semibold capitalize">{selectedCar?.status}</p>
             </div>
-            <div className="p-4 bg-muted/50 rounded-xl border border-border">
+            <div 
+              className="p-4 bg-muted/50 rounded-xl border border-border"
+              onMouseEnter={() => {
+                if (!selectedCar?.position || hasLoadedSpeedLocationRef.current) return
+                speedHoverTimerRef.current = setTimeout(async () => {
+                  setIsLoadingSpeedLocation(true)
+                  const locationName = await reverseGeocode(selectedCar.position[0], selectedCar.position[1])
+                  setSpeedLocation(locationName)
+                  setIsLoadingSpeedLocation(false)
+                  hasLoadedSpeedLocationRef.current = true
+                }, 3000)
+              }}
+              onMouseLeave={() => {
+                if (speedHoverTimerRef.current) {
+                  clearTimeout(speedHoverTimerRef.current)
+                  speedHoverTimerRef.current = null
+                }
+              }}
+            >
               <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Live Speed</p>
-              <p className="text-lg font-semibold">{selectedCar?.speed} km/h</p>
+              <p className="text-lg font-semibold">{selectedCar ? formatSpeed(selectedCar.speed) : 0} km/h</p>
+              {(isLoadingSpeedLocation || speedLocation) && (
+                <p className="text-xs text-muted-foreground mt-1 italic">
+                  {isLoadingSpeedLocation ? "Loading location..." : speedLocation}
+                </p>
+              )}
             </div>
           </div>
 

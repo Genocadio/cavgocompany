@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import type { Car } from "@/lib/data"
+import { formatSpeed } from "@/lib/utils"
+import SpeedBearingDisplay from "@/components/speed-bearing-display"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { History, MapIcon, Navigation, Activity, ArrowRight, Search, SlidersHorizontal, X, AlertTriangle } from "lucide-react"
@@ -225,17 +227,12 @@ export default function CarManagement({
                 </div>
               )}
 
-              <div className="flex items-center gap-4 mt-2">
-                <div className="bg-muted p-2 rounded-lg">
-                  <Activity className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Speed / Bearing</p>
-                  <p className="font-semibold">
-                    {car.speed} km/h • {car.bearing}°
-                  </p>
-                </div>
-              </div>
+              <SpeedBearingDisplay
+                speed={car.speed}
+                bearing={car.bearing}
+                position={car.position}
+                className="mt-2"
+              />
 
               {car.currentTrip ? (
                 <div
