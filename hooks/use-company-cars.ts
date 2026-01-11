@@ -28,7 +28,7 @@ const COMPANY_CARS_QUERY = `#graphql
         }
         id
         isOnline
-        latestTrip {
+        activeTrip {
           status
           totalDistance
           id
