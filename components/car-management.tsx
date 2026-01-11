@@ -263,15 +263,36 @@ export default function CarManagement({
                       )
                     }
 
-                    if (isInProgress && car.currentTrip.totalDistanceKm && car.currentTrip.totalDistanceKm > 0) {
-                      const remaining = Math.max(0, car.currentTrip.distanceKm || 0)
-                      const nextStop = car.currentTrip.nextStopName || car.currentTrip.destinationName
+                    if (isInProgress) {
+                      // Show remaining distance to the first unpassed destination (sorted by index)
+                      const sortedStops = car.currentTrip.destinations
+                        ? [...car.currentTrip.destinations].sort((a, b) => (a.index ?? 0) - (b.index ?? 0))
+                        : []
+
+                      const isStopPassed = (d: any) => {
+                        if (d == null) return false
+                        return d.isPassed === true || d.isPassed === 'true' || d.isPassede === true || d.isPassede === 'true'
+                      }
+
+                      const firstUnpassed = sortedStops.find((d) => !isStopPassed(d)) || sortedStops.at(-1)
+                      const upcomingStop = firstUnpassed
+                      const remainingMeters = upcomingStop?.remainingDistance ?? null
+                      const label = upcomingStop?.addres || car.currentTrip.destinationName || 'En route'
+
+                      // Debug log to mirror trip details logic
+                      console.log('[CarManagement] remaining distance calc', {
+                        carId: car.id,
+                        tripId: car.currentTrip.id,
+                        destinations: sortedStops.map((d) => ({ id: d.id, idx: d.index, passed: isStopPassed(d), remaining: d.remainingDistance, addres: d.addres })),
+                        upcomingStop: upcomingStop ? { id: upcomingStop.id, addres: upcomingStop.addres, remaining: upcomingStop.remainingDistance } : null,
+                      })
+
                       return (
                         <div className="mt-2 text-xs text-muted-foreground space-y-0.5">
                           <div className="font-semibold text-emerald-600">Remaining</div>
                           <div>
-                            {formatKm(remaining)}
-                            {nextStop ? ` to ${nextStop}` : ''}
+                            {remainingMeters != null ? formatKm(remainingMeters / 1000) : '—'}
+                            {label ? ` to ${label}` : ''}
                           </div>
                         </div>
                       )
