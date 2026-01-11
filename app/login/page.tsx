@@ -1,21 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useLogin } from "@/hooks/use-login"
+import { useAuth } from "@/context/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Spinner } from "@/components/ui/spinner"
+import { Skeleton } from "@/components/ui/skeleton"
+import { SkeletonLoginForm } from "@/components/ui/skeleton-card"
 
 export default function LoginPage() {
   const router = useRouter()
   const { login, isLoading, error } = useLogin()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
   const [emailOrPhone, setEmailOrPhone] = useState("")
   const [password, setPassword] = useState("")
+
+  // Redirect to home if already logged in
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.push("/")
+    }
+  }, [isAuthenticated, authLoading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,6 +54,26 @@ export default function LoginPage() {
       // Error is already handled by the hook
       console.error("Login failed:", err)
     }
+  }
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-center mb-4">
+              <Skeleton className="w-12 h-12 rounded-lg" />
+            </div>
+            <Skeleton className="h-8 w-48 mx-auto" />
+            <Skeleton className="h-4 w-full" />
+          </CardHeader>
+          <CardContent>
+            <SkeletonLoginForm />
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (

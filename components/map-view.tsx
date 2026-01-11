@@ -7,11 +7,12 @@ import type { MapRef } from "react-map-gl/maplibre"
 import type { Car } from "@/lib/data"
 import type { WaypointProgressDto } from "@/types"
 import { Card } from "@/components/ui/card"
-import { Navigation, Search, Ticket, Maximize2, MapPin, Clock, Loader2 } from "lucide-react"
+import { Navigation, Search, Ticket, Maximize2, MapPin, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import { useTripSnapshot } from "@/hooks/use-trip-snapshot"
+import { SkeletonBookingSummary } from "@/components/ui/skeleton-card"
 import { formatSpeed, reverseGeocode } from "@/lib/utils"
 import {
   CommandDialog,
@@ -789,9 +790,7 @@ return (
 
             <div className="space-y-4 mt-4">
               {snapshotLoading && (
-                <div className="flex items-center justify-center p-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                </div>
+                <SkeletonBookingSummary />
               )}
 
               {snapshotError && (

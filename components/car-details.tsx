@@ -151,7 +151,7 @@ export default function CarDetails({
                         <div>
                           <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Start Point</p>
                           <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                            <p className="text-sm font-mono">[{selectedTrip.start[0]}, {selectedTrip.start[1]}]</p>
+                            <p className="text-sm">{selectedTrip.originName}</p>
                           </div>
                         </div>
 
@@ -164,8 +164,7 @@ export default function CarDetails({
                               selectedTrip.history.map((point, idx) => (
                                 <div key={idx} className="p-3 bg-muted/50 rounded-lg border border-border flex items-center justify-between">
                                   <div>
-                                    <p className="text-xs text-muted-foreground font-bold mb-1">Point {idx + 1}</p>
-                                    <p className="text-sm font-mono">[{point[0]}, {point[1]}]</p>
+                                    <p className="text-xs text-muted-foreground font-bold">Waypoint {idx + 1}</p>
                                   </div>
                                   <div className="text-right">
                                     <p className="text-xs text-muted-foreground">
@@ -185,8 +184,7 @@ export default function CarDetails({
                         <div>
                           <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Destination</p>
                           <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                            <p className="text-sm font-mono">[{selectedTrip.end[0]}, {selectedTrip.end[1]}]</p>
-                            <p className="text-sm font-bold text-emerald-600 mt-1">{selectedTrip.destinationName}</p>
+                            <p className="text-sm font-bold text-emerald-600">{selectedTrip.destinationName}</p>
                           </div>
                         </div>
 

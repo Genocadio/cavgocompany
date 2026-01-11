@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { Spinner } from "@/components/ui/spinner"
+import { Skeleton } from "@/components/ui/skeleton"
 import { type Car } from "@/lib/data"
 import MapView from "@/components/map-view"
 import CarManagement from "@/components/car-management"
@@ -173,9 +173,13 @@ export default function FleetDashboard() {
   if (authLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
-        <div className="text-center">
-          <Spinner className="w-10 h-10 text-primary inline-block mb-4" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
+        <div className="w-full max-w-4xl mx-auto p-4 space-y-4">
+          <Skeleton className="h-16 w-full rounded-lg" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-32 w-full rounded-lg" />
+            ))}
+          </div>
         </div>
       </div>
     )

@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, History, Navigation, Activity, MapIcon, Loader2, ChevronDown, ChevronUp, Clock, MapPin, DollarSign, Ticket } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { SkeletonBookingSummary, SkeletonTripHistoryList } from "@/components/ui/skeleton-card"
+import { ArrowLeft, History, Navigation, Activity, MapIcon, ChevronDown, ChevronUp, Clock, MapPin, DollarSign, Ticket } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useCompanyCars } from "@/hooks/use-company-cars"
 import { useTripsByCar } from "@/hooks/use-trips-by-car"
@@ -119,8 +121,16 @@ export default function CarManagementPage() {
 
   if (authLoading || carsLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background flex flex-col">
+        <AppHeader showViewSwitcher={false} />
+        <div className="w-full max-w-7xl mx-auto p-6 space-y-4">
+          <Skeleton className="h-10 w-48" />
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
@@ -394,9 +404,7 @@ export default function CarManagementPage() {
 
           <div className="space-y-4 mt-4">
             {snapshotLoading && (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="w-6 h-6 animate-spin text-primary" />
-              </div>
+              <SkeletonBookingSummary />
             )}
 
             {snapshotError && (

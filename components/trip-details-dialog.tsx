@@ -4,12 +4,13 @@ import type { Car } from "@/lib/data"
 import type { WaypointProgressDto, CarTrip } from "@/types"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MapPin, DollarSign, Navigation, Clock, Loader2, Map, Ticket, Package, ArrowLeft, History, Eye } from "lucide-react"
+import { MapPin, DollarSign, Navigation, Clock, Map, Ticket, Package, ArrowLeft, History, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import { useTripSnapshot } from "@/hooks/use-trip-snapshot"
 import { useTripsByCar } from "@/hooks/use-trips-by-car"
+import { SkeletonBookingSummary, SkeletonTripHistoryList } from "@/components/ui/skeleton-card"
 import { useMemo, useState } from "react"
 
 export default function TripDetailsDialog({
@@ -422,9 +423,7 @@ export default function TripDetailsDialog({
                   <TabsContent value="bookings" className="space-y-4">
                     {/* Booking Summary for Current Trip */}
                     {snapshotLoading && (
-                      <div className="flex items-center justify-center p-8">
-                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                      </div>
+                      <SkeletonBookingSummary />
                     )}
 
                     {snapshotError && (
@@ -567,9 +566,7 @@ export default function TripDetailsDialog({
           {view === 'history' && !selectedHistoryTripId && (
             <div className="space-y-3">
               {tripsLoading && (
-                <div className="flex items-center justify-center p-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                </div>
+                <SkeletonTripHistoryList />
               )}
 
               {tripsError && (
