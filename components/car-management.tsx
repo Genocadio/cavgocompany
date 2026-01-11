@@ -271,7 +271,7 @@ export default function CarManagement({
 
                       const isStopPassed = (d: any) => {
                         if (d == null) return false
-                        return d.isPassed === true || d.isPassed === 'true' || d.isPassede === true || d.isPassede === 'true'
+                        return d.isPassed === true || d.isPassed === 'true'
                       }
 
                       const firstUnpassed = sortedStops.find((d) => !isStopPassed(d)) || sortedStops.at(-1)

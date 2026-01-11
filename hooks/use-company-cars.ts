@@ -38,7 +38,7 @@ const COMPANY_CARS_QUERY = `#graphql
             id
             lat
             lng
-            isPassede
+            isPassed
             passedTime
             remainingDistance
             index
@@ -68,7 +68,7 @@ type ApiTrip = {
     id?: string | number
     lat?: number
     lng?: number
-    isPassede?: boolean
+    isPassed?: boolean
     passedTime?: string
     remainingDistance?: number
     index?: number
@@ -131,14 +131,14 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
       if (hasActiveTrip && trip) {
         const finalDestination = trip.destinations?.[trip.destinations.length - 1]
         const origin = trip.origin
-        const nextStop = trip.destinations?.find((d) => !d.isPassede)
+        const nextStop = trip.destinations?.find((d) => !d.isPassed)
         const remainingDistance = trip.destinations
-          ?.filter((d) => !d.isPassede)
+          ?.filter((d) => !d.isPassed)
           .reduce((sum, d) => sum + (d.remainingDistance || 0), 0) || 0
 
         // Build history from passed destinations
         const history: [number, number][] = trip.destinations
-          ?.filter((d) => d.isPassede && d.lat && d.lng)
+          ?.filter((d) => d.isPassed && d.lat && d.lng)
           .map((d) => [d.lat!, d.lng!]) || []
 
         // Add origin to history if available

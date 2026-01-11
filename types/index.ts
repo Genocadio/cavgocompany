@@ -280,7 +280,7 @@ export interface CarTripDestination {
   index: number
   fare?: number
   remainingDistance?: number
-  isPassede?: boolean
+  isPassed?: boolean
   passedTime?: string
 }
 

@@ -15,7 +15,7 @@ const TRIPS_BY_CAR_QUERY = `#graphql
         index
         fare
         remainingDistance
-        isPassede
+        isPassed
         passedTime
       }
       id

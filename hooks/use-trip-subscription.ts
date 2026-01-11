@@ -24,7 +24,7 @@ const TRIP_SUBSCRIPTION = `#graphql
         index
         fare
         remainingDistance
-        isPassede
+        isPassed
         passedTime
       }
     }
@@ -39,7 +39,7 @@ export interface TripDestination {
   index: number
   fare?: number
   remainingDistance?: number
-  isPassede?: boolean
+  isPassed?: boolean
   passedTime?: string
 }
 

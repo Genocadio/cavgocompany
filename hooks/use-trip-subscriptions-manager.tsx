@@ -43,7 +43,7 @@ export function useTripSubscriptionsManager(cars: CarWithTripId[]): CarWithTripI
         // Build currentTrip from real subscription data
         const remainingKm =
           tripData.destinations
-            .filter((d) => !d.isPassede)
+            .filter((d) => !d.isPassed)
             .reduce((sum, d) => sum + (d.remainingDistance || 0), 0) / 1000
 
         const finalDestination = tripData.destinations[tripData.destinations.length - 1]
@@ -51,7 +51,7 @@ export function useTripSubscriptionsManager(cars: CarWithTripId[]): CarWithTripI
 
         // Build history from passed destinations
         const history: [number, number][] = tripData.destinations
-          .filter((d) => d.isPassede && d.lat && d.lng)
+          .filter((d) => d.isPassed && d.lat && d.lng)
           .map((d) => [d.lat, d.lng])
 
         // Add origin to history
