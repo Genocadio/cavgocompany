@@ -62,7 +62,9 @@ export function useTripDetails({
       if (!response.ok) {
         if (response.status === 404) {
           setNotFound(true)
-          throw new Error("Trip not found")
+          setTripData(null)
+          setError(null)
+          return null
         }
         throw new Error(`Failed to fetch trip: ${response.statusText}`)
       }
