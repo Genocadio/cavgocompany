@@ -457,6 +457,18 @@ export default function TripDetailsDialog({
                           </div>
                         </div>
 
+                        {/* Financial Summary */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Amount Paid</p>
+                            <p className="text-2xl font-bold text-emerald-500">{snapshot.capacity.totalAmountPaid.toFixed(2)}</p>
+                          </div>
+                          <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Pending Amount</p>
+                            <p className="text-2xl font-bold text-red-500">{snapshot.capacity.totalAmountPending.toFixed(2)}</p>
+                          </div>
+                        </div>
+
                         {/* Trip Summary */}
                         <div className="p-4 bg-muted/50 rounded-lg border border-border">
                           <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Trip Summary</p>
@@ -505,22 +517,41 @@ export default function TripDetailsDialog({
                                   </div>
                                 </div>
                               </div>
-                              <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-border/50">
-                                <div>
-                                  <p className="text-xs text-muted-foreground">Pickup</p>
-                                  <p className="text-sm font-bold text-green-500">{location.seats.pickup}</p>
+                              <div className="space-y-2 mt-2 pt-2 border-t border-border/50">
+                                {/* Financial Row */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Pending Amount</p>
+                                    <p className="text-sm font-bold text-red-500">{location.seats.totalAmountPending.toFixed(2)}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Paid Amount</p>
+                                    <p className="text-sm font-bold text-emerald-500">{location.seats.totalAmountPaid.toFixed(2)}</p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="text-xs text-muted-foreground">Dropoff</p>
-                                  <p className="text-sm font-bold text-blue-500">{location.seats.dropoff}</p>
+                                
+                                {/* Seats Row */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Pending Seats</p>
+                                    <p className="text-sm font-bold text-amber-500">{location.seats.pendingPayment}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Paid Seats</p>
+                                    <p className="text-sm font-bold text-green-500">{location.seats.pickup}</p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="text-xs text-muted-foreground">Pending</p>
-                                  <p className="text-sm font-bold text-amber-500">{location.seats.pendingPayment}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-muted-foreground">Available</p>
-                                  <p className="text-sm font-bold">{location.seats.availableFromHere}</p>
+
+                                {/* Pickup/Dropoff Row */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Pickup Seats</p>
+                                    <p className="text-sm font-bold text-blue-500">{location.seats.pickup}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">Dropoff Seats</p>
+                                    <p className="text-sm font-bold text-purple-500">{location.seats.dropoff}</p>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -686,6 +717,18 @@ export default function TripDetailsDialog({
                           <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
                             <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Pending Payment</p>
                             <p className="text-2xl font-bold text-amber-500">{snapshot.capacity.pendingPaymentSeats}</p>
+                          </div>
+                        </div>
+
+                        {/* Financial Summary */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Amount Paid</p>
+                            <p className="text-2xl font-bold text-emerald-500">{snapshot.capacity.totalAmountPaid.toFixed(2)}</p>
+                          </div>
+                          <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Pending Amount</p>
+                            <p className="text-2xl font-bold text-red-500">{snapshot.capacity.totalAmountPending.toFixed(2)}</p>
                           </div>
                         </div>
 

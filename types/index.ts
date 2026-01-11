@@ -232,6 +232,8 @@ export interface TripSnapshotCapacity {
   availableSeats: number
   occupiedSeats: number
   pendingPaymentSeats: number
+  totalAmountPending: number
+  totalAmountPaid: number
 }
 
 export interface TripSnapshotLocationSeats {
@@ -239,6 +241,8 @@ export interface TripSnapshotLocationSeats {
   dropoff: number
   pendingPayment: number
   availableFromHere: number
+  totalAmountPaid: number
+  totalAmountPending: number
 }
 
 export interface TripSnapshotLocation {

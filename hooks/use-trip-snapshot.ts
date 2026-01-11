@@ -14,6 +14,8 @@ const GET_TRIP_SNAPSHOT_QUERY = `#graphql
         availableSeats
         occupiedSeats
         pendingPaymentSeats
+        totalAmountPending
+        totalAmountPaid
       }
       locations {
         locationId
@@ -26,6 +28,8 @@ const GET_TRIP_SNAPSHOT_QUERY = `#graphql
           dropoff
           pendingPayment
           availableFromHere
+          totalAmountPaid
+          totalAmountPending
         }
       }
       summary {
@@ -49,6 +53,8 @@ const TRIP_SNAPSHOT_SUBSCRIPTION = `#graphql
         availableSeats
         occupiedSeats
         pendingPaymentSeats
+        totalAmountPending
+        totalAmountPaid
       }
       locations {
         locationId
@@ -61,6 +67,8 @@ const TRIP_SNAPSHOT_SUBSCRIPTION = `#graphql
           dropoff
           pendingPayment
           availableFromHere
+          totalAmountPaid
+          totalAmountPending
         }
       }
       summary {

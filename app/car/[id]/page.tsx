@@ -289,9 +289,7 @@ export default function CarManagementPage() {
                                           <p className="text-xs text-muted-foreground">Origin</p>
                                         </div>
                                       </div>
-                                      <p className="text-xs text-muted-foreground font-mono mt-1">
-                                        {trip.origin.lat.toFixed(4)}, {trip.origin.lng.toFixed(4)}
-                                      </p>
+
                                     </div>
                                   </div>
                                 </div>
@@ -355,10 +353,6 @@ export default function CarManagementPage() {
                                               )}
                                             </>
                                           )}
-
-                                          <p className="text-xs text-muted-foreground font-mono mt-1">
-                                            {dest.lat.toFixed(4)}, {dest.lng.toFixed(4)}
-                                          </p>
                                         </div>
                                       </div>
                                     </div>
@@ -394,7 +388,7 @@ export default function CarManagementPage() {
 
       {/* Booking Summary Dialog */}
       <Dialog open={!!bookingTripId} onOpenChange={(open) => !open && setBookingTripId(null)}>
-        <DialogContent className="sm:max-w-[500px] bg-card border-border max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[500px] bg-card border-border max-h-[80vh] overflow-y-auto no-scrollbar">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Ticket className="w-5 h-5 text-blue-500" />
@@ -435,6 +429,18 @@ export default function CarManagementPage() {
                   <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
                     <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Pending Payment</p>
                     <p className="text-2xl font-bold text-amber-500">{snapshot.capacity.pendingPaymentSeats}</p>
+                  </div>
+                </div>
+
+                {/* Financial Summary */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Amount Paid</p>
+                    <p className="text-2xl font-bold text-emerald-500">{snapshot.capacity.totalAmountPaid.toFixed(2)}</p>
+                  </div>
+                  <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Pending Amount</p>
+                    <p className="text-2xl font-bold text-red-500">{snapshot.capacity.totalAmountPending.toFixed(2)}</p>
                   </div>
                 </div>
 
@@ -479,27 +485,46 @@ export default function CarManagementPage() {
                               {getLocationName(location.locationId, location.type, location.order)}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {location.type === 'ORIGIN' ? 'Origin' : `Stop ${location.order}`} • {location.status}
+                              {location.type === 'ORIGIN' ? 'Origin' : `Stop ${location.order}`}
                             </p>
                           </div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-border/50">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Pickup</p>
-                          <p className="text-sm font-bold text-green-500">{location.seats.pickup}</p>
+                      <div className="space-y-2 mt-2 pt-2 border-t border-border/50">
+                        {/* Financial Row */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Pending Amount</p>
+                            <p className="text-sm font-bold text-red-500">{location.seats.totalAmountPending.toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Paid Amount</p>
+                            <p className="text-sm font-bold text-emerald-500">{location.seats.totalAmountPaid.toFixed(2)}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Dropoff</p>
-                          <p className="text-sm font-bold text-blue-500">{location.seats.dropoff}</p>
+                        
+                        {/* Seats Row */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Pending Seats</p>
+                            <p className="text-sm font-bold text-amber-500">{location.seats.pendingPayment}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Paid Seats</p>
+                            <p className="text-sm font-bold text-green-500">{location.seats.pickup}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Pending</p>
-                          <p className="text-sm font-bold text-amber-500">{location.seats.pendingPayment}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Available</p>
-                          <p className="text-sm font-bold">{location.seats.availableFromHere}</p>
+
+                        {/* Pickup/Dropoff Row */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Pickup Seats</p>
+                            <p className="text-sm font-bold text-blue-500">{location.seats.pickup}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Dropoff Seats</p>
+                            <p className="text-sm font-bold text-purple-500">{location.seats.dropoff}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
