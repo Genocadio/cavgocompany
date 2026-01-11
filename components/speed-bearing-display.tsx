@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Activity, Compass } from "lucide-react"
+import { Activity, Compass, AlertCircle } from "lucide-react"
 import { formatSpeed, reverseGeocode } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -54,6 +54,8 @@ export default function SpeedBearingDisplay({
     }
   }, [])
 
+  const hasLocation = position && !(position[0] === 0 && position[1] === 0)
+
   const displayContent = (
     <div
       className={`${className}`}
@@ -64,27 +66,41 @@ export default function SpeedBearingDisplay({
         <div className="grid grid-cols-2 gap-2">
           <div>
             <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Speed</p>
-            <p className="text-2xl font-bold">{formatSpeed(speed)} km/h</p>
+            <p className="text-2xl font-bold">{hasLocation ? formatSpeed(speed) : "_ _"} km/h</p>
           </div>
           <div className="flex items-center justify-center">
-            <Compass 
-              className="w-8 h-8 text-muted-foreground" 
-              style={{ transform: `rotate(${bearing || 0}deg)` }}
-            />
+            {hasLocation ? (
+              <div className="relative flex items-center justify-center">
+                <Compass 
+                  className="w-8 h-8 text-muted-foreground" 
+                  style={{ transform: `rotate(${bearing || 0}deg)` }}
+                />
+                <div className="absolute top-0 text-xs font-bold text-muted-foreground">N</div>
+              </div>
+            ) : (
+              <AlertCircle className="w-8 h-8 text-muted-foreground" />
+            )}
           </div>
         </div>
       ) : (
         <div className="flex items-center gap-4">
           <div className="bg-muted p-2 rounded-lg">
-            <Compass 
-              className={iconSize + " text-muted-foreground"}
-              style={{ transform: `rotate(${bearing || 0}deg)` }}
-            />
+            {hasLocation ? (
+              <div className="relative flex items-center justify-center">
+                <Compass 
+                  className={iconSize + " text-muted-foreground"}
+                  style={{ transform: `rotate(${bearing || 0}deg)` }}
+                />
+                <div className="absolute top-0 text-xs font-bold text-muted-foreground">N</div>
+              </div>
+            ) : (
+              <AlertCircle className={iconSize + " text-muted-foreground"} />
+            )}
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Speed</p>
             <p className="font-semibold">
-              {formatSpeed(speed)} km/h
+              {hasLocation ? formatSpeed(speed) : "_ _"} km/h
             </p>
           </div>
         </div>
@@ -92,7 +108,7 @@ export default function SpeedBearingDisplay({
     </div>
   )
 
-  if (!position || (position[0] === 0 && position[1] === 0)) {
+  if (!hasLocation) {
     return displayContent
   }
 
