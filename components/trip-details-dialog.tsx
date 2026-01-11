@@ -318,7 +318,7 @@ export default function TripDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px] bg-card border-border max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] bg-card border-border max-h-[80vh] overflow-y-auto no-scrollbar">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {view === 'history' && (
@@ -484,7 +484,9 @@ export default function TripDetailsDialog({
                         {/* Location Details */}
                         <div className="space-y-2">
                           <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Locations</p>
-                          {snapshot.locations.map((location, idx) => (
+                          {snapshot.locations.map((location, idx, arr) => {
+                            const isLastDestination = location.type === 'DESTINATION' && idx === arr.length - 1
+                            return (
                             <div
                               key={`${location.locationId}-${idx}`}
                               className="p-3 bg-muted/50 rounded-lg border border-border"
@@ -499,7 +501,7 @@ export default function TripDetailsDialog({
                                       {getLocationName(location.locationId, location.type, location.order)}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                      {location.type === 'ORIGIN' ? 'Origin' : `Stop ${location.order}`} • {location.status}
+                                      {location.type === 'ORIGIN' ? 'Origin' : isLastDestination ? 'Destination' : `Stop ${location.order}`}
                                     </p>
                                   </div>
                                 </div>
@@ -523,7 +525,8 @@ export default function TripDetailsDialog({
                                 </div>
                               </div>
                             </div>
-                          ))}
+                            )
+                          })}
                         </div>
 
                         {/* Occupancy Rate */}
@@ -715,7 +718,9 @@ export default function TripDetailsDialog({
                         {/* Location Details */}
                         <div className="space-y-2">
                           <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Locations</p>
-                          {snapshot.locations.map((location, idx) => (
+                          {snapshot.locations.map((location, idx, arr) => {
+                            const isLastDestination = location.type === 'DESTINATION' && idx === arr.length - 1
+                            return (
                             <div
                               key={`${location.locationId}-${idx}`}
                               className="p-3 bg-muted/50 rounded-lg border border-border"
@@ -730,7 +735,7 @@ export default function TripDetailsDialog({
                                       {getLocationName(location.locationId, location.type, location.order)}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                      {location.type === 'ORIGIN' ? 'Origin' : `Stop ${location.order}`} • {location.status}
+                                      {location.type === 'ORIGIN' ? 'Origin' : isLastDestination ? 'Destination' : `Stop ${location.order}`}
                                     </p>
                                   </div>
                                 </div>
@@ -754,7 +759,8 @@ export default function TripDetailsDialog({
                                 </div>
                               </div>
                             </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </>
                     )}

@@ -59,7 +59,14 @@ export default function FleetDashboard() {
   }, [])
 
   const toggleView = () => {
-    setActiveTab((prev) => (prev === "management" ? "map" : "management"))
+    setActiveTab((prev) => {
+      const newTab = prev === "management" ? "map" : "management"
+      // Clear focused car when leaving map view (going to management)
+      if (newTab === "management") {
+        setMapFocusId(undefined)
+      }
+      return newTab
+    })
   }
 
   const toggleTheme = () => {
@@ -124,11 +131,31 @@ export default function FleetDashboard() {
     }
   }
 
-  const handleViewTripOnMap = (car: Car) => {
-    // Close the trip dialog
+  const handleViewTripOnMap = async (car: Car) => {
+    // Fetch trip details first, same as handleViewOnMap
+    const activeTripId = (car as unknown as CarWithTripId)?.activeTripId
+    
+    if (!activeTripId) {
+      toast({
+        title: "No active trip",
+        description: "This car doesn't have an active trip.",
+      })
+      return
+    }
+
+    // Fetch trip details
+    const data = await fetchTripById(activeTripId)
+    if (!data) {
+      toast({
+        title: "Trip details unavailable",
+        description: "Couldn't fetch trip details for this car.",
+      })
+      return
+    }
+
+    // Only navigate if fetch succeeds
     setViewingTrip(null)
     setViewingTripCar(null)
-    // Focus on the car and switch to map view
     setMapFocusId(car.id)
     setActiveTab("map")
   }

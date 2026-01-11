@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback, useRef } from "react"
 import { useTheme } from "next-themes"
-import Map, { Marker, Source, Layer, Popup, NavigationControl } from "react-map-gl/maplibre"
+import Map, { Marker, Source, Layer, NavigationControl } from "react-map-gl/maplibre"
 import type { MapRef } from "react-map-gl/maplibre"
 import type { Car } from "@/lib/data"
 import type { WaypointProgressDto } from "@/types"
@@ -85,7 +85,18 @@ function MapPopupContent({
     >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-bold text-lg leading-none mb-1">{car.plateNumber}</h3>
-        <div className="ml-2 flex items-center gap-1">
+        <div className="ml-2 flex items-center gap-2">
+          {car.currentTrip && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onOpenBooking}
+              className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 flex items-center gap-2"
+              title="View trip bookings"
+            >
+              <Ticket className="w-4 h-4 text-blue-500" />
+            </Button>
+          )}
           <button
             onClick={onZoomOut}
             title="Zoom out"
@@ -112,29 +123,13 @@ function MapPopupContent({
       )}
       {car.currentTrip && (
         <div className="mt-3 bg-red-500/10 p-2 rounded border border-red-500/20">
-          <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">
-            Active Trip
+          <p className="text-xs font-medium truncate opacity-90">
+            {car.currentTrip.originName && car.currentTrip.destinationName
+              ? `${car.currentTrip.originName} → ${car.currentTrip.destinationName}`
+              : car.currentTrip.destinationName}
           </p>
-          <p className="text-xs font-medium truncate opacity-90">{car.currentTrip.destinationName}</p>
-          <p className="text-xs font-bold mt-1 text-red-400">{car.currentTrip.distanceKm} km remaining</p>
         </div>
       )}
-
-      <div className="mt-3 flex items-center gap-2">
-        {car.currentTrip && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onOpenBooking}
-            className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 flex items-center gap-2"
-            title="View trip bookings"
-          >
-            <span className="text-sm font-bold">{car.currentTrip.bookedSeats}</span>
-            <Ticket className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-bold">{car.currentTrip.totalSeats}</span>
-          </Button>
-        )}
-      </div>
     </div>
   )
 }
@@ -280,6 +275,13 @@ export default function MapView({
       setBookingDialogOpen(false)
     }
   }, [focusedCar])
+
+  // Show popup when car is focused externally (e.g., from "View on Map" button)
+  useEffect(() => {
+    if (focusedCar && !popupInfo) {
+      setPopupInfo(focusedCar)
+    }
+  }, [focusedCar, popupInfo])
 
   // Update map view when focused car changes
   useEffect(() => {
@@ -461,6 +463,8 @@ export default function MapView({
               longitude={car.position[1]}
               latitude={car.position[0]}
               anchor="center"
+              pitchAlignment="map"
+              rotationAlignment="map"
               onClick={async (e) => {
                 e.originalEvent.stopPropagation()
                 const activeTripId = (car as any)?.activeTripId
@@ -509,23 +513,27 @@ export default function MapView({
           )
         })}
 
-        {/* Show popup */}
+        {/* Show popup as custom overlay anchored to position to avoid default white map popup chrome */}
         {popupInfo && (
-          <Popup
+          <Marker
             longitude={popupInfo.position[1]}
             latitude={popupInfo.position[0]}
             anchor="bottom"
-            closeButton={false}
-            closeOnClick={false}
-            className="dark-popup"
+            pitchAlignment="map"
+            rotationAlignment="map"
           >
-            <MapPopupContent
-              car={popupInfo}
-              onZoomOut={handleZoomOut}
-              onOpenBooking={() => setBookingDialogOpen(true)}
-              isDark={isDark}
-            />
-          </Popup>
+            <div
+              className="relative translate-y-[-8px]"
+              style={{ pointerEvents: "auto" }}
+            >
+              <MapPopupContent
+                car={popupInfo}
+                onZoomOut={handleZoomOut}
+                onOpenBooking={() => setBookingDialogOpen(true)}
+                isDark={isDark}
+              />
+            </div>
+          </Marker>
         )}
 
         {/* Show trip route when focused */}
@@ -558,85 +566,51 @@ return (
                 longitude={waypoint.longitude}
                 latitude={waypoint.latitude}
                 anchor="center"
+                pitchAlignment="map"
+                rotationAlignment="map"
               >
-                <div style={{ cursor: "pointer" }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" fill={color} stroke="white" strokeWidth="3"/>
-                    <text x="12" y="16" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{waypoint.waypointIndex + 1}</text>
-                  </svg>
-                </div>
-                <Popup
-                  longitude={waypoint.longitude}
-                  latitude={waypoint.latitude}
-                  anchor="bottom"
-                  closeButton={true}
-                  closeOnClick={false}
-                  className="dark-popup"
-                >
+                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <div
-                    className="p-1 min-w-[180px] bg-card text-card-foreground border border-border rounded-md shadow-lg"
-                    style={{
-                      backgroundColor: isDark ? '#0b0b0b' : 'var(--color-card)',
-                      color: isDark ? '#fff' : 'var(--color-card-foreground)',
-                      borderColor: isDark ? '#222' : 'var(--color-border)',
-                    }}
+                    className="absolute left-1/2 -translate-x-1/2 -translate-y-full mb-2"
+                    style={{ pointerEvents: "auto" }}
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-4 h-4" style={{ color }} />
-                      <h3 className="font-bold text-sm">
-                        {waypoint.waypointName || `Waypoint ${waypoint.waypointIndex + 1}`}
-                      </h3>
-                    </div>
-
-                    <div className="text-xs space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Status:</span>
-                        <span className="font-semibold capitalize" style={{ color }}>
-                          {waypoint.state.toLowerCase()}
-                        </span>
+                    <div
+                      className="p-1 min-w-[180px] bg-card text-card-foreground border border-border rounded-md shadow-lg"
+                      style={{
+                        backgroundColor: isDark ? '#0b0b0b' : 'var(--color-card)',
+                        color: isDark ? '#fff' : 'var(--color-card-foreground)',
+                        borderColor: isDark ? '#222' : 'var(--color-border)',
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="w-4 h-4" style={{ color }} />
+                        <h3 className="font-bold text-sm">
+                          {waypoint.waypointName || `Waypoint ${waypoint.waypointIndex + 1}`}
+                        </h3>
                       </div>
 
-                      {isPassed && waypoint.arrivedAt && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Passed:</span>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <span className="font-mono">{formatTimeAgo(waypoint.arrivedAt)}</span>
+                      <div className="text-xs space-y-2">
+                        {isPassed ? (
+                          <div className="inline-flex items-center gap-1 rounded-full bg-green-500/15 text-green-500 px-2 py-1 font-semibold uppercase text-[10px]">
+                            Passed
                           </div>
-                        </div>
-                      )}
-
-                      {isArrived && waypoint.arrivedAt && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Arrived:</span>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <span className="font-mono">{formatTimeAgo(waypoint.arrivedAt)}</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {isApproaching && (
-                        <>
+                        ) : (
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Distance:</span>
+                            <span className="text-muted-foreground">Remaining:</span>
                             <span className="font-mono font-bold">{formatDistance(waypoint.remainingDistance)}</span>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">ETA:</span>
-                            <span className="font-mono">{Math.round(waypoint.remainingTime / 60)} min</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {waypoint.waypointId && (
-                      <div className="mt-2 pt-2 border-t border-border/50">
-                        <span className="text-[10px] text-muted-foreground">ID: {waypoint.waypointId}</span>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                </Popup>
+
+                  <div style={{ cursor: "pointer" }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" fill={color} stroke="white" strokeWidth="3"/>
+                      <text x="12" y="16" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{waypoint.waypointIndex + 1}</text>
+                    </svg>
+                  </div>
+                </div>
               </Marker>
             )
           })}
@@ -647,6 +621,8 @@ return (
             longitude={tripData.currentLocation.longitude}
             latitude={tripData.currentLocation.latitude}
             anchor="center"
+            pitchAlignment="map"
+            rotationAlignment="map"
           >
             <div
               style={{
@@ -658,32 +634,6 @@ return (
                 boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.3)",
               }}
             />
-            <Popup
-              longitude={tripData.currentLocation.longitude}
-              latitude={tripData.currentLocation.latitude}
-              anchor="bottom"
-              closeButton={true}
-              closeOnClick={false}
-              className="dark-popup"
-            >
-              <div
-                className="text-xs bg-card text-card-foreground border border-border rounded-md p-1"
-                style={{
-                  backgroundColor: isDark ? '#0b0b0b' : 'var(--color-card)',
-                  color: isDark ? '#fff' : 'var(--color-card-foreground)',
-                  borderColor: isDark ? '#222' : 'var(--color-border)',
-                }}
-              >
-                <p className="font-bold text-red-500">Current Position</p>
-                <p className="text-muted-foreground">Speed: {tripData.currentLocation.speed.toFixed(1)} m/s</p>
-                {tripData.currentLocation.heading && (
-                  <p className="text-muted-foreground">Heading: {tripData.currentLocation.heading.toFixed(0)}°</p>
-                )}
-                <p className="text-muted-foreground text-[10px] mt-1">
-                  {formatTimeAgo(tripData.currentLocation.timestamp)}
-                </p>
-              </div>
-            </Popup>
           </Marker>
         )}
       </Map>
@@ -821,7 +771,7 @@ return (
       {/* Booking Details Dialog */}
       {focusedCar?.currentTrip && (
         <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
-          <DialogContent className="sm:max-w-[500px] bg-card border-border max-h-[80vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-[500px] bg-card border-border max-h-[80vh] overflow-y-auto no-scrollbar">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Ticket className="w-5 h-5 text-blue-500" />
@@ -899,7 +849,9 @@ return (
                   {/* Location Details */}
                   <div className="space-y-2">
                     <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Locations</p>
-                    {snapshot.locations.map((location, idx) => (
+                    {snapshot.locations.map((location, idx, arr) => {
+                      const isLastDestination = location.type === 'DESTINATION' && idx === arr.length - 1
+                      return (
                       <div
                         key={`${location.locationId}-${idx}`}
                         className="p-3 bg-muted/50 rounded-lg border border-border"
@@ -916,7 +868,7 @@ return (
                                 {getLocationName(location.locationId, location.type, location.order)}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {location.type === "ORIGIN" ? "Origin" : `Stop ${location.order}`} • {location.status}
+                                {location.type === "ORIGIN" ? "Origin" : isLastDestination ? "Destination" : `Stop ${location.order}`}
                               </p>
                             </div>
                           </div>
@@ -940,7 +892,8 @@ return (
                           </div>
                         </div>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
 
                   {/* Occupancy Rate */}
