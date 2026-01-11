@@ -200,6 +200,14 @@ export default function MapView({
   // Get location name from trip data
   const getLocationName = useCallback(
     (locationId: string, type: string, order: number) => {
+      // First, try to get from snapshot data (most accurate for bookings)
+      if (snapshot?.locations) {
+        const snapshotLocation = snapshot.locations.find((l) => l.locationId === locationId)
+        if (snapshotLocation?.addres) {
+          return snapshotLocation.addres
+        }
+      }
+
       // Try to match from trip waypoints
       if (tripData?.trip?.waypoints) {
         const waypoint = tripData.trip.waypoints.find((w) => w.id === locationId)
@@ -222,7 +230,7 @@ export default function MapView({
 
       return `Location ${locationId.substring(0, 8)}`
     },
-    [tripData, focusedCar]
+    [snapshot, tripData, focusedCar]
   )
 
   useEffect(() => {
