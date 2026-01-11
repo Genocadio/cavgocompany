@@ -21,6 +21,14 @@ export function formatSpeed(speed?: number | null): string {
 }
 
 // Reverse geocode a lat/lng to get the most specific location name
+// Converts bearing degrees to cardinal direction
+export function formatBearing(bearing?: number | null): string {
+  if (bearing == null || isNaN(bearing)) return 'N'
+  const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+  const index = Math.round(bearing / 22.5) % 16
+  return directions[index]
+}
+
 export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
   try {
     const response = await fetch(

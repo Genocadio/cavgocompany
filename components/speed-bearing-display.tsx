@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Activity } from "lucide-react"
-import { formatSpeed, reverseGeocode } from "@/lib/utils"
+import { formatSpeed, formatBearing, reverseGeocode } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface SpeedBearingDisplayProps {
@@ -67,8 +67,8 @@ export default function SpeedBearingDisplay({
             <p className="text-2xl font-bold">{formatSpeed(speed)} km/h</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Bearing</p>
-            <p className="text-2xl font-bold">{bearing}°</p>
+            <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Heading</p>
+            <p className="text-2xl font-bold">{formatBearing(bearing)}</p>
           </div>
         </div>
       ) : (
@@ -79,7 +79,7 @@ export default function SpeedBearingDisplay({
           <div>
             <p className="text-sm text-muted-foreground">Speed / Bearing</p>
             <p className="font-semibold">
-              {formatSpeed(speed)} km/h • {bearing}°
+              {formatSpeed(speed)} km/h • {formatBearing(bearing)}
             </p>
           </div>
         </div>
