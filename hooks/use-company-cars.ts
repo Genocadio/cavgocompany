@@ -93,6 +93,7 @@ type ApiCar = {
       lat: number
       lng: number
     }
+    timestamp?: string
   }
   latestTrip?: ApiTrip | null
 }
@@ -130,6 +131,7 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
       if (hasLatestTrip && trip) {
         const finalDestination = trip.destinations?.[trip.destinations.length - 1]
         const origin = trip.origin
+        const nextStop = trip.destinations?.find((d) => !d.isPassede)
         const remainingDistance = trip.destinations
           ?.filter((d) => !d.isPassede)
           .reduce((sum, d) => sum + (d.remainingDistance || 0), 0) || 0
@@ -150,7 +152,16 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
           end: finalDestination?.lat && finalDestination?.lng
             ? [finalDestination.lat, finalDestination.lng]
             : [0, 0],
+          originName: origin?.addres || "Origin",
           destinationName: finalDestination?.addres || "Destination",
+          nextStopName: nextStop?.addres || finalDestination?.addres || "Next stop",
+          destinations: trip.destinations?.map((d) => ({
+            id: d.id?.toString() || Math.random().toString(36).slice(2),
+            addres: d.addres,
+            remainingDistance: d.remainingDistance,
+            isPassed: d.isPassede,
+            index: d.index,
+          })),
           history,
           distanceKm: Math.round((remainingDistance / 1000) * 10) / 10,
           totalDistanceKm: trip.totalDistance ? Math.round((trip.totalDistance / 1000) * 10) / 10 : undefined,
@@ -166,7 +177,7 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
       return {
         id: item?.id?.toString() ?? "unknown",
         plateNumber: item?.plate ?? "N/A",
-        status: hasLatestTrip ? "active" : item?.isOnline ? "idle" : "offline",
+        status: hasLatestTrip ? "with-trips" : "no-trips",
         speed: item?.currentLocation?.speed ?? 0,
         bearing: item?.currentLocation?.bearing ?? 0,
         position: item?.currentLocation?.location

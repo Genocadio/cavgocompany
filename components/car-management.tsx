@@ -50,6 +50,13 @@ const formatDateTime = (timestamp?: string) => {
   }
 }
 
+const formatKm = (km?: number) => {
+  if (km == null) return null
+  const val = Math.max(0, km)
+  if (val >= 1) return `${val.toFixed(1)} km`
+  return `${Math.round(val * 1000)} m`
+}
+
 export default function CarManagement({
   cars,
   onSelectCar,
@@ -66,23 +73,23 @@ export default function CarManagement({
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
-  const [filterActive, setFilterActive] = useState(false)
   const [filterTripsOnly, setFilterTripsOnly] = useState(false)
+  const [filterNoTrips, setFilterNoTrips] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const filteredCars = useMemo(() => {
     let result = cars
 
-    if (filterActive) {
-      result = result.filter((car) => car.status === "active")
-    }
-
     if (filterTripsOnly) {
       result = result.filter((car) => car.currentTrip)
     }
 
+    if (filterNoTrips) {
+      result = result.filter((car) => !car.currentTrip)
+    }
+
     return result
-  }, [cars, filterActive, filterTripsOnly])
+  }, [cars, filterTripsOnly, filterNoTrips])
 
   const sortedCars = useMemo(() => {
     if (!searchQuery.trim()) return filteredCars
@@ -114,7 +121,7 @@ export default function CarManagement({
               title="Filter cars"
             >
               <SlidersHorizontal className="w-5 h-5" />
-              {(filterActive || filterTripsOnly) && (
+              {(filterTripsOnly || filterNoTrips) && (
                 <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-background" aria-hidden="true" />
               )}
             </button>
@@ -123,20 +130,26 @@ export default function CarManagement({
           {filtersOpen && (
             <div className="flex items-center gap-2 bg-background border border-border rounded-lg shadow-lg p-2">
               <Button
-                variant={filterActive ? "default" : "outline"}
-                size="sm"
-                className={filterActive ? "bg-primary text-primary-foreground" : ""}
-                onClick={() => setFilterActive((prev) => !prev)}
-              >
-                Active Only
-              </Button>
-              <Button
                 variant={filterTripsOnly ? "default" : "outline"}
                 size="sm"
                 className={filterTripsOnly ? "bg-primary text-primary-foreground" : ""}
-                onClick={() => setFilterTripsOnly((prev) => !prev)}
+                onClick={() => {
+                  setFilterTripsOnly((prev) => !prev)
+                  setFilterNoTrips(false)
+                }}
               >
                 With Trips
+              </Button>
+              <Button
+                variant={filterNoTrips ? "default" : "outline"}
+                size="sm"
+                className={filterNoTrips ? "bg-primary text-primary-foreground" : ""}
+                onClick={() => {
+                  setFilterNoTrips((prev) => !prev)
+                  setFilterTripsOnly(false)
+                }}
+              >
+                No Trips
               </Button>
               <Button variant="ghost" size="icon-sm" onClick={() => setFiltersOpen(false)}>
                 <X className="w-4 h-4" />
@@ -192,9 +205,6 @@ export default function CarManagement({
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl font-bold font-mono">{car.plateNumber}</CardTitle>
-              <Badge variant={car.status === "active" ? "default" : "secondary"} className="capitalize">
-                {car.status}
-              </Badge>
             </CardHeader>
             <CardContent>
               {/* GPS Warning or Timestamp */}
@@ -239,7 +249,9 @@ export default function CarManagement({
                     <span className="text-xs font-bold text-emerald-500 uppercase">Current Trip</span>
                     <Navigation className="w-4 h-4 text-emerald-500" />
                   </div>
-                  <p className="text-sm font-medium truncate">{car.currentTrip.destinationName}</p>
+                  <p className="text-sm font-medium truncate">
+                    {(car.currentTrip.originName || 'Origin')} → {car.currentTrip.destinationName || 'Destination'}
+                  </p>
                   {(() => {
                     const status = (car.currentTrip?.status || '').toLowerCase()
                     const isScheduled = status.includes('scheduled') || status.includes('created')
@@ -247,24 +259,23 @@ export default function CarManagement({
 
                     if (isScheduled) {
                       return (
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          <span className="font-semibold">Departure Time:</span>{' '}
-                          {formatDateTime(car.currentTrip.createdAt) || 'Not set'}
+                        <div className="mt-2 text-xs text-muted-foreground space-y-0.5">
+                          <div className="font-semibold">Departure Time</div>
+                          <div>{formatDateTime(car.currentTrip.createdAt) || 'Not set'}</div>
                         </div>
                       )
                     }
 
                     if (isInProgress && car.currentTrip.totalDistanceKm && car.currentTrip.totalDistanceKm > 0) {
                       const remaining = Math.max(0, car.currentTrip.distanceKm || 0)
-                      const total = car.currentTrip.totalDistanceKm
-                      const ratio = Math.max(0, Math.min(1, 1 - remaining / total))
-                      const percent = Math.round(ratio * 100)
+                      const nextStop = car.currentTrip.nextStopName || car.currentTrip.destinationName
                       return (
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="h-1 flex-1 bg-emerald-500/20 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500" style={{ width: `${percent}%` }} />
+                        <div className="mt-2 text-xs text-muted-foreground space-y-0.5">
+                          <div className="font-semibold text-emerald-600">Remaining</div>
+                          <div>
+                            {formatKm(remaining)}
+                            {nextStop ? ` to ${nextStop}` : ''}
                           </div>
-                          <span className="text-xs font-bold text-emerald-500">{remaining}km left</span>
                         </div>
                       )
                     }

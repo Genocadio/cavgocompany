@@ -17,6 +17,7 @@ const GET_TRIP_SNAPSHOT_QUERY = `#graphql
       }
       locations {
         locationId
+        addres
         type
         order
         status
@@ -51,6 +52,7 @@ const TRIP_SNAPSHOT_SUBSCRIPTION = `#graphql
       }
       locations {
         locationId
+        addres
         type
         order
         status

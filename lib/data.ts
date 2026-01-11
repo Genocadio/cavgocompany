@@ -2,7 +2,16 @@ export interface Trip {
   id: string
   start: [number, number]
   end: [number, number]
+  originName?: string
   destinationName: string
+  nextStopName?: string
+  destinations?: Array<{
+    id: string
+    addres?: string
+    remainingDistance?: number
+    isPassed?: boolean
+    index?: number
+  }>
   history: [number, number][]
   distanceKm: number
   // Optional total distance of the trip (km)
@@ -19,7 +28,7 @@ export interface Trip {
 export interface Car {
   id: string
   plateNumber: string
-  status: "active" | "idle" | "offline"
+  status: "with-trips" | "no-trips"
   speed: number
   bearing: number
   position: [number, number]

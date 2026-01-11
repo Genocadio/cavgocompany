@@ -25,6 +25,7 @@ export default function TripDetailsDialog({
 }) {
   const [view, setView] = useState<'current' | 'history'>('current')
   const [selectedHistoryTripId, setSelectedHistoryTripId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'route' | 'bookings'>('route')
 
   // Don't fetch full trip details on dialog open - use subscription data from car.currentTrip
   // Full details will be fetched only when viewing on map
@@ -42,9 +43,10 @@ export default function TripDetailsDialog({
 
   // Fetch trip snapshot for booking details
   const currentTripId = view === 'current' ? car?.currentTrip?.id : selectedHistoryTripId
+  const snapshotEnabled = open && !!currentTripId && activeTab === 'bookings'
   const { snapshot, isLoading: snapshotLoading, error: snapshotError } = useTripSnapshot({
     tripId: currentTripId,
-    enabled: open && !!currentTripId,
+    enabled: snapshotEnabled,
   })
 
   // Reset view when dialog closes
@@ -102,6 +104,11 @@ export default function TripDetailsDialog({
 
   // Helper to get location name by ID
   const getLocationName = (locationId: string, type: string, order: number) => {
+    // If snapshot provides an address for this location, prefer it
+    if (snapshot?.locations) {
+      const found = snapshot.locations.find((l) => l.locationId === locationId)
+      if (found?.addres) return found.addres
+    }
     // First try to match from our location names map
     if (locationNames[locationId]) {
       return locationNames[locationId]
@@ -146,8 +153,6 @@ export default function TripDetailsDialog({
     if (normalized.includes('cancelled')) return 'destructive'
     return 'outline'
   }
-
-  if (!car) return null
 
   // Helper to format time ago
   const formatTimeAgo = (isoTimestamp?: string | null) => {
@@ -222,6 +227,95 @@ export default function TripDetailsDialog({
     }
   }
 
+  // Helper to get origin/destination names for currentTrip (prefer snapshot addres)
+  const getCurrentTripNames = () => {
+    if (!car?.currentTrip) return { originName: 'Origin', finalName: 'Destination' }
+
+    const originFromSnapshot = snapshot?.locations?.find((l) => l.type === 'ORIGIN')?.addres
+    const destFromSnapshot = snapshot?.locations
+      ?.filter((l) => l.type === 'DESTINATION')
+      .sort((a, b) => a.order - b.order)
+      .pop()?.addres
+
+    const originName = originFromSnapshot || locationNames[String(car.currentTrip.id) + "_origin"] || 'Origin'
+    const finalName = destFromSnapshot || car.currentTrip.destinationName || locationNames[String(car.currentTrip.id) + "_dest"] || 'Destination'
+
+    return { originName, finalName }
+  }
+
+  // Precompute route data to keep hooks stable
+  const isCurrentTripScheduled = useMemo(() => {
+    if (view !== 'current') return false
+    return isTripScheduled(car?.currentTrip?.status || '')
+  }, [view, car?.currentTrip?.status])
+
+  const isCurrentTripCompleted = useMemo(() => {
+    if (view !== 'current') return false
+    const status = (car?.currentTrip?.status || '').toLowerCase()
+    return status.includes('completed') || status.includes('done')
+  }, [view, car?.currentTrip?.status])
+
+  const routeStops = useMemo(() => {
+    if (view === 'current' && car?.currentTrip?.destinations) {
+      return car.currentTrip.destinations
+    }
+    if (view === 'history' && viewingTrip && 'destinations' in viewingTrip) {
+      return (viewingTrip as any).destinations || []
+    }
+    return []
+  }, [view, car?.currentTrip?.destinations, viewingTrip])
+
+  const routeLocations = useMemo(() => {
+    if (view !== 'current' || !car?.currentTrip) return []
+
+    const arr: Array<{
+      id: string
+      name: string
+      type: 'ORIGIN' | 'DESTINATION'
+      order: number
+      isPassed?: boolean
+      remainingDistance?: number
+    }> = []
+
+    const originName = car.currentTrip.originName || 'Origin'
+    arr.push({
+      id: `${car.currentTrip.id}-origin`,
+      name: originName,
+      type: 'ORIGIN',
+      order: 0,
+      isPassed: !isCurrentTripScheduled,
+    })
+
+    routeStops.forEach((d, idx) => {
+      arr.push({
+        id: d.id?.toString() || `dest-${idx}`,
+        name: d.addres || `Stop ${d.index ?? idx + 1}`,
+        type: 'DESTINATION',
+        order: idx + 1,
+        isPassed: d.isPassed,
+        remainingDistance: d.remainingDistance,
+      })
+    })
+
+    return arr
+  }, [view, car?.currentTrip, routeStops, isCurrentTripScheduled])
+
+  const firstUnpassedDestination = useMemo(() => {
+    if (view !== 'current') return null
+    if (isCurrentTripScheduled || isCurrentTripCompleted) return null
+    return routeLocations.find((loc) => loc.type === 'DESTINATION' && !loc.isPassed) || null
+  }, [view, isCurrentTripScheduled, isCurrentTripCompleted, routeLocations])
+
+  if (view === 'current' && car?.currentTrip) {
+    console.log('[TripDetailsDialog] route locations (trip data)', {
+      status: car.currentTrip.status,
+      locations: routeLocations,
+      firstUnpassed: firstUnpassedDestination,
+    })
+  }
+
+  if (!car) return null
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[600px] bg-card border-border max-h-[80vh] overflow-y-auto">
@@ -256,109 +350,73 @@ export default function TripDetailsDialog({
               )}
 
               {car.currentTrip && (
-                <Tabs defaultValue="route" className="w-full">
+                <Tabs defaultValue="route" className="w-full" onValueChange={(val) => setActiveTab(val as 'route' | 'bookings')}>
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="route">Route</TabsTrigger>
                     <TabsTrigger value="bookings">Booking Summary</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="route" className="space-y-4">
-                  {/* Trip Status and Info */}
-                  <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Badge variant={getStatusColor(car.currentTrip.status || 'ongoing')}>
-                        {car.currentTrip.status || 'Ongoing'}
-                      </Badge>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(car.currentTrip.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Route Preview - Different based on trip status */}
-                  {!isTripScheduled(car.currentTrip.status || '') ? (
-                    // ACTIVE TRIP - Show all locations with remaining time/distance or passed time
-                    <div className="space-y-4">
-                      <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                        <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Trip Progress</p>
-                        <div className="space-y-2">
-                          {/* Origin */}
-                          <div className="flex items-start gap-3">
-                            <div className="w-3 h-3 rounded-full bg-green-500 mt-1" />
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold">Origin</p>
-                              <p className="text-xs text-muted-foreground font-mono">
-                                {car.currentTrip.start[0].toFixed(4)}, {car.currentTrip.start[1].toFixed(4)}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Intermediate stops and destinations */}
-                          {car.currentTrip.history && car.currentTrip.history.length > 2 && (
-                            <div className="flex items-center gap-2 pl-1">
-                              <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-blue-500" />
-                              <p className="text-xs text-muted-foreground">
-                                {car.currentTrip.history.length - 2} stops
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Final Destination */}
-                          <div className="flex items-start gap-3">
-                            <div className="w-3 h-3 rounded-full bg-red-500 mt-1" />
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold">{car.currentTrip.destinationName}</p>
-                              <p className="text-xs text-muted-foreground font-mono">
-                                {car.currentTrip.end[0].toFixed(4)}, {car.currentTrip.end[1].toFixed(4)}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    // SCHEDULED TRIP - Show departure time and all destinations without distances
-                    <div className="space-y-4">
+                    {/* Trip Status - Only for scheduled and completed trips */}
+                    {isCurrentTripScheduled && (
                       <div className="p-4 bg-muted/50 rounded-lg border border-border">
                         <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Departure Time</p>
                         <p className="text-lg font-bold">
                           {car.currentTrip.createdAt ? formatDate(car.currentTrip.createdAt) : 'Not set'}
                         </p>
                       </div>
+                    )}
 
-                      <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                        <p className="text-xs text-muted-foreground uppercase font-bold mb-3">Scheduled Route</p>
-                        <div className="space-y-2">
-                          {/* Origin */}
-                          <div className="flex items-start gap-3">
-                            <div className="w-3 h-3 rounded-full bg-green-500 mt-1" />
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold">Origin: {locationNames[String(car.currentTrip.id) + "_origin"] || "Starting Point"}</p>
-                            </div>
-                          </div>
+                    {isCurrentTripCompleted && (
+                      <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                        <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Completed</p>
+                        <p className="text-lg font-bold">
+                          {car.currentTrip.createdAt ? formatDate(car.currentTrip.createdAt) : 'Not set'}
+                        </p>
+                      </div>
+                    )}
 
-                          {/* All Destinations */}
-                          {car.currentTrip.history && car.currentTrip.history.slice(1).map((point, idx) => (
-                            <div key={idx} className="flex items-start gap-3">
-                              {idx === car.currentTrip.history.length - 2 ? (
-                                <div className="w-3 h-3 rounded-full bg-red-500 mt-1" />
-                              ) : (
-                                <div className="w-3 h-3 rounded-full bg-blue-500 mt-1" />
-                              )}
-                              <div className="flex-1">
-                                <p className="text-sm font-semibold">
-                                  {car.currentTrip.destinationName || `Stop ${idx + 1}`}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {idx === car.currentTrip.history.length - 2 ? 'Final Destination' : `Stop ${idx + 1}`}
-                                </p>
+                    {/* Locations List derived from trip data (no snapshot unless bookings tab) */}
+                    {routeLocations.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Locations</p>
+                        {routeLocations.map((location, idx) => {
+                          const isOrigin = location.type === 'ORIGIN'
+                          const isFinalDest = location.type === 'DESTINATION' && idx === routeLocations.length - 1
+                          const isPassed = location.isPassed || (isOrigin && !isCurrentTripScheduled)
+                          const isFirstUnpassed = firstUnpassedDestination && location.id === firstUnpassedDestination.id
+
+                          return (
+                            <div key={`${location.id}-${idx}`} className="p-3 bg-muted/50 rounded-lg border border-border">
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-3 flex-1">
+                                  <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${
+                                    isOrigin ? 'bg-green-500' : isFinalDest ? 'bg-red-500' : 'bg-blue-500'
+                                  }`} />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold truncate">{location.name}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {isOrigin ? 'Origin' : isFinalDest ? 'Final Destination' : `Stop ${location.order}`}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="ml-2 flex-shrink-0 flex items-center gap-2">
+                                  {isPassed && (
+                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/30">Passed</Badge>
+                                  )}
+                                  {isFirstUnpassed && (
+                                    <Badge variant="secondary">Next</Badge>
+                                  )}
+                                  {isFirstUnpassed && location.remainingDistance != null && (
+                                    <span className="text-xs font-semibold text-emerald-600">{formatDistance(location.remainingDistance)}</span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                          )
+                        })}
                       </div>
-                    </div>
-                  )}
+                    )}
                   </TabsContent>
 
                   <TabsContent value="bookings" className="space-y-4">

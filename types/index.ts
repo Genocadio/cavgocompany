@@ -243,9 +243,11 @@ export interface TripSnapshotLocationSeats {
 
 export interface TripSnapshotLocation {
   locationId: string
+  addres?: string
   type: 'ORIGIN' | 'DESTINATION'
   order: number
   status: 'PENDING' | 'ACTIVE' | 'COMPLETED'
+  remainingDistance?: number
   seats: TripSnapshotLocationSeats
 }
 
