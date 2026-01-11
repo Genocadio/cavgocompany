@@ -95,7 +95,7 @@ type ApiCar = {
     }
     timestamp?: string
   }
-  latestTrip?: ApiTrip | null
+  activeTrip?: ApiTrip | null
 }
 
 interface UseCompanyCarsOptions {
@@ -122,13 +122,13 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
 
   const mapApiCarsToCars = useCallback((apiCars: ApiCar[]): CarWithTripId[] => {
     return apiCars.map((item) => {
-      const hasLatestTrip = Boolean(item?.latestTrip)
-      const tripId = item?.latestTrip?.id?.toString()
-      const trip = item.latestTrip
+      const hasActiveTrip = Boolean(item?.activeTrip)
+      const tripId = item?.activeTrip?.id?.toString()
+      const trip = item.activeTrip
 
       // Build currentTrip from API data
       let currentTrip: Car["currentTrip"] | undefined
-      if (hasLatestTrip && trip) {
+      if (hasActiveTrip && trip) {
         const finalDestination = trip.destinations?.[trip.destinations.length - 1]
         const origin = trip.origin
         const nextStop = trip.destinations?.find((d) => !d.isPassede)
@@ -177,7 +177,7 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
       return {
         id: item?.id?.toString() ?? "unknown",
         plateNumber: item?.plate ?? "N/A",
-        status: hasLatestTrip ? "with-trips" : "no-trips",
+        status: hasActiveTrip ? "with-trips" : "no-trips",
         speed: item?.currentLocation?.speed ?? 0,
         bearing: item?.currentLocation?.bearing ?? 0,
         position: item?.currentLocation?.location
