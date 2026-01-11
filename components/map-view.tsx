@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useState, useMemo, useCallback, useRef } from "react"
+import { useTheme } from "next-themes"
 import Map, { Marker, Source, Layer, Popup, NavigationControl } from "react-map-gl/maplibre"
 import type { MapRef } from "react-map-gl/maplibre"
 import type { Car } from "@/lib/data"
 import type { WaypointProgressDto } from "@/types"
 import { Card } from "@/components/ui/card"
-import { Navigation, Search, Ticket, Map as MapIcon, Maximize2, MapPin, Clock, Loader2 } from "lucide-react"
+import { Navigation, Search, Ticket, Maximize2, MapPin, Clock, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { useTripDetails } from "@/hooks/use-trip-details"
@@ -30,7 +31,17 @@ import {
 import "maplibre-gl/dist/maplibre-gl.css"
 
 // MapPopupContent component with geocoding
-function MapPopupContent({ car }: { car: Car }) {
+function MapPopupContent({
+  car,
+  onZoomOut,
+  onOpenBooking,
+  isDark,
+}: {
+  car: Car
+  onZoomOut: () => void
+  onOpenBooking: () => void
+  isDark: boolean
+}) {
   const [location, setLocation] = useState<string | null>(null)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   const hoverTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -64,8 +75,28 @@ function MapPopupContent({ car }: { car: Car }) {
   }, [])
 
   return (
-    <div className="p-2 min-w-[150px]">
-      <h3 className="font-bold text-lg leading-none mb-1">{car.plateNumber}</h3>
+    <div
+      className="p-1 min-w-[180px] bg-card text-card-foreground border border-border rounded-md shadow-lg"
+      style={{
+        backgroundColor: isDark ? '#0b0b0b' : 'var(--color-card)',
+        color: isDark ? '#fff' : 'var(--color-card-foreground)',
+        borderColor: isDark ? '#222' : 'var(--color-border)',
+      }}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="font-bold text-lg leading-none mb-1">{car.plateNumber}</h3>
+        <div className="ml-2 flex items-center gap-1">
+          <button
+            onClick={onZoomOut}
+            title="Zoom out"
+            className="p-1 rounded bg-background/50 hover:bg-background/70 text-muted-foreground"
+            aria-label="Zoom out"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
       <div
         className="flex justify-between text-xs mt-2 border-t pt-2 border-border/50"
         onMouseEnter={handleMouseEnter}
@@ -88,6 +119,22 @@ function MapPopupContent({ car }: { car: Car }) {
           <p className="text-xs font-bold mt-1 text-red-400">{car.currentTrip.distanceKm} km remaining</p>
         </div>
       )}
+
+      <div className="mt-3 flex items-center gap-2">
+        {car.currentTrip && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenBooking}
+            className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 flex items-center gap-2"
+            title="View trip bookings"
+          >
+            <span className="text-sm font-bold">{car.currentTrip.bookedSeats}</span>
+            <Ticket className="w-4 h-4 text-blue-500" />
+            <span className="text-sm font-bold">{car.currentTrip.totalSeats}</span>
+          </Button>
+        )}
+      </div>
     </div>
   )
 }
@@ -108,6 +155,9 @@ export default function MapView({
   const [popupInfo, setPopupInfo] = useState<Car | null>(null)
   const [mapStyle, setMapStyle] = useState<'street' | 'satellite'>('street')
   const [hoveredCar, setHoveredCar] = useState<Car | null>(null)
+
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
 
   // Filter cars with and without location
   const carsWithLocation = useMemo(
@@ -291,6 +341,32 @@ export default function MapView({
     return `${(meters / 1000).toFixed(1)}km`
   }
 
+  // Zoom out / reset focus to show all cars
+  const handleZoomOut = () => {
+    onFocusCar(undefined)
+    setPopupInfo(null)
+    if (carsWithLocation.length > 0 && mapRef.current) {
+      const bounds = carsWithLocation.reduce(
+        (acc, car) => {
+          return [
+            [Math.min(acc[0][0], car.position[1]), Math.min(acc[0][1], car.position[0])],
+            [Math.max(acc[1][0], car.position[1]), Math.max(acc[1][1], car.position[0])],
+          ]
+        },
+        [
+          [carsWithLocation[0].position[1], carsWithLocation[0].position[0]],
+          [carsWithLocation[0].position[1], carsWithLocation[0].position[0]],
+        ]
+      )
+
+      mapRef.current.fitBounds(bounds as any, {
+        padding: 64,
+        maxZoom: 14,
+        duration: 800,
+      })
+    }
+  }
+
   // Create car icon component
   const CarIcon = ({ bearing, color = "#3b82f6" }: { bearing: number; color?: string }) => (
     <div style={{ transform: `rotate(${bearing}deg)` }}>
@@ -410,7 +486,13 @@ export default function MapView({
                 <CarIcon bearing={car.bearing} color={color} />
                 {hoveredCar?.id === car.id && (
                   <div
-                    className="absolute bottom-full left-1/2 -translate-x-1/2 bg-background border border-border text-foreground px-3 py-2 rounded-md text-xs font-bold whitespace-nowrap mb-2 shadow-lg z-[1000]"
+                    className="absolute bottom-full left-1/2 -translate-x-1/2 bg-card text-card-foreground border border-border px-2 py-1 rounded-md text-xs font-bold whitespace-nowrap mb-2 shadow-lg z-[1000]"
+                    style={{
+                      backdropFilter: 'blur(6px)',
+                      backgroundColor: isDark ? '#0b0b0b' : 'var(--color-card)',
+                      color: isDark ? '#fff' : 'var(--color-card-foreground)',
+                      borderColor: isDark ? '#222' : 'var(--color-border)',
+                    }}
                   >
                     <div className="font-mono text-sm mb-1">
                       {car.plateNumber}
@@ -433,11 +515,16 @@ export default function MapView({
             longitude={popupInfo.position[1]}
             latitude={popupInfo.position[0]}
             anchor="bottom"
-            onClose={() => setPopupInfo(null)}
+            closeButton={false}
             closeOnClick={false}
             className="dark-popup"
           >
-            <MapPopupContent car={popupInfo} />
+            <MapPopupContent
+              car={popupInfo}
+              onZoomOut={handleZoomOut}
+              onOpenBooking={() => setBookingDialogOpen(true)}
+              isDark={isDark}
+            />
           </Popup>
         )}
 
@@ -486,7 +573,14 @@ return (
                   closeOnClick={false}
                   className="dark-popup"
                 >
-                  <div className="p-2 min-w-[180px]">
+                  <div
+                    className="p-1 min-w-[180px] bg-card text-card-foreground border border-border rounded-md shadow-lg"
+                    style={{
+                      backgroundColor: isDark ? '#0b0b0b' : 'var(--color-card)',
+                      color: isDark ? '#fff' : 'var(--color-card-foreground)',
+                      borderColor: isDark ? '#222' : 'var(--color-border)',
+                    }}
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="w-4 h-4" style={{ color }} />
                       <h3 className="font-bold text-sm">
@@ -572,7 +666,14 @@ return (
               closeOnClick={false}
               className="dark-popup"
             >
-              <div className="text-xs">
+              <div
+                className="text-xs bg-card text-card-foreground border border-border rounded-md p-1"
+                style={{
+                  backgroundColor: isDark ? '#0b0b0b' : 'var(--color-card)',
+                  color: isDark ? '#fff' : 'var(--color-card-foreground)',
+                  borderColor: isDark ? '#222' : 'var(--color-border)',
+                }}
+              >
                 <p className="font-bold text-red-500">Current Position</p>
                 <p className="text-muted-foreground">Speed: {tripData.currentLocation.speed.toFixed(1)} m/s</p>
                 {tripData.currentLocation.heading && (
@@ -589,19 +690,6 @@ return (
 
       {/* Floating controls */}
       <div className="absolute top-6 right-6 z-[1000] flex gap-2">
-        {/* View All button - only show when a car is focused or there are multiple cars */}
-        {(focusedCar || carsWithLocation.length > 1) && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="bg-card/70 backdrop-blur border-border shadow-md hover:bg-primary/10 hover:border-primary/50"
-            onClick={() => onFocusCar(undefined)}
-            title={focusedCar ? "View all cars" : `View all ${carsWithLocation.length} cars on map`}
-            aria-label="View all cars"
-          >
-            <Maximize2 className="w-5 h-5" />
-          </Button>
-        )}
         <Button
           variant="outline"
           size="icon"
@@ -728,40 +816,7 @@ return (
         </DialogContent>
       </Dialog>
 
-      {/* Focus Overlay UI */}
-      {focusedCar && (
-        <div className="absolute bottom-6 right-6 z-[1000]">
-          <Card className="p-3 bg-background/90 backdrop-blur-xl border-primary/50 shadow-2xl">
-            <div className="flex flex-col gap-2">
-              <p className="font-bold text-lg tracking-tight text-center">{focusedCar.plateNumber}</p>
-              <div className="flex items-center justify-center gap-2">
-                {focusedCar.currentTrip && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBookingDialogOpen(true)}
-                    className="bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 flex items-center gap-2"
-                    title="View trip bookings"
-                  >
-                    <span className="text-sm font-bold">{focusedCar.currentTrip.bookedSeats}</span>
-                    <Ticket className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm font-bold">{focusedCar.currentTrip.totalSeats}</span>
-                  </Button>
-                )}
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  onClick={() => onFocusCar(undefined)}
-                  className="bg-primary/10 border-primary/20 hover:bg-primary/20"
-                  title="Exit focus"
-                >
-                  <MapIcon className="w-4 h-4 text-primary" />
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
+      
 
       {/* Booking Details Dialog */}
       {focusedCar?.currentTrip && (
