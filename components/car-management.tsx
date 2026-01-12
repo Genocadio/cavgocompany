@@ -11,10 +11,11 @@ import { History, MapIcon, Navigation, Activity, ArrowRight, Search, SlidersHori
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-const formatTimestamp = (timestamp?: string) => {
+const formatTimestamp = (timestamp?: string | number) => {
   if (!timestamp) return null
   try {
-    const date = new Date(timestamp)
+    // Handle Unix timestamp (in seconds) or ISO string
+    const date = new Date(typeof timestamp === 'number' ? timestamp * 1000 : timestamp)
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffMins = Math.floor(diffMs / 60000)
@@ -37,10 +38,11 @@ const formatTimestamp = (timestamp?: string) => {
   }
 }
 
-const formatDateTime = (timestamp?: string) => {
+const formatDateTime = (timestamp?: string | number) => {
   if (!timestamp) return null
   try {
-    const date = new Date(timestamp)
+    // Handle Unix timestamp (in seconds) or ISO string
+    const date = new Date(typeof timestamp === 'number' ? timestamp * 1000 : timestamp)
     return date.toLocaleString(undefined, {
       month: 'short',
       day: 'numeric',

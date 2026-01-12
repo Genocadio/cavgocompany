@@ -32,7 +32,7 @@ export interface Car {
   speed: number
   bearing: number
   position: [number, number]
-  gpsTimestamp?: string
+  gpsTimestamp?: string | number
   currentTrip?: Trip
   tripHistory: Trip[]
 }

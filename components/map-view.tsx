@@ -325,10 +325,11 @@ export default function MapView({
   }, [focusedCar, carsWithLocation])
 
   // Helper to format time ago from ISO timestamp
-  const formatTimeAgo = (isoTimestamp?: string | null) => {
+  const formatTimeAgo = (isoTimestamp?: string | number | null) => {
     if (!isoTimestamp) return null
     try {
-      const date = new Date(isoTimestamp)
+      // Handle Unix timestamp (in seconds) or ISO string
+      const date = new Date(typeof isoTimestamp === 'number' ? isoTimestamp * 1000 : isoTimestamp)
       const now = new Date()
       const diffMs = now.getTime() - date.getTime()
       const diffMins = Math.floor(diffMs / 60000)
