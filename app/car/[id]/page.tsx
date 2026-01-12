@@ -296,7 +296,7 @@ export default function CarManagementPage() {
 
                                 {/* Destinations/Stops */}
                                 {trip.destinations.map((dest, idx) => {
-                                  const isPassed = dest.isPassed
+                                  const isPassed = dest.isPassed === true || dest.isPassed === 'true'
                                   const isLastStop = idx === trip.destinations.length - 1
 
                                   return (

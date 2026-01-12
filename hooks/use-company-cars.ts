@@ -121,6 +121,9 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
   const [error, setError] = useState<string | null>(null)
 
   const mapApiCarsToCars = useCallback((apiCars: ApiCar[]): CarWithTripId[] => {
+    // Normalize backend boolean that sometimes arrives as a string
+    const isStopPassed = (stop?: { isPassed?: boolean | string }) => stop?.isPassed === true || stop?.isPassed === "true"
+
     return apiCars.map((item) => {
       const hasActiveTrip = Boolean(item?.activeTrip)
       const tripId = item?.activeTrip?.id?.toString()
@@ -131,14 +134,14 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
       if (hasActiveTrip && trip) {
         const finalDestination = trip.destinations?.[trip.destinations.length - 1]
         const origin = trip.origin
-        const nextStop = trip.destinations?.find((d) => !d.isPassed)
+        const nextStop = trip.destinations?.find((d) => !isStopPassed(d))
         const remainingDistance = trip.destinations
-          ?.filter((d) => !d.isPassed)
+          ?.filter((d) => !isStopPassed(d))
           .reduce((sum, d) => sum + (d.remainingDistance || 0), 0) || 0
 
         // Build history from passed destinations
         const history: [number, number][] = trip.destinations
-          ?.filter((d) => d.isPassed && d.lat && d.lng)
+          ?.filter((d) => isStopPassed(d) && d.lat && d.lng)
           .map((d) => [d.lat!, d.lng!]) || []
 
         // Add origin to history if available
@@ -159,7 +162,7 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
             id: d.id?.toString() || Math.random().toString(36).slice(2),
             addres: d.addres,
             remainingDistance: d.remainingDistance,
-            isPassed: d.isPassede,
+            isPassed: isStopPassed(d),
             index: d.index,
           })),
           history,
