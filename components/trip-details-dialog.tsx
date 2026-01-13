@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import { useTripSnapshot } from "@/hooks/use-trip-snapshot"
+import { useTripSubscription, type TripSubscriptionData } from "@/hooks/use-trip-subscription"
 import { useTripsByCar } from "@/hooks/use-trips-by-car"
 import { SkeletonBookingSummary, SkeletonTripHistoryList } from "@/components/ui/skeleton-card"
 import { useMemo, useState } from "react"
@@ -18,15 +19,18 @@ export default function TripDetailsDialog({
   onOpenChange,
   car,
   onViewTripOnMap,
+  onTripUpdate,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   car?: Car
   onViewTripOnMap?: (car: Car) => void
+  onTripUpdate?: (tripData: TripSubscriptionData) => void
 }) {
   const [view, setView] = useState<'current' | 'history'>('current')
   const [selectedHistoryTripId, setSelectedHistoryTripId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'route' | 'bookings'>('route')
+  const [liveTripData, setLiveTripData] = useState<TripSubscriptionData | null>(null)
 
   // Don't fetch full trip details on dialog open - use subscription data from car.currentTrip
   // Full details will be fetched only when viewing on map
@@ -42,11 +46,36 @@ export default function TripDetailsDialog({
     enabled: open && view === 'history',
   })
 
-  // Fetch trip snapshot for booking details
+  const isInactiveStatus = (status?: string | null) => {
+    if (!status) return false
+    const s = status.toLowerCase()
+    return s.includes('completed') || s.includes('cancelled')
+  }
+
+  // Determine current trip ID and status
   const currentTripId = view === 'current' ? car?.currentTrip?.id : selectedHistoryTripId
-  const snapshotEnabled = open && !!currentTripId && activeTab === 'bookings'
+  const currentTripStatus = view === 'current'
+    ? car?.currentTrip?.status
+    : trips.find(t => t.id === selectedHistoryTripId)?.status
+
+  const tripAllowed = currentTripId && !isInactiveStatus(currentTripStatus)
+
+  // Subscribe to trip updates when on route tab (active trips only)
+  const tripSubscriptionEnabled = open && !!tripAllowed && activeTab === 'route'
+  useTripSubscription({
+    tripId: tripAllowed ? currentTripId : null,
+    enabled: tripSubscriptionEnabled,
+    onUpdate: (data) => {
+      setLiveTripData(data)
+      // Notify parent component to update car data
+      onTripUpdate?.(data)
+    },
+  })
+
+  // Fetch trip snapshot for booking details (skip completed/cancelled)
+  const snapshotEnabled = open && !!tripAllowed && activeTab === 'bookings'
   const { snapshot, isLoading: snapshotLoading, error: snapshotError } = useTripSnapshot({
-    tripId: currentTripId,
+    tripId: tripAllowed ? currentTripId : null,
     enabled: snapshotEnabled,
   })
 
@@ -55,18 +84,38 @@ export default function TripDetailsDialog({
     if (!newOpen) {
       setView('current')
       setSelectedHistoryTripId(null)
+      setLiveTripData(null)
     }
     onOpenChange(newOpen)
   }
 
   // Get the current trip being viewed (either current or from history)
+  // Completely replace with live subscription data if available
   const viewingTrip = useMemo(() => {
-    if (view === 'current') return car?.currentTrip
-    if (selectedHistoryTripId) {
-      return trips.find(t => t.id === selectedHistoryTripId)
+    let baseTrip = null
+    
+    if (view === 'current') {
+      baseTrip = car?.currentTrip
+    } else if (selectedHistoryTripId) {
+      baseTrip = trips.find(t => t.id === selectedHistoryTripId)
     }
-    return null
-  }, [view, car?.currentTrip, selectedHistoryTripId, trips])
+    
+    // If we have live trip data from subscription, completely replace the trip
+    if (liveTripData && baseTrip && String(baseTrip.id) === String(liveTripData.id)) {
+      // Completely replace with live subscription data
+      return {
+        id: liveTripData.id,
+        status: liveTripData.status,
+        totalDistance: liveTripData.totalDistance,
+        createdAt: liveTripData.createdAt,
+        updatedAt: liveTripData.updatedAt,
+        origin: liveTripData.origin,
+        destinations: liveTripData.destinations,
+      } as CarTrip
+    }
+    
+    return baseTrip
+  }, [view, car?.currentTrip, selectedHistoryTripId, trips, liveTripData])
 
   // Create a map of location IDs to names from trip data
   const locationNames = useMemo(() => {

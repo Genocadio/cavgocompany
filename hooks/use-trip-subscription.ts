@@ -83,12 +83,25 @@ export function useTripSubscription({
   const [data, setData] = useState<TripSubscriptionData | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [reconnectTrigger, setReconnectTrigger] = useState(0)
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const reconnectAttemptsRef = useRef(0)
   const maxReconnectAttempts = 5
+  const shouldReconnectRef = useRef(false)
+  const isConnectingRef = useRef(false)
+  const onUpdateRef = useRef(onUpdate)
+  const onErrorRef = useRef(onError)
+
+  // Keep refs updated
+  useEffect(() => {
+    onUpdateRef.current = onUpdate
+    onErrorRef.current = onError
+  }, [onUpdate, onError])
 
   const cleanup = useCallback(() => {
+    shouldReconnectRef.current = false
+    isConnectingRef.current = false
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current)
       reconnectTimeoutRef.current = null
@@ -97,11 +110,28 @@ export function useTripSubscription({
       wsRef.current.close()
       wsRef.current = null
     }
+    setIsConnected(false)
   }, [])
 
-  const connect = useCallback(() => {
-    if (!tripId || !enabled) {
+  // Effect to manage connection lifecycle based on tripId and enabled state
+  useEffect(() => {
+    if (!enabled || !tripId) {
+      shouldReconnectRef.current = false
+      reconnectAttemptsRef.current = 0
       cleanup()
+      return
+    }
+
+    // Prevent multiple simultaneous connection attempts
+    if (isConnectingRef.current) {
+      console.log("[TripSubscription] Already connecting, skipping")
+      return
+    }
+
+    // Don't create new connection if already connected or connecting
+    const currentState = wsRef.current?.readyState
+    if (currentState === WebSocket.CONNECTING || currentState === WebSocket.OPEN) {
+      console.log("[TripSubscription] Connection already exists (state:", currentState, "), skipping")
       return
     }
 
@@ -109,72 +139,84 @@ export function useTripSubscription({
     if (!graphqlUrl) {
       const err = new Error("GraphQL API URL is not configured")
       setError(err.message)
-      onError?.(err)
+      onErrorRef.current?.(err)
       return
     }
 
-    // Convert HTTP URL to WebSocket URL
     const wsUrl = graphqlUrl.replace(/^http/, "ws")
-
     cleanup()
+    isConnectingRef.current = true
 
     try {
-      const ws = new WebSocket(wsUrl, "graphql-ws")
+      const ws = new WebSocket(wsUrl)
+      console.log("[TripSubscription] Attempting WebSocket connection to:", wsUrl)
       wsRef.current = ws
+      shouldReconnectRef.current = true
 
       ws.onopen = () => {
         console.log("[TripSubscription] WebSocket connected")
+        isConnectingRef.current = false
         setIsConnected(true)
         setError(null)
         reconnectAttemptsRef.current = 0
 
-        // GraphQL WS connection init
-        ws.send(
-          JSON.stringify({
-            type: "connection_init",
-            payload: {
-              headers: {
-                Authorization: `Bearer ${
-                  typeof window !== "undefined" ? localStorage.getItem("authToken") ?? "" : ""
-                }`,
-              },
-            },
-          })
-        )
+        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
+        const initMessage: Record<string, any> = {
+          type: "connection_init",
+          payload: {}
+        }
+        
+        if (token) {
+          initMessage.payload.Authorization = `Bearer ${token}`
+        }
+        
+        console.log("[TripSubscription] Sending connection_init:", initMessage)
+        ws.send(JSON.stringify(initMessage))
       }
 
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data)
+          console.log("[TripSubscription] Received message:", message.type)
 
           switch (message.type) {
             case "connection_ack":
-              console.log("[TripSubscription] Connection acknowledged")
-              // Start subscription
+              console.log("[TripSubscription] Connection acknowledged, starting subscription")
               ws.send(
                 JSON.stringify({
                   id: `trip-${tripId}`,
-                  type: "start",
+                  type: "subscribe",
                   payload: {
                     query: TRIP_SUBSCRIPTION,
-                    variables: { tripId },
+                    variables: { tripId: String(tripId) },
                   },
                 })
               )
               break
 
+            case "next":
+              if (message.payload?.data?.trip) {
+                const tripData = message.payload.data.trip as TripSubscriptionData
+                console.log("[TripSubscription] Received update via next", tripData)
+                setData(tripData)
+                onUpdateRef.current?.(tripData)
+              }
+              break
+
             case "data":
               if (message.payload?.data?.trip) {
                 const tripData = message.payload.data.trip as TripSubscriptionData
+                console.log("[TripSubscription] Received update via data", tripData)
                 setData(tripData)
-                onUpdate?.(tripData)
+                onUpdateRef.current?.(tripData)
               }
               break
 
             case "error":
+              console.error("[TripSubscription] Subscription error:", message.payload)
               const err = new Error(message.payload?.message || "Subscription error")
               setError(err.message)
-              onError?.(err)
+              onErrorRef.current?.(err)
               break
 
             case "complete":
@@ -191,22 +233,33 @@ export function useTripSubscription({
 
       ws.onerror = (event) => {
         console.error("[TripSubscription] WebSocket error:", event)
+        isConnectingRef.current = false
         const err = new Error("WebSocket connection error")
         setError(err.message)
-        onError?.(err)
+        setIsConnected(false)
+        onErrorRef.current?.(err)
       }
 
       ws.onclose = (event) => {
         console.log("[TripSubscription] WebSocket closed:", event.code, event.reason)
+        
+        if (event.code === 4406) {
+          console.warn("[TripSubscription] Error 4406: Subprotocol not acceptable.")
+        } else if (event.code === 1006) {
+          console.warn("[TripSubscription] Error 1006: Abnormal closure without close frame")
+        }
+        
+        isConnectingRef.current = false
         setIsConnected(false)
         wsRef.current = null
 
         // Attempt reconnection with exponential backoff
         if (
+          shouldReconnectRef.current &&
+          event.code !== 1000 &&
           enabled &&
           tripId &&
-          reconnectAttemptsRef.current < maxReconnectAttempts &&
-          !event.wasClean
+          reconnectAttemptsRef.current < maxReconnectAttempts
         ) {
           reconnectAttemptsRef.current++
           const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000)
@@ -214,32 +267,27 @@ export function useTripSubscription({
             `[TripSubscription] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current})`
           )
           reconnectTimeoutRef.current = setTimeout(() => {
-            connect()
+            // Trigger reconnection by updating state
+            if (shouldReconnectRef.current && enabled && tripId) {
+              setReconnectTrigger(prev => prev + 1)
+            }
           }, delay)
         }
       }
     } catch (err) {
       console.error("[TripSubscription] Failed to create WebSocket:", err)
+      isConnectingRef.current = false
       const error = err instanceof Error ? err : new Error("Failed to create WebSocket")
       setError(error.message)
-      onError?.(error)
+      onErrorRef.current?.(error)
     }
-  }, [tripId, enabled, cleanup, onUpdate, onError])
 
-  const reconnect = useCallback(() => {
-    reconnectAttemptsRef.current = 0
-    connect()
-  }, [connect])
-
-  useEffect(() => {
-    connect()
     return cleanup
-  }, [connect, cleanup])
+  }, [tripId, enabled, cleanup, reconnectTrigger])
 
   return {
     data,
     isConnected,
     error,
-    reconnect,
   }
 }

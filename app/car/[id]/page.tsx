@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useCompanyCars } from "@/hooks/use-company-cars"
 import { useTripsByCar } from "@/hooks/use-trips-by-car"
 import { useTripSnapshot } from "@/hooks/use-trip-snapshot"
+import { useTripSubscription, type TripSubscriptionData } from "@/hooks/use-trip-subscription"
 import { useAuth } from "@/context/auth-context"
 import AppHeader from "@/components/app-header"
 
@@ -23,6 +24,13 @@ export default function CarManagementPage() {
   const { user, isLoading: authLoading } = useAuth()
   const [expandedTripId, setExpandedTripId] = useState<string | null>(null)
   const [bookingTripId, setBookingTripId] = useState<string | null>(null)
+  const [liveTripOverrides, setLiveTripOverrides] = useState<Record<string, TripSubscriptionData>>({})
+
+  const isInactiveStatus = (status?: string | null) => {
+    if (!status) return false
+    const s = status.toLowerCase()
+    return s.includes("completed") || s.includes("cancelled")
+  }
 
   // Fetch all cars to find the specific one
   const { cars, isLoading: carsLoading } = useCompanyCars({
@@ -37,10 +45,44 @@ export default function CarManagementPage() {
     enabled: !!carId,
   })
 
+  // Merge static trips with live subscription data (keeps latest even after closing card)
+  const mergedTrips = useMemo(() => {
+    if (!trips || trips.length === 0) return []
+    return trips.map((t) => {
+      const live = liveTripOverrides[t.id]
+      if (!live) return t
+
+      return {
+        ...t,
+        status: live.status,
+        totalDistance: live.totalDistance,
+        updatedAt: live.updatedAt,
+        createdAt: live.createdAt,
+        origin: live.origin,
+        destinations: live.destinations,
+      }
+    })
+  }, [trips, liveTripOverrides])
+
+  // Subscribe to live updates for the expanded trip (management mode only)
+  const expandedTrip = useMemo(() => mergedTrips.find((t) => t.id === expandedTripId), [mergedTrips, expandedTripId])
+  const expandedTripActive = expandedTrip ? !isInactiveStatus(expandedTrip.status) : false
+
+  useTripSubscription({
+    tripId: expandedTripId,
+    enabled: !!expandedTripId && expandedTripActive,
+    onUpdate: (data) => {
+      setLiveTripOverrides((prev) => ({ ...prev, [data.id]: data }))
+    },
+  })
+
   // Fetch booking snapshot for selected trip
+  const bookingTrip = useMemo(() => mergedTrips.find((t) => t.id === bookingTripId), [mergedTrips, bookingTripId])
+  const bookingTripActive = bookingTrip ? !isInactiveStatus(bookingTrip.status) : false
+
   const { snapshot, isLoading: snapshotLoading, error: snapshotError } = useTripSnapshot({
-    tripId: bookingTripId,
-    enabled: !!bookingTripId,
+    tripId: bookingTripActive ? bookingTripId : null,
+    enabled: !!bookingTripId && bookingTripActive,
   })
 
   const selectedCar = cars.find(c => c.id === carId)
@@ -105,7 +147,7 @@ export default function CarManagementPage() {
   // Get location name from snapshot or trip data
   const getLocationName = (locationId: string, type: string, order: number) => {
     // Try to match from trip destinations
-    const currentTrip = trips.find(t => t.id === bookingTripId)
+    const currentTrip = mergedTrips.find(t => t.id === bookingTripId)
     if (currentTrip) {
       if (type === 'ORIGIN') {
         return currentTrip.origin.addres || 'Origin'
@@ -196,7 +238,7 @@ export default function CarManagementPage() {
               </Card>
             )}
 
-            {!tripsLoading && !tripsError && trips.length === 0 && (
+            {!tripsLoading && !tripsError && mergedTrips.length === 0 && (
               <Card className="border-dashed">
                 <CardContent className="pt-12 text-center pb-12">
                   <History className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
@@ -205,14 +247,14 @@ export default function CarManagementPage() {
               </Card>
             )}
 
-            {!tripsLoading && !tripsError && trips.length > 0 && (
+            {!tripsLoading && !tripsError && mergedTrips.length > 0 && (
               <>
                 <div className="space-y-3">
                   <p className="text-sm font-semibold text-muted-foreground">
-                    {trips.length} Trip{trips.length !== 1 ? 's' : ''} Found
+                    {mergedTrips.length} Trip{mergedTrips.length !== 1 ? 's' : ''} Found
                   </p>
 
-                  {trips.map((trip) => {
+                  {mergedTrips.map((trip) => {
                     const isExpanded = expandedTripId === trip.id
                     const isScheduled = isTripScheduled(trip.status)
                     const isCancelled = isTripCancelled(trip.status)

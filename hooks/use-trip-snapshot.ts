@@ -208,7 +208,9 @@ export function useTripSnapshot({
       // Close existing connection
       cleanup()
 
-      const ws = new WebSocket(wsUrl, "graphql-ws")
+      // Try without subprotocol first, as some servers don't support it
+      const ws = new WebSocket(wsUrl)
+      console.log("[useTripSnapshot] Attempting WebSocket connection to:", wsUrl)
 
       ws.onopen = () => {
         console.log("[useTripSnapshot] WebSocket connection opened")
@@ -216,28 +218,51 @@ export function useTripSnapshot({
         setError(null)
         reconnectAttemptsRef.current = 0
 
-        // GraphQL WS connection init
-        ws.send(JSON.stringify({ type: "connection_init" }))
+        // Get auth token for connection
+        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
+        
+        // GraphQL WS connection init with auth
+        const initMessage: Record<string, any> = {
+          type: "connection_init",
+          payload: {}
+        }
+        
+        if (token) {
+          initMessage.payload.Authorization = `Bearer ${token}`
+        }
+        
+        console.log("[useTripSnapshot] Sending connection_init:", initMessage)
+        ws.send(JSON.stringify(initMessage))
       }
 
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data)
+          console.log("[useTripSnapshot] Received message:", message.type)
 
           if (message.type === "connection_ack") {
             console.log("[useTripSnapshot] Connection acknowledged, starting subscription")
-            // Subscribe to trip snapshot
+            // Subscribe to trip snapshot using standard graphql-ws protocol
             ws.send(
               JSON.stringify({
                 id: "1",
-                type: "start",
+                type: "subscribe",
                 payload: {
                   query: TRIP_SNAPSHOT_SUBSCRIPTION,
                   variables: { tripId: String(tripId) },
                 },
               })
             )
+          } else if (message.type === "next" && message.payload?.data?.tripSnapshot) {
+            const data: TripSnapshot = message.payload.data.tripSnapshot
+            console.log("[useTripSnapshot] Received snapshot update:", data)
+            setSnapshot(data)
+            setError(null)
+            if (onUpdate) {
+              onUpdate(data)
+            }
           } else if (message.type === "data" && message.payload?.data?.tripSnapshot) {
+            // Some servers use "data" instead of "next"
             const data: TripSnapshot = message.payload.data.tripSnapshot
             console.log("[useTripSnapshot] Received snapshot update:", data)
             setSnapshot(data)
@@ -250,6 +275,8 @@ export function useTripSnapshot({
             const err = new Error(message.payload?.message || "Subscription error")
             setError(err.message)
             if (onError) onError(err)
+          } else if (message.type === "complete") {
+            console.log("[useTripSnapshot] Subscription completed")
           }
         } catch (err) {
           console.error("[useTripSnapshot] Error parsing message:", err)
@@ -266,6 +293,14 @@ export function useTripSnapshot({
 
       ws.onclose = (event) => {
         console.log(`[useTripSnapshot] WebSocket closed: ${event.code} ${event.reason}`)
+        
+        // Log helpful debug info for specific error codes
+        if (event.code === 4406) {
+          console.warn("[useTripSnapshot] Error 4406: Subprotocol not acceptable. The server may not support the expected GraphQL-WS protocol.")
+        } else if (event.code === 1006) {
+          console.warn("[useTripSnapshot] Error 1006: Abnormal closure without close frame")
+        }
+        
         setIsConnected(false)
 
         // Reconnect if not a normal closure and we haven't exceeded max attempts

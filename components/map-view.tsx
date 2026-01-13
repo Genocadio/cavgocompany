@@ -139,10 +139,12 @@ export default function MapView({
   cars,
   focusedCarId,
   onFocusCar,
+  onFocusedCarTripUpdate,
 }: {
   cars: Car[]
   focusedCarId?: string
   onFocusCar: (id: string | undefined) => void
+  onFocusedCarTripUpdate?: (carId: string, tripData: any) => void
 }) {
   const mapRef = useRef<MapRef>(null)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -185,17 +187,32 @@ export default function MapView({
   } = useTripDetails({
     tripId: focusedCar?.activeTripId,
     enabled: !!focusedCar && !!focusedCar.activeTripId,
-    pollInterval: 60000, // 1 minute
+    pollInterval: 30000, // 30 seconds for live navigation
   })
 
+  // Notify parent when focused car's trip data changes from polling
+  useEffect(() => {
+    if (tripData && focusedCar?.id) {
+      onFocusedCarTripUpdate?.(focusedCar.id, tripData)
+    }
+  }, [tripData, focusedCar?.id, onFocusedCarTripUpdate])
+
   // Fetch trip snapshot for booking details
+  const isInactiveStatus = (status?: string | null) => {
+    if (!status) return false
+    const s = status.toLowerCase()
+    return s.includes('completed') || s.includes('cancelled')
+  }
+
+  const focusedTripActive = focusedCar?.currentTrip && !isInactiveStatus((focusedCar as any)?.currentTrip?.status)
+
   const {
     snapshot,
     isLoading: snapshotLoading,
     error: snapshotError,
   } = useTripSnapshot({
-    tripId: focusedCar?.currentTrip?.id,
-    enabled: bookingDialogOpen && !!focusedCar?.currentTrip,
+    tripId: focusedTripActive ? focusedCar?.currentTrip?.id : null,
+    enabled: bookingDialogOpen && !!focusedCar?.currentTrip && !!focusedTripActive,
   })
 
   // Get location name from trip data

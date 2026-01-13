@@ -31,7 +31,7 @@ import { formatSpeed, reverseGeocode } from "@/lib/utils"
 
 export default function FleetDashboard() {
   const { user, isLoading: authLoading, logout } = useAuth()
-  const { cars: fetchedCars, isLoading: carsLoading } = useCompanyCars({
+  const { cars: fetchedCars, isLoading: carsLoading, refetch: refetchCars } = useCompanyCars({
     companyId: user?.companyId ?? undefined,
     limit: 50,
     offset: 0,
@@ -39,6 +39,7 @@ export default function FleetDashboard() {
   
   // Apply real-time trip subscriptions
   const cars = useTripSubscriptionsManager(fetchedCars)
+  const [carsView, setCarsView] = useState<Car[]>(cars)
   const [selectedCar, setSelectedCar] = useState<Car | null>(null)
   const [mapFocusId, setMapFocusId] = useState<string | undefined>(undefined)
   const [activeTab, setActiveTab] = useState("management")
@@ -53,6 +54,96 @@ export default function FleetDashboard() {
   const [mounted, setMounted] = useState(false)
   const { toast } = useToast()
   const { refetchById: fetchTripById } = useTripDetails({ tripId: undefined, enabled: false })
+
+  // Keep displayed cars in sync with subscription manager output
+  useEffect(() => {
+    setCarsView(cars)
+  }, [cars])
+
+  // Handler for focused car trip updates from MapView polling
+  const handleFocusedCarTripUpdate = useCallback((carId: string, tripData: any) => {
+    setCarsView((prev) =>
+      prev.map((car) => {
+        if (car.id !== carId || !car.currentTrip || String(car.currentTrip.id) !== String(tripData.id)) {
+          return car
+        }
+        // Silently update focused car's trip data from polling
+        return {
+          ...car,
+          currentTrip: {
+            id: tripData.id,
+            status: tripData.status,
+            totalDistance: tripData.totalDistance,
+            createdAt: tripData.createdAt,
+            origin: tripData.origin,
+            destinations: tripData.destinations,
+            originName: tripData.origin?.addres || car.currentTrip.originName,
+            destinationName: tripData.destinations?.[tripData.destinations.length - 1]?.addres || car.currentTrip.destinationName,
+            ...car.currentTrip,
+          }
+        }
+      })
+    )
+  }, [])
+
+  // Silent background polling every minute; pause when a car is focused or a trip dialog is open
+  const pollingPaused = !!mapFocusId || (!!viewingTrip && !!viewingTripCar)
+  useEffect(() => {
+    if (pollingPaused) return
+
+    // Initial refresh on resume
+    refetchCars().catch((err) => console.error('[FleetDashboard] background refetch error', err))
+
+    const interval = setInterval(() => {
+      refetchCars().catch((err) => console.error('[FleetDashboard] background refetch error', err))
+    }, 60000)
+
+    return () => clearInterval(interval)
+  }, [pollingPaused, refetchCars])
+
+  // Handler to update car's trip data when subscription receives new data
+  const handleTripUpdate = useCallback((tripData: any) => {
+    // Update viewing trip car if it matches - completely replace currentTrip
+    if (viewingTripCar && String(viewingTripCar.currentTrip?.id) === String(tripData.id)) {
+      const updatedCar = {
+        ...viewingTripCar,
+        currentTrip: {
+          id: tripData.id,
+          status: tripData.status,
+          totalDistance: tripData.totalDistance,
+          createdAt: tripData.createdAt,
+          updatedAt: tripData.updatedAt,
+          origin: tripData.origin,
+          destinations: tripData.destinations,
+          originName: tripData.origin?.addres || '',
+          destinationName: tripData.destinations?.[tripData.destinations.length - 1]?.addres || '',
+        }
+      }
+      setViewingTripCar(updatedCar)
+    }
+
+    // Also update the cars list so badges and cards stay fresh
+    setCarsView((prev) =>
+      prev.map((car) => {
+        if (!car.currentTrip || String(car.currentTrip.id) !== String(tripData.id)) return car
+
+        return {
+          ...car,
+          currentTrip: {
+            id: tripData.id,
+            status: tripData.status,
+            totalDistance: tripData.totalDistance,
+            createdAt: tripData.createdAt,
+            updatedAt: tripData.updatedAt,
+            origin: tripData.origin,
+            destinations: tripData.destinations,
+            originName: tripData.origin?.addres || '',
+            destinationName: tripData.destinations?.[tripData.destinations.length - 1]?.addres || '',
+          }
+        }
+      })
+    )
+  }, [viewingTripCar])
 
   useEffect(() => {
     setMounted(true)
@@ -181,6 +272,11 @@ export default function FleetDashboard() {
             ))}
           </div>
         </div>
+                  cars={carsView}
+                  focusedCarId={mapFocusId}
+                  onFocusCar={handleFocusFromMap}
+                  onFocusedCarTripUpdate={handleFocusedCarTripUpdate}
+               
       </div>
     )
   }
@@ -197,7 +293,7 @@ export default function FleetDashboard() {
             <Tabs value={activeTab} className="h-full">
               <TabsContent value="management" className="m-0 h-full">
                 <CarManagement
-                  cars={cars}
+                  cars={carsView}
                   onSelectCar={(car) => setSelectedCar(car)}
                   onViewOnMap={handleViewOnMap}
                   onViewDetails={handleViewDetails}
@@ -206,7 +302,7 @@ export default function FleetDashboard() {
               </TabsContent>
 
               <TabsContent value="map" className="m-0 h-full p-4">
-                <MapView cars={cars} focusedCarId={mapFocusId} onFocusCar={handleFocusFromMap} />
+                <MapView cars={carsView} focusedCarId={mapFocusId} onFocusCar={handleFocusFromMap} />
               </TabsContent>
             </Tabs>
           )}
@@ -319,6 +415,7 @@ export default function FleetDashboard() {
         }}
         car={viewingTripCar || undefined}
         onViewTripOnMap={handleViewTripOnMap}
+        onTripUpdate={handleTripUpdate}
       />
     </main>
   )
