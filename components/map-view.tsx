@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import { useTripSnapshot } from "@/hooks/use-trip-snapshot"
 import { SkeletonBookingSummary } from "@/components/ui/skeleton-card"
-import { formatSpeed, reverseGeocode } from "@/lib/utils"
+import { formatSpeed, parseTimestampToDate, reverseGeocode } from "@/lib/utils"
 import {
   CommandDialog,
   CommandInput,
@@ -343,10 +343,10 @@ export default function MapView({
 
   // Helper to format time ago from ISO timestamp
   const formatTimeAgo = (isoTimestamp?: string | number | null) => {
-    if (!isoTimestamp) return null
+    if (isoTimestamp == null) return null
     try {
-      // Handle Unix timestamp (in seconds) or ISO string
-      const date = new Date(typeof isoTimestamp === 'number' ? isoTimestamp * 1000 : isoTimestamp)
+      const date = parseTimestampToDate(isoTimestamp)
+      if (!date) return null
       const now = new Date()
       const diffMs = now.getTime() - date.getTime()
       const diffMins = Math.floor(diffMs / 60000)

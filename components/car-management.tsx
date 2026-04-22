@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import type { Car } from "@/lib/data"
-import { formatSpeed } from "@/lib/utils"
+import { formatSpeed, parseTimestampToDate } from "@/lib/utils"
 import SpeedBearingDisplay from "@/components/speed-bearing-display"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,10 +12,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 const formatTimestamp = (timestamp?: string | number) => {
-  if (!timestamp) return null
+  if (timestamp == null) return null
   try {
-    // Handle Unix timestamp (in seconds) or ISO string
-    const date = new Date(typeof timestamp === 'number' ? timestamp * 1000 : timestamp)
+    const date = parseTimestampToDate(timestamp)
+    if (!date) return null
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffMins = Math.floor(diffMs / 60000)
@@ -39,10 +39,10 @@ const formatTimestamp = (timestamp?: string | number) => {
 }
 
 const formatDateTime = (timestamp?: string | number) => {
-  if (!timestamp) return null
+  if (timestamp == null) return null
   try {
-    // Handle Unix timestamp (in seconds) or ISO string
-    const date = new Date(typeof timestamp === 'number' ? timestamp * 1000 : timestamp)
+    const date = parseTimestampToDate(timestamp)
+    if (!date) return null
     return date.toLocaleString(undefined, {
       month: 'short',
       day: 'numeric',

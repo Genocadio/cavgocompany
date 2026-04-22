@@ -20,6 +20,33 @@ export function formatSpeed(speed?: number | null): string {
   return rounded.toFixed(1)
 }
 
+export function parseTimestampToDate(timestamp?: string | number | null): Date | null {
+  if (timestamp == null) return null
+
+  let parsed: Date
+
+  if (typeof timestamp === 'number') {
+    if (!Number.isFinite(timestamp)) return null
+    // 10-digit epoch values are seconds, 13-digit values are milliseconds.
+    const ms = Math.abs(timestamp) < 1e12 ? timestamp * 1000 : timestamp
+    parsed = new Date(ms)
+  } else {
+    const value = timestamp.trim()
+    if (!value) return null
+
+    if (/^-?\d+(\.\d+)?$/.test(value)) {
+      const numeric = Number(value)
+      if (!Number.isFinite(numeric)) return null
+      const ms = Math.abs(numeric) < 1e12 ? numeric * 1000 : numeric
+      parsed = new Date(ms)
+    } else {
+      parsed = new Date(value)
+    }
+  }
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
 // Reverse geocode a lat/lng to get the most specific location name
 // Converts bearing degrees to cardinal direction
 export function formatBearing(bearing?: number | null): string {
