@@ -22,7 +22,8 @@ export interface Trip {
   currency?: string
   // Optional metadata coming from API mapping
   status?: string
-  createdAt?: string
+  // createdAt can be either timestamp (number) from API or ISO string
+  createdAt?: string | number
 }
 
 export interface Car {

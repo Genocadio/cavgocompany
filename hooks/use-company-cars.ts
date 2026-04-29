@@ -62,7 +62,7 @@ type ApiTrip = {
   id?: string | number
   status?: string
   totalDistance?: number
-  createdAt?: string
+  createdAt?: string | number
   destinations?: Array<{
     addres?: string
     id?: string | number

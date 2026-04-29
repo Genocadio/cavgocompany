@@ -179,8 +179,8 @@ export default function TripDetailsDialog({
     return `Location ${locationId.substring(0, 8)}`
   }
 
-  // Format date helper
-  const formatDate = (isoDate: string) => {
+  // Format date helper - accepts both ISO strings and numeric timestamps
+  const formatDate = (isoDate: string | number) => {
     try {
       const date = new Date(isoDate)
       return date.toLocaleString(undefined, {
@@ -191,7 +191,7 @@ export default function TripDetailsDialog({
         minute: '2-digit'
       })
     } catch (e) {
-      return isoDate
+      return String(isoDate)
     }
   }
 
@@ -412,7 +412,7 @@ export default function TripDetailsDialog({
                       <div className="p-4 bg-muted/50 rounded-lg border border-border">
                         <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Departure Time</p>
                         <p className="text-lg font-bold">
-                          {car.currentTrip.createdAt ? formatDate(car.currentTrip.createdAt) : 'Not set'}
+                          {viewingTrip?.createdAt ? formatDate(viewingTrip.createdAt) : 'Not set'}
                         </p>
                       </div>
                     )}
@@ -421,7 +421,7 @@ export default function TripDetailsDialog({
                       <div className="p-4 bg-muted/50 rounded-lg border border-border">
                         <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Completed</p>
                         <p className="text-lg font-bold">
-                          {car.currentTrip.createdAt ? formatDate(car.currentTrip.createdAt) : 'Not set'}
+                          {viewingTrip?.createdAt ? formatDate(viewingTrip.createdAt) : 'Not set'}
                         </p>
                       </div>
                     )}
