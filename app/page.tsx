@@ -26,7 +26,7 @@ import {
 import { useCompanyCars, type CarWithTripId } from "@/hooks/use-company-cars"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import { useToast } from "@/hooks/use-toast"
-import { useTripSubscriptionsManager } from "@/hooks/use-trip-subscriptions-manager"
+import { useTripSubscriptionsManager, TripSubscriptionManager } from "@/hooks/use-trip-subscriptions-manager"
 import { formatSpeed, reverseGeocode } from "@/lib/utils"
 
 export default function FleetDashboard() {
@@ -59,6 +59,11 @@ export default function FleetDashboard() {
   useEffect(() => {
     setCarsView(cars)
   }, [cars])
+
+  // Handler for subscription manager updates
+  const handleSubscriptionManagerUpdate = useCallback((updatedCars: CarWithTripId[]) => {
+    setCarsView(updatedCars)
+  }, [])
 
   // Handler for focused car trip updates from MapView polling
   const handleFocusedCarTripUpdate = useCallback((carId: string, tripData: any) => {
@@ -283,6 +288,12 @@ export default function FleetDashboard() {
 
   return (
     <main className="flex h-screen w-full bg-background flex-col">
+      {/* Subscription manager for real-time trip updates */}
+      <TripSubscriptionManager
+        cars={fetchedCars}
+        onCarsUpdate={handleSubscriptionManagerUpdate}
+      />
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <AppHeader activeTab={activeTab} onToggleView={toggleView} showViewSwitcher={true} />
 
