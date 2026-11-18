@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await loginWithNexxauth(identifier, password)
       if (!hasAdminRole(response.user.roles) || !accessTokenHasAdminRole(response.accessToken)) {
         clearNexxauthSession()
-        throw new Error("Your account does not have the ADMIN role. Cavgo Company access is restricted to company administrators.")
+        throw new Error("This account does not have company administrator access. Contact your company administrator.")
       }
       saveNexxauthSession(response)
       await loadUser(response.user)
@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await logoutFromNexxauth()
     } catch (logoutError) {
-      setError(logoutError instanceof Error ? logoutError.message : "Could not revoke the Nexxauth session")
+      setError(logoutError instanceof Error ? logoutError.message : "Could not end your Cavgo session")
     } finally {
       clearNexxauthSession()
       setUser(null)

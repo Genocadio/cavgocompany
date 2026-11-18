@@ -287,7 +287,7 @@ export default function FleetDashboard() {
         <div className="w-full max-w-lg space-y-4 rounded-xl border border-border bg-card p-6 text-center">
           <h1 className="text-xl font-semibold">Company access required</h1>
           <p className="text-sm text-muted-foreground">
-            Your Nexxauth account is signed in, but it does not have an active Cavgo company membership.
+            Your account is signed in, but it does not have an active Cavgo company membership.
             Ask your company administrator to add or approve your account.
           </p>
           <button

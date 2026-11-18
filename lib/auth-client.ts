@@ -50,9 +50,7 @@ function nexxAuthConfig() {
   const baseUrl = process.env.NEXT_PUBLIC_NEXXAUTH_BASE_URL?.replace(/\/+$/, "")
   const clientId = process.env.NEXT_PUBLIC_NEXXAUTH_CLIENT_ID
   if (!baseUrl || !clientId) {
-    throw new Error(
-      "Nexxauth is not configured. Set NEXT_PUBLIC_NEXXAUTH_BASE_URL and NEXT_PUBLIC_NEXXAUTH_CLIENT_ID.",
-    )
+    throw new Error("Cavgo sign-in is not configured. Contact support.")
   }
   return { baseUrl, clientId }
 }
@@ -83,8 +81,8 @@ function nexxAuthHeaders(clientId: string): Headers {
 async function readError(response: Response, fallback: string): Promise<string> {
   const body = await response.json().catch(() => ({}))
   if (body && typeof body === "object") {
-    if ("message" in body && typeof body.message === "string") return body.message
-    if ("error" in body && typeof body.error === "string") return body.error
+    if ("message" in body && typeof body.message === "string") return body.message.replace(/nexxauth/gi, "Cavgo")
+    if ("error" in body && typeof body.error === "string") return body.error.replace(/nexxauth/gi, "Cavgo")
   }
   return `${fallback} (HTTP ${response.status})`
 }
@@ -107,7 +105,7 @@ export async function loginWithNexxauth(identifier: string, password: string): P
       }),
     })
   } catch {
-    throw new Error("Could not reach Nexxauth. Check your connection and try again.")
+    throw new Error("Could not reach Cavgo sign-in. Check your connection and try again.")
   }
 
   if (!response.ok) {
@@ -116,7 +114,7 @@ export async function loginWithNexxauth(identifier: string, password: string): P
 
   const data = (await response.json()) as Partial<NexxAuthResponse>
   if (!data.accessToken || !data.user?.id) {
-    throw new Error("Nexxauth returned an incomplete sign-in response.")
+    throw new Error("Sign-in failed to return a complete account.")
   }
   return data as NexxAuthResponse
 }
@@ -140,7 +138,7 @@ export async function registerWithNexxauth(input: NexxAuthRegistration): Promise
       body: JSON.stringify(body),
     })
   } catch {
-    throw new Error("Could not reach Nexxauth. Check your connection and try again.")
+    throw new Error("Could not reach Cavgo sign-in. Check your connection and try again.")
   }
 
   if (!response.ok) {
@@ -149,7 +147,7 @@ export async function registerWithNexxauth(input: NexxAuthRegistration): Promise
 
   const data = (await response.json()) as Partial<NexxAuthResponse>
   if (!data.accessToken || !data.user?.id) {
-    throw new Error("Nexxauth registered the account but did not return a usable access token.")
+    throw new Error("Your account was created, but sign-in could not be completed.")
   }
   return data as NexxAuthResponse
 }
@@ -180,11 +178,11 @@ export async function requestCompanyAdminAccess(companyCode: string, accessToken
       body: JSON.stringify({ companyCode: companyCode.trim() }),
     })
   } catch {
-    throw new Error("Your Nexxauth account was created, but the company access request could not be sent.")
+    throw new Error("Your Cavgo account was created, but the company access request could not be sent.")
   }
 
   if (!response.ok) {
-    throw new Error(await readError(response, "Your Nexxauth account was created, but the company access request failed"))
+    throw new Error(await readError(response, "Your Cavgo account was created, but the company access request failed"))
   }
 }
 
@@ -288,7 +286,7 @@ export async function refreshNexxauthSession(): Promise<string | null> {
         body: JSON.stringify({ refreshToken }),
       })
     } catch {
-      throw new Error("Could not reach Nexxauth to refresh your session.")
+      throw new Error("Could not reach Cavgo to refresh your session.")
     }
 
     if (!response.ok) {
@@ -327,7 +325,7 @@ export async function logoutFromNexxauth(): Promise<void> {
     body: JSON.stringify({ refreshToken }),
   })
   if (!response.ok) {
-    throw new Error(await readError(response, "Could not revoke the Nexxauth session"))
+    throw new Error(await readError(response, "Could not end your Cavgo session"))
   }
 }
 

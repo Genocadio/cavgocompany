@@ -14,12 +14,7 @@ export const metadata: Metadata = {
   description: 'Cavgo fleet platform',
   generator: 'cavgo.app',
   icons: {
-    icon: [
-      {
-        url: '/logo.webp',
-        type: 'image/webp',
-      },
-    ],
+    icon: '/favicon.ico',
     apple: '/logo.webp',
   },
 }
