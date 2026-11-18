@@ -79,7 +79,7 @@ function displayName(person: { firstName?: string; lastName?: string; email?: st
 }
 
 export default function CompanyAdminPage() {
-  const { user, isLoading: authLoading } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
   const [staff, setStaff] = useState<CompanyStaff[]>([])
@@ -144,7 +144,7 @@ export default function CompanyAdminPage() {
 
   const companyBase = companyId ? `/main/company-admin/companies/${companyId}` : ""
 
-  if (authLoading || loading) {
+  if (authLoading || loading || !isAuthenticated) {
     return (
       <main className="min-h-screen bg-background">
         <AppHeader showViewSwitcher={false} />

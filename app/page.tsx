@@ -30,9 +30,10 @@ import { useTripSubscriptionsManager, TripSubscriptionManager } from "@/hooks/us
 import { formatSpeed, reverseGeocode } from "@/lib/utils"
 
 export default function FleetDashboard() {
-  const { user, isLoading: authLoading, logout } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
+  const companyId = user?.companyId
   const { cars: fetchedCars, isLoading: carsLoading, refetch: refetchCars } = useCompanyCars({
-    companyId: user?.companyId ?? undefined,
+    companyId,
     limit: 50,
     offset: 0,
   })
@@ -94,7 +95,7 @@ export default function FleetDashboard() {
   // Silent background polling every minute; pause when a car is focused or a trip dialog is open
   const pollingPaused = !!mapFocusId || (!!viewingTrip && !!viewingTripCar)
   useEffect(() => {
-    if (pollingPaused) return
+    if (!companyId || pollingPaused) return
 
     // Initial refresh on resume
     refetchCars().catch((err) => console.error('[FleetDashboard] background refetch error', err))
@@ -104,7 +105,7 @@ export default function FleetDashboard() {
     }, 60000)
 
     return () => clearInterval(interval)
-  }, [pollingPaused, refetchCars])
+  }, [companyId, pollingPaused, refetchCars])
 
   // Handler to update car's trip data when subscription receives new data
   const handleTripUpdate = useCallback((tripData: any) => {
@@ -266,7 +267,7 @@ export default function FleetDashboard() {
   }
 
   // Show loading state while checking authentication
-  if (authLoading) {
+  if (authLoading || !isAuthenticated || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="w-full max-w-4xl mx-auto p-4 space-y-4">
@@ -281,7 +282,7 @@ export default function FleetDashboard() {
     )
   }
 
-  if (!user?.companyId) {
+  if (!user.companyId) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background p-4">
         <div className="w-full max-w-lg space-y-4 rounded-xl border border-border bg-card p-6 text-center">
