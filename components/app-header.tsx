@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { LayoutDashboard, MapIcon, Clock3, Moon, Sun } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { LayoutDashboard, MapIcon, Clock3, Moon, Sun, UserCog } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/context/auth-context"
 import { useTheme } from "next-themes"
@@ -24,6 +25,7 @@ interface AppHeaderProps {
 
 export default function AppHeader({ activeTab = "management", onToggleView, showViewSwitcher = true }: AppHeaderProps) {
   const { user, logout } = useAuth()
+  const router = useRouter()
   const [currentTime, setCurrentTime] = useState("")
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -113,6 +115,12 @@ export default function AppHeader({ activeTab = "management", onToggleView, show
               <span className="text-sm">Dark / Light</span>
               {mounted && (theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />)}
             </DropdownMenuItem>
+            {user?.companyUserRole?.toUpperCase() === "ADMIN" && user.companyId != null && (
+              <DropdownMenuItem onClick={() => router.push("/admin")} className="cursor-pointer">
+                <UserCog className="w-4 h-4 mr-2" />
+                Company user management
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive cursor-pointer">
               <LogOut className="w-4 h-4 mr-2" />

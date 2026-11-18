@@ -277,12 +277,28 @@ export default function FleetDashboard() {
             ))}
           </div>
         </div>
-                  cars={carsView}
-                  focusedCarId={mapFocusId}
-                  onFocusCar={handleFocusFromMap}
-                  onFocusedCarTripUpdate={handleFocusedCarTripUpdate}
-               
       </div>
+    )
+  }
+
+  if (!user?.companyId) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="w-full max-w-lg space-y-4 rounded-xl border border-border bg-card p-6 text-center">
+          <h1 className="text-xl font-semibold">Company access required</h1>
+          <p className="text-sm text-muted-foreground">
+            Your Nexxauth account is signed in, but it does not have an active Cavgo company membership.
+            Ask your company administrator to add or approve your account.
+          </p>
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            Sign out
+          </button>
+        </div>
+      </main>
     )
   }
 

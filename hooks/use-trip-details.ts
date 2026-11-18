@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState, useRef } from "react"
+import { authenticatedFetch } from "@/lib/auth-client"
 import type { TripResponse } from "@/types"
 
 interface UseTripDetailsOptions {
@@ -45,18 +46,8 @@ export function useTripDetails({
     setNotFound(false)
 
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      }
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`
-      }
-
-      const response = await fetch(endpoint, {
+      const response = await authenticatedFetch(endpoint, {
         method: "GET",
-        headers,
       })
 
       if (!response.ok) {

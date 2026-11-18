@@ -42,7 +42,7 @@ export default function CarManagementPage() {
   // Fetch trips for this car
   const { trips, isLoading: tripsLoading, error: tripsError } = useTripsByCar({
     carId,
-    enabled: !!carId,
+    enabled: !!carId && !!user?.companyId,
   })
 
   // Merge static trips with live subscription data (keeps latest even after closing card)
@@ -82,7 +82,7 @@ export default function CarManagementPage() {
 
   const { snapshot, isLoading: snapshotLoading, error: snapshotError } = useTripSnapshot({
     tripId: bookingTripActive ? bookingTripId : null,
-    enabled: !!bookingTripId && bookingTripActive,
+    enabled: !!user?.companyId && !!bookingTripId && bookingTripActive,
   })
 
   const selectedCar = cars.find(c => c.id === carId)

@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { authenticatedFetch, getGraphqlEndpoint } from "@/lib/auth-client"
 import type { CarTrip } from "@/types"
 
 const TRIPS_BY_CAR_QUERY = `#graphql
@@ -58,28 +59,15 @@ export function useTripsByCar({
       return
     }
 
-    const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_API_URL
-    if (!endpoint) {
-      setError("GraphQL API URL is not configured")
-      return
-    }
+    const endpoint = getGraphqlEndpoint()
 
     setIsLoading(true)
     setError(null)
 
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      }
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`
-      }
-
-      const response = await fetch(endpoint, {
+      const response = await authenticatedFetch(endpoint, {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: TRIPS_BY_CAR_QUERY,
           variables: { carId: String(carId) },

@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { authenticatedFetch, getAccessToken, getGraphqlEndpoint } from "@/lib/auth-client"
 import type { TripSnapshot } from "@/types"
 
 const GET_TRIP_SNAPSHOT_QUERY = `#graphql
@@ -119,28 +120,15 @@ export function useTripSnapshot({
       return
     }
 
-    const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_API_URL
-    if (!endpoint) {
-      setError("GraphQL API URL is not configured")
-      return
-    }
+    const endpoint = getGraphqlEndpoint()
 
     setIsLoading(true)
     setError(null)
 
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      }
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`
-      }
-
-      const response = await fetch(endpoint, {
+      const response = await authenticatedFetch(endpoint, {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: GET_TRIP_SNAPSHOT_QUERY,
           variables: { tripId: String(tripId) },
@@ -194,14 +182,7 @@ export function useTripSnapshot({
       return
     }
 
-    const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_API_URL
-    if (!graphqlUrl) {
-      const err = new Error("GraphQL API URL is not configured")
-      setError(err.message)
-      if (onError) onError(err)
-      return
-    }
-
+    const graphqlUrl = getGraphqlEndpoint()
     const wsUrl = graphqlUrl.replace(/^http/, "ws")
 
     try {
@@ -219,7 +200,7 @@ export function useTripSnapshot({
         reconnectAttemptsRef.current = 0
 
         // Get auth token for connection
-        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
+        const token = getAccessToken()
         
         // GraphQL WS connection init with auth
         const initMessage: Record<string, any> = {

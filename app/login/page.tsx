@@ -3,8 +3,12 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useLogin } from "@/hooks/use-login"
 import { useAuth } from "@/context/auth-context"
+import {
+  registerWithNexxauth,
+  requestCompanyAdminAccess,
+  validateCompanyCode,
+} from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,10 +20,17 @@ import { Spinner } from "@/components/ui/spinner"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login, isLoading, error } = useLogin()
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { login, isAuthenticated, isLoading: authLoading, error } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isRegistering, setIsRegistering] = useState(false)
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [emailOrPhone, setEmailOrPhone] = useState("")
+  const [companyCode, setCompanyCode] = useState("")
   const [password, setPassword] = useState("")
+  const [formError, setFormError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
+  const [retryRequest, setRetryRequest] = useState<{ companyCode: string; accessToken: string } | null>(null)
 
   // Redirect to home if already logged in
   useEffect(() => {
@@ -30,30 +41,55 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
+    setIsSubmitting(true)
+    setFormError(null)
+    setNotice(null)
     try {
-      const authData = await login({ emailOrPhone, password })
-      
-      // Save auth data to local storage
-      localStorage.setItem("authToken", authData.accessToken)
-      localStorage.setItem("refreshToken", authData.refreshToken)
-      localStorage.setItem("user", JSON.stringify({
-        userId: authData.userId,
-        username: authData.username,
-        email: authData.email,
-        phone: authData.phone,
-        userType: authData.userType,
-        isCompanyUser: authData.isCompanyUser,
-        companyId: authData.companyId,
-        companyName: authData.companyName,
-        companyUserRole: authData.companyUserRole,
-      }))
+      if (!isRegistering) {
+        await login(emailOrPhone, password)
+        router.push("/")
+        return
+      }
 
-      // Redirect to main app
-      router.push("/")
+      const code = companyCode.trim()
+      if (!code) {
+        throw new Error("Company code is required to register for Cavgo Company.")
+      }
+      await validateCompanyCode(code)
+
+      const authResponse = await registerWithNexxauth({
+        firstName,
+        lastName,
+        emailOrPhone,
+        password,
+      })
+      const request = { companyCode: code, accessToken: authResponse.accessToken }
+      setRetryRequest(request)
+      await requestCompanyAdminAccess(request.companyCode, request.accessToken)
+      setRetryRequest(null)
+      setNotice("Your account and company ADMIN access request were submitted. You can sign in once ADMIN access is granted.")
+      setIsRegistering(false)
     } catch (err) {
-      // Error is already handled by the hook
-      console.error("Login failed:", err)
+      const message = err instanceof Error ? err.message : "The request could not be completed."
+      setFormError(message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const retryCompanyRequest = async () => {
+    if (!retryRequest) return
+    setIsSubmitting(true)
+    setFormError(null)
+    try {
+      await requestCompanyAdminAccess(retryRequest.companyCode, retryRequest.accessToken)
+      setRetryRequest(null)
+      setIsRegistering(false)
+      setNotice("Your company ADMIN access request was submitted. You can sign in once ADMIN access is granted.")
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "The company access request could not be sent.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -88,25 +124,69 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
-          <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
+          <CardTitle className="text-2xl text-center">
+            {isRegistering ? "Create your account" : "Welcome back"}
+          </CardTitle>
           <CardDescription className="text-center">
-            Sign in to access your fleet management dashboard
+            {isRegistering
+              ? "Register with your company code to request company administrator access."
+              : "Sign in to access your fleet management dashboard"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {isRegistering && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First name</Label>
+                  <Input
+                    id="firstName"
+                    autoComplete="given-name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last name</Label>
+                  <Input
+                    id="lastName"
+                    autoComplete="family-name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </>
+            )}
             <div className="space-y-2">
               <Label htmlFor="emailOrPhone">Email or Phone</Label>
               <Input
                 id="emailOrPhone"
                 type="text"
                 placeholder="Enter your email or phone"
+                autoComplete="username"
                 value={emailOrPhone}
                 onChange={(e) => setEmailOrPhone(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={isSubmitting}
               />
             </div>
+            {isRegistering && (
+              <div className="space-y-2">
+                <Label htmlFor="companyCode">Company code</Label>
+                <Input
+                  id="companyCode"
+                  placeholder="Enter your company code"
+                  value={companyCode}
+                  onChange={(e) => setCompanyCode(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -116,27 +196,53 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={isSubmitting}
               />
             </div>
 
-            {error && (
+            {(formError || (!isRegistering && error)) && (
               <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{formError || error}</AlertDescription>
+              </Alert>
+            )}
+            {notice && (
+              <Alert>
+                <AlertDescription>{notice}</AlertDescription>
               </Alert>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
                 <>
                   <Spinner className="mr-2 h-4 w-4" />
                   Signing in...
                 </>
               ) : (
-                "Sign in"
+                isRegistering ? "Register and request admin access" : "Sign in"
               )}
             </Button>
+            {retryRequest && (
+              <Button type="button" variant="outline" className="w-full" onClick={retryCompanyRequest} disabled={isSubmitting}>
+                Retry company access request
+              </Button>
+            )}
           </form>
+          {!retryRequest && (
+            <p className="mt-4 text-center text-sm text-muted-foreground">
+              {isRegistering ? "Already registered?" : "Need a company account?"}{" "}
+              <button
+                type="button"
+                className="font-medium text-primary underline-offset-4 hover:underline"
+                onClick={() => {
+                  setIsRegistering((value) => !value)
+                  setFormError(null)
+                  setNotice(null)
+                }}
+              >
+                {isRegistering ? "Sign in" : "Register"}
+              </button>
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -143,31 +143,6 @@ export interface TripFormData {
   route: string
 }
 
-export interface LoginRequestDto {
-  emailOrPhone: string
-  password: string
-}
-
-export enum CompanyUserRole {
-  ADMIN = "ADMIN",
-  MANAGER = "MANAGER",
-  OPERATOR = "OPERATOR",
-  VIEWER = "VIEWER",
-}
-
-export interface AuthResponseDto {
-  accessToken: string
-  refreshToken: string
-  userId: number
-  username: string
-  email: string
-  phone: string
-  userType: string
-  isCompanyUser: boolean
-  companyId: number | null
-  companyName: string | null
-  companyUserRole: CompanyUserRole | null
-}
 // Navigation/Trip API Types
 export interface NavigationWaypoint {
   id?: string | null

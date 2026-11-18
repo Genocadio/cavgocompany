@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
+import { getAccessToken, getGraphqlEndpoint } from "@/lib/auth-client"
 
 const TRIP_SUBSCRIPTION = `#graphql
   subscription Trip($tripId: ID!) {
@@ -135,13 +136,7 @@ export function useTripSubscription({
       return
     }
 
-    const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_API_URL
-    if (!graphqlUrl) {
-      const err = new Error("GraphQL API URL is not configured")
-      setError(err.message)
-      onErrorRef.current?.(err)
-      return
-    }
+    const graphqlUrl = getGraphqlEndpoint()
 
     const wsUrl = graphqlUrl.replace(/^http/, "ws")
     cleanup()
@@ -160,7 +155,7 @@ export function useTripSubscription({
         setError(null)
         reconnectAttemptsRef.current = 0
 
-        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
+        const token = getAccessToken()
         const initMessage: Record<string, any> = {
           type: "connection_init",
           payload: {}

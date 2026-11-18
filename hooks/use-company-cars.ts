@@ -1,7 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { DUMMY_CARS, type Car } from "@/lib/data"
+import { authenticatedFetch, getGraphqlEndpoint } from "@/lib/auth-client"
+import { type Car } from "@/lib/data"
 
 const COMPANY_CARS_QUERY = `#graphql
   query ExampleQuery($companyId: ID!, $limit: Int, $offset: Int) {
@@ -200,29 +201,15 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
       return
     }
 
-    const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_API_URL
-    if (!endpoint) {
-      setError("GraphQL API URL is not configured")
-      setCars([])
-      return
-    }
+    const endpoint = getGraphqlEndpoint()
 
     setIsLoading(true)
     setError(null)
 
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      }
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`
-      }
-
-      const response = await fetch(endpoint, {
+      const response = await authenticatedFetch(endpoint, {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: COMPANY_CARS_QUERY,
           variables: {
