@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { LayoutDashboard, MapIcon, Clock3, Moon, Sun, UserCog } from "lucide-react"
+import { LayoutDashboard, MapIcon, Clock3, Moon, Sun, Package, UserCog } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/context/auth-context"
 import { useTheme } from "next-themes"
@@ -119,6 +119,12 @@ export default function AppHeader({ activeTab = "management", onToggleView, show
               <DropdownMenuItem onClick={() => router.push("/admin")} className="cursor-pointer">
                 <UserCog className="w-4 h-4 mr-2" />
                 Company user management
+              </DropdownMenuItem>
+            )}
+            {user?.companyId != null && (
+              <DropdownMenuItem onClick={() => router.push("/packages")} className="cursor-pointer">
+                <Package className="w-4 h-4 mr-2" />
+                Packages
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
