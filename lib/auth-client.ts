@@ -187,7 +187,12 @@ export async function requestCompanyAdminAccess(companyCode: string, accessToken
 }
 
 export function hasAdminRole(roles: string[] | undefined): boolean {
-  return roles?.some((role) => role.trim().toUpperCase() === "ADMIN") ?? false
+  return (
+    roles?.some((role) => {
+      const normalized = role.trim().replace(/^ROLE_/i, "").toUpperCase()
+      return normalized === "ADMIN" || normalized === "SUPER_ADMIN"
+    }) ?? false
+  )
 }
 
 export function accessTokenHasAdminRole(token: string): boolean {
