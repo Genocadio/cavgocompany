@@ -264,7 +264,6 @@ export default function CompanyAdminPage() {
                               [member.id]: event.target.value as Role,
                             }))}
                           >
-                            <option value="ADMIN">ADMIN</option>
                             <option value="FLEET_MANAGER">FLEET_MANAGER</option>
                             <option value="DRIVER">DRIVER</option>
                             <option value="WORKER">WORKER</option>
