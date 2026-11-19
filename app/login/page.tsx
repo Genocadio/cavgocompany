@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [emailOrPhone, setEmailOrPhone] = useState("")
+  const [phone, setPhone] = useState("")
   const [companyCode, setCompanyCode] = useState("")
   const [password, setPassword] = useState("")
   const [formError, setFormError] = useState<string | null>(null)
@@ -55,12 +56,18 @@ export default function LoginPage() {
       if (!code) {
         throw new Error("Company code is required to register for Cavgo Company.")
       }
+      const trimmedPhone = phone.trim()
+      const phoneDigits = trimmedPhone.replace(/\D/g, "")
+      if (!/^\+[0-9\s().-]+$/.test(trimmedPhone) || phoneDigits.length < 7 || phoneDigits.length > 15) {
+        throw new Error("Enter a valid phone number, including its country code.")
+      }
       await validateCompanyCode(code)
 
       const authResponse = await registerWithNexxauth({
         firstName,
         lastName,
-        emailOrPhone,
+        email: emailOrPhone,
+        phone: trimmedPhone.replace(/[\s().-]/g, ""),
         password,
       })
       const request = { companyCode: code, accessToken: authResponse.accessToken }
@@ -162,18 +169,34 @@ export default function LoginPage() {
               </>
             )}
             <div className="space-y-2">
-              <Label htmlFor="emailOrPhone">Email or Phone</Label>
+              <Label htmlFor="emailOrPhone">{isRegistering ? "Email" : "Email or Phone"}</Label>
               <Input
                 id="emailOrPhone"
-                type="text"
-                placeholder="Enter your email or phone"
-                autoComplete="username"
+                type={isRegistering ? "email" : "text"}
+                placeholder={isRegistering ? "Enter your email" : "Enter your email or phone"}
+                autoComplete={isRegistering ? "email" : "username"}
                 value={emailOrPhone}
                 onChange={(e) => setEmailOrPhone(e.target.value)}
                 required
                 disabled={isSubmitting}
               />
             </div>
+            {isRegistering && (
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="+250 7XX XXX XXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+            )}
             {isRegistering && (
               <div className="space-y-2">
                 <Label htmlFor="companyCode">Company code</Label>

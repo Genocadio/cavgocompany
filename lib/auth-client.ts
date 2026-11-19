@@ -21,7 +21,8 @@ export interface NexxAuthResponse {
 export interface NexxAuthRegistration {
   firstName: string
   lastName: string
-  emailOrPhone: string
+  email: string
+  phone: string
   password: string
 }
 
@@ -121,14 +122,13 @@ export async function loginWithNexxauth(identifier: string, password: string): P
 
 export async function registerWithNexxauth(input: NexxAuthRegistration): Promise<NexxAuthResponse> {
   const { baseUrl, clientId } = nexxAuthConfig()
-  const identifier = input.emailOrPhone.trim()
-  const isEmail = identifier.includes("@")
   const body: Record<string, string> = {
     firstName: input.firstName.trim(),
     lastName: input.lastName.trim(),
+    email: input.email.trim(),
+    phone: input.phone.trim(),
     password: input.password,
   }
-  body[isEmail ? "email" : "phone"] = identifier
 
   let response: Response
   try {
