@@ -1,24 +1,35 @@
 "use client"
 
+import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { AlertCircle, ArrowLeft, Package } from "lucide-react"
+import { AlertCircle, ArrowLeft, Filter, Package, RefreshCcw, X } from "lucide-react"
 import AppHeader from "@/components/app-header"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/context/auth-context"
 import {
   ACTIVE_PACKAGE_STATUSES,
+  ALL_PACKAGE_STATUSES,
   useCompanyPackages,
   type CompanyPackage,
+  type PackageActivityGroup,
   type PackageCarrierLeg,
 } from "@/hooks/use-company-packages"
 
 const activeStatuses = new Set<string>(ACTIVE_PACKAGE_STATUSES)
+
+function localDateString(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
 
 function humanize(value: string): string {
   if (!value) return "—"
@@ -75,9 +86,37 @@ function SummaryCard({ title, value, loading }: { title: string; value: number; 
   )
 }
 
+type GroupFilter = {
+  key: string
+  label: string
+  tripId?: string | null
+  carId?: string | null
+  driverId?: string | null
+}
+
+function groupKey(group: PackageActivityGroup, index: number): string {
+  return `${group.tripId || "trip"}:${group.carId || "car"}:${group.driverId || "drv"}:${index}`
+}
+
+function groupLabel(group: PackageActivityGroup): string {
+  const parts = [
+    group.tripId ? `Trip ${group.tripId}` : null,
+    group.carId ? `Car ${group.plate || group.carId}` : group.plate ? `Car ${group.plate}` : null,
+    group.driverName || (group.driverId ? `Driver ${group.driverId}` : null),
+  ].filter(Boolean)
+  return parts.length ? parts.join(" · ") : "Unassigned"
+}
+
+function packageMatchesGroup(pkg: CompanyPackage, filter: GroupFilter): boolean {
+  const hasTrip = filter.tripId ? (pkg.tripId === filter.tripId || pkg.carrierLegs.some((l) => l.tripId === filter.tripId)) : true
+  const hasCar = filter.carId ? pkg.carrierLegs.some((l) => l.vehicleId === filter.carId) : true
+  const hasDriver = filter.driverId ? pkg.carrierLegs.some((l) => l.driverId === filter.driverId) : true
+  return hasTrip && hasCar && hasDriver
+}
+
 function PackageRow({ item, plateByTrip }: { item: CompanyPackage; plateByTrip: Map<string, string> }) {
   const leg = latestCarrierLeg(item.carrierLegs)
-  const plate = leg?.tripId ? plateByTrip.get(leg.tripId) : undefined
+  const plate = leg?.tripId ? plateByTrip.get(leg.tripId) : leg?.vehicleId || undefined
 
   return (
     <TableRow key={item.id || item.trackingCode}>
@@ -93,11 +132,11 @@ function PackageRow({ item, plateByTrip }: { item: CompanyPackage; plateByTrip: 
           <div className="flex flex-col gap-0.5 text-xs">
             <span>{leg.driverId ? `Driver ${leg.driverId}` : "—"}</span>
             <span className="text-muted-foreground">
-              Trip {leg.tripId || "—"} · {plate || "—"}
+              Trip {leg.tripId || item.tripId || "—"} · {plate || "—"}
             </span>
           </div>
         ) : (
-          <span className="text-muted-foreground">—</span>
+          <span className="text-muted-foreground">{item.tripId ? `Trip ${item.tripId}` : "—"}</span>
         )}
       </TableCell>
     </TableRow>
@@ -108,7 +147,14 @@ export default function CompanyPackagesPage() {
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
   const router = useRouter()
   const companyId = user?.companyId
-  const { data, loading, error, refetch } = useCompanyPackages({ companyId })
+  const today = localDateString(new Date())
+  const [startDate, setStartDate] = useState(today)
+  const [endDate, setEndDate] = useState(today)
+  const [statusMode, setStatusMode] = useState<"active" | "all">("active")
+  const [selectedGroup, setSelectedGroup] = useState<GroupFilter | null>(null)
+
+  const statuses = useMemo(() => (statusMode === "active" ? [...ACTIVE_PACKAGE_STATUSES] : [...ALL_PACKAGE_STATUSES]), [statusMode])
+  const { data, loading, error, refetch } = useCompanyPackages({ companyId, startDate, endDate, statuses })
 
   if (authLoading || !isAuthenticated || !user) {
     return (
@@ -151,6 +197,22 @@ export default function CompanyPackagesPage() {
     if (group.tripId && group.plate) plateByTrip.set(group.tripId, group.plate)
   }
 
+  const filteredPackages = selectedGroup ? data.packages.filter((pkg) => packageMatchesGroup(pkg, selectedGroup)) : data.packages
+
+  const setToday = () => {
+    const now = localDateString(new Date())
+    setStartDate(now)
+    setEndDate(now)
+  }
+
+  const setLast7Days = () => {
+    const end = new Date()
+    const start = new Date()
+    start.setDate(end.getDate() - 6)
+    setStartDate(localDateString(start))
+    setEndDate(localDateString(end))
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <AppHeader showViewSwitcher={false} />
@@ -159,14 +221,58 @@ export default function CompanyPackagesPage() {
           <Button variant="outline" size="icon" aria-label="Back to fleet" onClick={() => router.push("/")}>
             <ArrowLeft />
           </Button>
-          <div>
+          <div className="min-w-0 flex-1">
             <h1 className="flex items-center gap-2 text-2xl font-semibold">
               <Package className="h-5 w-5" />
-              Packages
+              Package reports
             </h1>
-            <p className="text-sm text-muted-foreground">Packages sent today that are in progress</p>
+            <p className="text-sm text-muted-foreground">
+              Company package activity by date, trip, car, and driver (including booking-independent deliveries).
+            </p>
           </div>
+          <Button variant="outline" size="sm" onClick={() => void refetch()} disabled={loading}>
+            <RefreshCcw className="mr-2 h-4 w-4" /> Refresh
+          </Button>
         </div>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base"><Filter className="h-4 w-4" /> Filters</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Start date</label>
+                <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-[170px]" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">End date</label>
+                <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-[170px]" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={setToday}>Today</Button>
+                <Button type="button" variant="outline" size="sm" onClick={setLast7Days}>Last 7 days</Button>
+              </div>
+              <div className="flex flex-wrap gap-2 sm:ml-auto">
+                <Button type="button" variant={statusMode === "active" ? "default" : "outline"} size="sm" onClick={() => setStatusMode("active")}>
+                  In progress
+                </Button>
+                <Button type="button" variant={statusMode === "all" ? "default" : "outline"} size="sm" onClick={() => setStatusMode("all")}>
+                  All statuses
+                </Button>
+              </div>
+            </div>
+            {selectedGroup && (
+              <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm">
+                <span className="text-muted-foreground">Filtered to:</span>
+                <span className="font-medium">{selectedGroup.label}</span>
+                <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={() => setSelectedGroup(null)}>
+                  <X className="mr-1 h-3.5 w-3.5" /> Clear
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {error && (
           <Alert variant="destructive">
@@ -182,13 +288,14 @@ export default function CompanyPackagesPage() {
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <SummaryCard title="Total packages" value={data.totalPackages} loading={loading} />
+          <SummaryCard title="Total packages (in scope)" value={data.totalPackages} loading={loading} />
           <SummaryCard title="In-progress packages" value={data.inProgressPackages} loading={loading} />
         </div>
 
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">By trip / car / driver</CardTitle>
+            <p className="text-sm text-muted-foreground">Click a group to filter the packages list. Groups are based on the latest carrier leg.</p>
           </CardHeader>
           <CardContent className="px-0">
             <Table>
@@ -198,36 +305,49 @@ export default function CompanyPackagesPage() {
                   <TableHead>Car (plate)</TableHead>
                   <TableHead>Driver</TableHead>
                   <TableHead>Packages</TableHead>
+                  <TableHead className="w-[120px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRowsSkeleton columns={4} />
+                  <TableRowsSkeleton columns={5} />
                 ) : data.groups.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="py-8 text-center text-sm text-muted-foreground">
-                      No package groups found.
+                    <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
+                      No package groups found for this period.
                     </TableCell>
                   </TableRow>
                 ) : (
                   data.groups.map((group, index) => {
-                    const carHref = group.tripId && group.carId ? `/car/${encodeURIComponent(group.carId)}` : null
+                    const key = groupKey(group, index)
+                    const isSelected = selectedGroup?.key === key
+                    const carHref = group.carId ? `/car/${encodeURIComponent(group.carId)}` : null
+                    const filter: GroupFilter = {
+                      key,
+                      label: groupLabel(group),
+                      tripId: group.tripId,
+                      carId: group.carId,
+                      driverId: group.driverId,
+                    }
                     return (
-                      <TableRow key={`${group.tripId || "no-trip"}-${group.carId || "no-car"}-${index}`}>
-                        <TableCell className="font-medium">
+                      <TableRow
+                        key={key}
+                        className={isSelected ? "bg-primary/5" : "cursor-pointer hover:bg-muted/40"}
+                        onClick={() => setSelectedGroup(isSelected ? null : filter)}
+                      >
+                        <TableCell className="font-medium">{group.tripId || "—"}</TableCell>
+                        <TableCell>{group.plate || group.carId || "—"}</TableCell>
+                        <TableCell>{group.driverName || (group.driverId ? `Driver ${group.driverId}` : "—")}</TableCell>
+                        <TableCell>{group.packageCount}</TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
                           {carHref ? (
-                            <Link href={carHref} className="text-primary underline-offset-4 hover:underline">
-                              {group.tripId || "—"}
+                            <Link href={carHref} className="text-sm text-primary underline-offset-4 hover:underline">
+                              View car
                             </Link>
                           ) : (
-                            group.tripId || "—"
+                            <span className="text-sm text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                        <TableCell>{group.plate || "—"}</TableCell>
-                        <TableCell>
-                          {group.driverName || (group.driverId ? `Driver ${group.driverId}` : "—")}
-                        </TableCell>
-                        <TableCell>{group.packageCount}</TableCell>
                       </TableRow>
                     )
                   })
@@ -239,7 +359,7 @@ export default function CompanyPackagesPage() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Packages</CardTitle>
+            <CardTitle className="text-lg">Packages {selectedGroup ? `(${filteredPackages.length} filtered)` : `(${data.packages.length})`}</CardTitle>
           </CardHeader>
           <CardContent className="px-0">
             <Table>
@@ -256,14 +376,14 @@ export default function CompanyPackagesPage() {
               <TableBody>
                 {loading ? (
                   <TableRowsSkeleton columns={6} />
-                ) : data.packages.length === 0 ? (
+                ) : filteredPackages.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
-                      No packages found.
+                      No packages found for this view.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  data.packages.map((item) => (
+                  filteredPackages.map((item) => (
                     <PackageRow key={item.id || item.trackingCode} item={item} plateByTrip={plateByTrip} />
                   ))
                 )}

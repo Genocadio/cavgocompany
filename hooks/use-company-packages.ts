@@ -9,12 +9,18 @@ const COMPANY_PACKAGE_ACTIVITY_QUERY = `#graphql
     $startDate: String
     $endDate: String
     $statuses: [PackageStatus!]
+    $tripId: ID
+    $carId: ID
+    $driverId: ID
   ) {
     companyPackageActivity(
       companyId: $companyId
       startDate: $startDate
       endDate: $endDate
       statuses: $statuses
+      tripId: $tripId
+      carId: $carId
+      driverId: $driverId
     ) {
       companyId
       startTime
@@ -67,6 +73,13 @@ export const ACTIVE_PACKAGE_STATUSES = [
   "ASSIGNED_DRIVER",
   "DESTINATION_OFFICE",
   "READY_FOR_COLLECTION",
+]
+
+export const ALL_PACKAGE_STATUSES = [
+  ...ACTIVE_PACKAGE_STATUSES,
+  "DELIVERED",
+  "COMPLETED",
+  "CANCELLED",
 ]
 
 export interface PackageCarrierLeg {
@@ -154,6 +167,9 @@ interface UseCompanyPackagesOptions {
   startDate?: string
   endDate?: string
   statuses?: string[]
+  tripId?: string | number | null
+  carId?: string | number | null
+  driverId?: string | number | null
 }
 
 interface UseCompanyPackagesResult {
@@ -242,6 +258,9 @@ export function useCompanyPackages({
   startDate,
   endDate,
   statuses,
+  tripId,
+  carId,
+  driverId,
 }: UseCompanyPackagesOptions): UseCompanyPackagesResult {
   const [data, setData] = useState<CompanyPackageActivity>(() => emptyActivity())
   const [loading, setLoading] = useState(false)
@@ -253,6 +272,9 @@ export function useCompanyPackages({
   const resolvedStartDate = startDate ?? today
   const resolvedEndDate = endDate ?? today
   const statusKey = (statuses ?? ACTIVE_PACKAGE_STATUSES).join(",")
+  const resolvedTripId = asId(tripId as string | number | null | undefined)
+  const resolvedCarId = asId(carId as string | number | null | undefined)
+  const resolvedDriverId = asId(driverId as string | number | null | undefined)
 
   const fetchActivity = useCallback(async () => {
     if (companyId === null || companyId === undefined || companyId === "") {
@@ -275,6 +297,9 @@ export function useCompanyPackages({
             startDate: resolvedStartDate,
             endDate: resolvedEndDate,
             statuses: statusKey ? statusKey.split(",") : undefined,
+            tripId: resolvedTripId,
+            carId: resolvedCarId,
+            driverId: resolvedDriverId,
           },
         }),
       })
@@ -309,7 +334,7 @@ export function useCompanyPackages({
     } finally {
       setLoading(false)
     }
-  }, [companyId, resolvedStartDate, resolvedEndDate, statusKey])
+  }, [companyId, resolvedStartDate, resolvedEndDate, statusKey, resolvedTripId, resolvedCarId, resolvedDriverId])
 
   useEffect(() => {
     void fetchActivity()
