@@ -284,32 +284,46 @@ export default function CarManagementPage() {
               <p className="text-sm text-muted-foreground">Car Management</p>
             </div>
           </div>
-          <Badge variant={selectedCar.status === "active" ? "default" : "secondary"} className="capitalize">
-            {selectedCar.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="capitalize">
+              {serviceType === "PASSENGER" ? "Passenger" : serviceType === "CARGO" ? "Cargo" : "Passenger + Cargo"}
+            </Badge>
+            <Badge variant={selectedCar.status === "active" ? "default" : "secondary"} className="capitalize">
+              {selectedCar.status}
+            </Badge>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 max-w-7xl w-full mx-auto p-6">
         <Tabs defaultValue="trips" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className={`grid w-full ${showPackageMetrics ? "grid-cols-2" : "grid-cols-1"}`}>
             <TabsTrigger value="trips" className="flex items-center gap-2">
               <History className="w-4 h-4" />
               Trips
             </TabsTrigger>
-            <TabsTrigger value="packages" className="flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              Packages
-              {carPackages.length > 0 && (
-                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">{carPackages.length}</Badge>
-              )}
-            </TabsTrigger>
+            {showPackageMetrics && (
+              <TabsTrigger value="packages" className="flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                Packages
+                {carPackages.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">{carPackages.length}</Badge>
+                )}
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Trips Tab */}
           <TabsContent value="trips" className="mt-6 space-y-4">
-            {!packagesLoading && carPackages.length > 0 && (
+            {!showBookingMetrics && (
+              <Card className="border-border bg-muted/30">
+                <CardContent className="py-3 text-sm text-muted-foreground">
+                  This vehicle is configured for cargo only (passenger seats treated as 0). Passenger booking metrics are not shown.
+                </CardContent>
+              </Card>
+            )}
+            {showPackageMetrics && !packagesLoading && carPackages.length > 0 && (
               <Card className="border-primary/20 bg-primary/5">
                 <CardContent className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div className="flex items-center gap-2 text-sm">
@@ -379,7 +393,7 @@ export default function CarManagementPage() {
                                 <p className="text-xs text-muted-foreground">
                                   {(trip.totalDistance / 1000).toFixed(1)} km
                                 </p>
-                                {(packagesByTripId.get(trip.id)?.length || 0) > 0 && (
+                                {showPackageMetrics && (packagesByTripId.get(trip.id)?.length || 0) > 0 && (
                                   <>
                                     <span className="text-xs text-muted-foreground">•</span>
                                     <Badge variant="outline" className="gap-1">
@@ -391,7 +405,7 @@ export default function CarManagementPage() {
                               </div>
                             </div>
                             <div className="flex items-center gap-1 flex-shrink-0">
-                              {!isCancelled && (
+                              {showBookingMetrics && !isCancelled && (
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -525,35 +539,37 @@ export default function CarManagementPage() {
                               </div>
 
                               {/* Packages for this trip */}
-                              <div className="mt-4 pt-4 border-t border-border">
-                                <p className="text-xs font-semibold text-muted-foreground uppercase mb-3 flex items-center gap-2">
-                                  <Package className="h-3.5 w-3.5" /> Packages on this trip ({packagesByTripId.get(trip.id)?.length || 0})
-                                </p>
-                                {(packagesByTripId.get(trip.id)?.length || 0) === 0 ? (
-                                  <p className="text-sm text-muted-foreground">No packages linked to this trip in the last 30 days.</p>
-                                ) : (
-                                  <div className="space-y-2">
-                                    {packagesByTripId.get(trip.id)!.map((pkg) => {
-                                      const leg = latestPackageLeg(pkg.carrierLegs)
-                                      return (
-                                        <div key={pkg.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted/30 p-3">
-                                          <div className="min-w-0">
-                                            <p className="text-sm font-medium">{pkg.trackingCode || pkg.id}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                              {humanizePackage(pkg.packageOrigin)} · {humanizePackage(pkg.deliveryType)}
-                                              {leg?.driverId ? ` · Driver ${leg.driverId}` : ""}
-                                            </p>
+                              {showPackageMetrics && (
+                                <div className="mt-4 pt-4 border-t border-border">
+                                  <p className="text-xs font-semibold text-muted-foreground uppercase mb-3 flex items-center gap-2">
+                                    <Package className="h-3.5 w-3.5" /> Packages on this trip ({packagesByTripId.get(trip.id)?.length || 0})
+                                  </p>
+                                  {(packagesByTripId.get(trip.id)?.length || 0) === 0 ? (
+                                    <p className="text-sm text-muted-foreground">No packages linked to this trip in the last 30 days.</p>
+                                  ) : (
+                                    <div className="space-y-2">
+                                      {packagesByTripId.get(trip.id)!.map((pkg) => {
+                                        const leg = latestPackageLeg(pkg.carrierLegs)
+                                        return (
+                                          <div key={pkg.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted/30 p-3">
+                                            <div className="min-w-0">
+                                              <p className="text-sm font-medium">{pkg.trackingCode || pkg.id}</p>
+                                              <p className="text-xs text-muted-foreground">
+                                                {humanizePackage(pkg.packageOrigin)} · {humanizePackage(pkg.deliveryType)}
+                                                {leg?.driverId ? ` · Driver ${leg.driverId}` : ""}
+                                              </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Badge variant={packageStatusVariant(pkg.status)}>{humanizePackage(pkg.status)}</Badge>
+                                              <span className="text-xs text-muted-foreground">{formatPackageTime(pkg.updatedAt || pkg.createdAt)}</span>
+                                            </div>
                                           </div>
-                                          <div className="flex items-center gap-2">
-                                            <Badge variant={packageStatusVariant(pkg.status)}>{humanizePackage(pkg.status)}</Badge>
-                                            <span className="text-xs text-muted-foreground">{formatPackageTime(pkg.updatedAt || pkg.createdAt)}</span>
-                                          </div>
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </div>
+                                        )
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </CardContent>
                         )}
@@ -565,6 +581,7 @@ export default function CarManagementPage() {
             )}
           </TabsContent>
 
+          {showPackageMetrics && (
           <TabsContent value="packages" className="mt-6 space-y-4">
             <Card>
               <CardHeader className="pb-3">
@@ -660,6 +677,7 @@ export default function CarManagementPage() {
               </CardContent>
             </Card>
           </TabsContent>
+          )}
         </Tabs>
       </div>
 

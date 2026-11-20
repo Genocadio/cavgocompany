@@ -13,6 +13,7 @@ const COMPANY_CARS_QUERY = `#graphql
       items {
         companyId
         capacity
+        serviceType
         currentLocation {
           bearing
           location {
@@ -85,6 +86,8 @@ type ApiTrip = {
 type ApiCar = {
   id?: string | number
   plate?: string
+  capacity?: number
+  serviceType?: Car["serviceType"]
   isOnline?: boolean
   status?: string
   currentLocation?: {
@@ -181,6 +184,8 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
       return {
         id: item?.id?.toString() ?? "unknown",
         plateNumber: item?.plate ?? "N/A",
+        serviceType: item?.serviceType ?? "PASSENGER_CARGO",
+        capacity: item?.capacity,
         status: hasActiveTrip ? "with-trips" : "no-trips",
         speed: item?.currentLocation?.speed ?? 0,
         bearing: item?.currentLocation?.bearing ?? 0,

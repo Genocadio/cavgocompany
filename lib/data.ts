@@ -26,9 +26,13 @@ export interface Trip {
   createdAt?: string | number
 }
 
+export type VehicleServiceType = "PASSENGER" | "CARGO" | "PASSENGER_CARGO"
+
 export interface Car {
   id: string
   plateNumber: string
+  serviceType?: VehicleServiceType
+  capacity?: number
   status: "with-trips" | "no-trips"
   speed: number
   bearing: number
