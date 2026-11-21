@@ -266,12 +266,14 @@ export function useCompanyPackages({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Default to today (local time) and the active status set so the page shows
-  // packages sent today that are still in progress.
-  const today = localDateString(new Date())
-  const resolvedStartDate = startDate ?? today
-  const resolvedEndDate = endDate ?? today
-  const statusKey = (statuses ?? ACTIVE_PACKAGE_STATUSES).join(",")
+  // Default to the last 7 days and all statuses so pending and completed
+  // packages are both visible without switching filters.
+  const today = new Date()
+  const weekAgo = new Date()
+  weekAgo.setDate(today.getDate() - 6)
+  const resolvedStartDate = startDate ?? localDateString(weekAgo)
+  const resolvedEndDate = endDate ?? localDateString(today)
+  const statusKey = (statuses ?? ALL_PACKAGE_STATUSES).join(",")
   const resolvedTripId = asId(tripId as string | number | null | undefined)
   const resolvedCarId = asId(carId as string | number | null | undefined)
   const resolvedDriverId = asId(driverId as string | number | null | undefined)

@@ -147,10 +147,12 @@ export default function CompanyPackagesPage() {
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
   const router = useRouter()
   const companyId = user?.companyId
-  const today = localDateString(new Date())
-  const [startDate, setStartDate] = useState(today)
-  const [endDate, setEndDate] = useState(today)
-  const [statusMode, setStatusMode] = useState<"active" | "all">("active")
+  const initialEnd = new Date()
+  const initialStart = new Date()
+  initialStart.setDate(initialEnd.getDate() - 6)
+  const [startDate, setStartDate] = useState(localDateString(initialStart))
+  const [endDate, setEndDate] = useState(localDateString(initialEnd))
+  const [statusMode, setStatusMode] = useState<"active" | "all">("all")
   const [selectedGroup, setSelectedGroup] = useState<GroupFilter | null>(null)
 
   const statuses = useMemo(() => (statusMode === "active" ? [...ACTIVE_PACKAGE_STATUSES] : [...ALL_PACKAGE_STATUSES]), [statusMode])
