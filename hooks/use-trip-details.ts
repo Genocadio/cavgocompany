@@ -35,6 +35,8 @@ export function useTripDetails({
 
     if (!effectiveTripId) {
       setTripData(null)
+      setError(null)
+      setNotFound(false)
       return null
     }
 
@@ -85,12 +87,16 @@ export function useTripDetails({
     }
   }, [tripId])
 
-  // Initial fetch
+  // Initial fetch. When disabled (for example, a scheduled trip that is not in
+  // Navigation yet), clear every stale navigation state so the map cannot keep
+  // showing an old route or an old error for the newly focused car.
   useEffect(() => {
     if (enabled && tripId) {
       fetchTrip()
     } else {
       setTripData(null)
+      setError(null)
+      setNotFound(false)
     }
   }, [enabled, tripId, fetchTrip])
 

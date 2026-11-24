@@ -33,6 +33,7 @@ import {
   type TripViewOverride,
 } from "@/hooks/use-trip-subscriptions-manager"
 import { formatSpeed, reverseGeocode } from "@/lib/utils"
+import { navigationUnavailableNotice } from "@/lib/trip-availability"
 
 export default function FleetDashboard() {
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
@@ -205,7 +206,7 @@ export default function FleetDashboard() {
     if (!hasLocation && hasActiveTrip && activeTripId) {
       const data = await fetchTripById(activeTripId)
       if (!data) {
-        toast({ title: "Trip details unavailable", description: "Couldn’t fetch trip details for this car." })
+        toast(navigationUnavailableNotice(car.currentTrip?.status))
         return
       }
       setMapFocusId(car.id)
@@ -213,11 +214,12 @@ export default function FleetDashboard() {
       return
     }
 
-    // If both exist, try to fetch; if it fails, still navigate and show location
+    // If both exist, try to fetch; a scheduled trip is legitimately absent from
+    // Navigation, so still show the car and explain why there is no route.
     if (hasLocation && hasActiveTrip && activeTripId) {
       const data = await fetchTripById(activeTripId)
       if (!data) {
-        toast({ title: "Trip details unavailable", description: "Showing live location; route could not be loaded." })
+        toast(navigationUnavailableNotice(car.currentTrip?.status))
       }
       setMapFocusId(car.id)
       setActiveTab("map")
@@ -247,17 +249,18 @@ export default function FleetDashboard() {
       return
     }
 
-    // Fetch trip details
+    // Fetch trip details. A 404 simply means Navigation has not seen this trip
+    // yet; if the car has a live position the map is still useful.
     const data = await fetchTripById(activeTripId)
-    if (!data) {
-      toast({
-        title: "Trip details unavailable",
-        description: "Couldn't fetch trip details for this car.",
-      })
+    const hasLocation = !!car.position && car.position[0] !== 0 && car.position[1] !== 0
+    if (!data && !hasLocation) {
+      toast(navigationUnavailableNotice(car.currentTrip?.status))
       return
     }
+    if (!data) {
+      toast(navigationUnavailableNotice(car.currentTrip?.status))
+    }
 
-    // Only navigate if fetch succeeds
     setViewingTrip(null)
     setViewingTripCar(null)
     setMapFocusId(car.id)

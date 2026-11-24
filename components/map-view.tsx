@@ -14,6 +14,7 @@ import { useTripDetails } from "@/hooks/use-trip-details"
 import { useTripSnapshot } from "@/hooks/use-trip-snapshot"
 import { SkeletonBookingSummary } from "@/components/ui/skeleton-card"
 import { formatSpeed, parseTimestampToDate, reverseGeocode } from "@/lib/utils"
+import { isTripNotStarted, navigationUnavailableNotice } from "@/lib/trip-availability"
 import {
   CommandDialog,
   CommandInput,
@@ -172,6 +173,11 @@ export default function MapView({
     () => carsWithLocation.find((c) => c.id === focusedCarId),
     [carsWithLocation, focusedCarId]
   )
+  const focusedActiveTripId = (focusedCar as any)?.activeTripId as string | undefined
+  // Scheduled/pending trips live in the trip service but are not registered in
+  // Navigation until the driver starts them. Asking Navigation for them would
+  // only produce a 404, so we skip that fetch and explain it on the map.
+  const focusedTripNotStarted = isTripNotStarted(focusedCar?.currentTrip?.status)
   const hasValidPosition = useCallback((pos?: [number, number]) => !!pos && pos[0] !== 0 && pos[1] !== 0, [])
 
   // Fetch trip details for focused car if it has a trip
@@ -185,10 +191,17 @@ export default function MapView({
     notFound,
     refetchById,
   } = useTripDetails({
-    tripId: focusedCar?.activeTripId,
-    enabled: !!focusedCar && !!focusedCar.activeTripId,
+    tripId: focusedActiveTripId,
+    enabled: !!focusedCar && !!focusedActiveTripId && !focusedTripNotStarted,
     pollInterval: 30000, // 30 seconds for live navigation
   })
+
+  const focusedNavigationUnavailable =
+    !!focusedActiveTripId && (focusedTripNotStarted || notFound)
+  const focusedNavigationNotice = useMemo(
+    () => navigationUnavailableNotice(focusedCar?.currentTrip?.status),
+    [focusedCar?.currentTrip?.status]
+  )
 
   // Notify parent when focused car's trip data changes from polling
   useEffect(() => {
@@ -252,23 +265,24 @@ export default function MapView({
   )
 
   useEffect(() => {
-    const activeTripId = focusedCar?.activeTripId
-    if (!activeTripId) {
+    if (!focusedActiveTripId) {
       lastNotifiedTripIdRef.current = undefined
       return
     }
-    if (notFound && lastNotifiedTripIdRef.current !== activeTripId) {
-      toast({
-        title: "Map data not found",
-        description: "Trip details for this car could not be found.",
-      })
-      lastNotifiedTripIdRef.current = activeTripId
+    if (focusedNavigationUnavailable && lastNotifiedTripIdRef.current !== focusedActiveTripId) {
+      toast(focusedNavigationNotice)
+      lastNotifiedTripIdRef.current = focusedActiveTripId
     }
-    if (!notFound && lastNotifiedTripIdRef.current === activeTripId) {
-      // reset if later becomes available (rare)
+    if (!focusedNavigationUnavailable && lastNotifiedTripIdRef.current === focusedActiveTripId) {
+      // Trip has started and Navigation data arrived — allow a future notice.
       lastNotifiedTripIdRef.current = undefined
     }
-  }, [notFound, focusedCar?.activeTripId, toast])
+  }, [
+    focusedActiveTripId,
+    focusedNavigationUnavailable,
+    focusedNavigationNotice,
+    toast,
+  ])
 
   // Kigali, Rwanda coordinates as default center
   const KIGALI_CENTER: [number, number] = [30.0606, -1.9536] // lng, lat for MapLibre
@@ -498,11 +512,9 @@ export default function MapView({
                 if (activeTripId) {
                   const data = await refetchById(activeTripId)
                   if (!data) {
-                    toast({
-                      title: "Trip details unavailable",
-                      description: "Couldn't load route for this car.",
-                    })
-                    return
+                    // Navigation 404 is normal before a trip starts. The car
+                    // and its live location are still worth focusing.
+                    toast(navigationUnavailableNotice(car.currentTrip?.status))
                   }
                 }
                 setPopupInfo(car)
@@ -695,6 +707,24 @@ return (
           )}
         </Button>
       </div>
+
+      {/* Persistent explanation while a focused trip has no Navigation data yet */}
+      {focusedCar && focusedActiveTripId && !tripLoading &&
+        (focusedNavigationUnavailable || !!tripError) && (
+          <div className="absolute top-6 left-1/2 z-[1000] w-[min(28rem,calc(100%-2rem))] -translate-x-1/2 pointer-events-none">
+            <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-amber-600 shadow-md backdrop-blur-xl">
+              <Clock className="mt-0.5 h-4 w-4 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">
+                  {tripError ? "Navigation unavailable" : focusedNavigationNotice.title}
+                </p>
+                <p className="text-xs mt-0.5 opacity-90">
+                  {tripError || focusedNavigationNotice.description}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
       {/* Location warning button - only show if there are cars without location */}
       {carsWithoutLocation.length > 0 && (
