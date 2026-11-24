@@ -189,8 +189,9 @@ export function useTripSnapshot({
       // Close existing connection
       cleanup()
 
-      // Try without subprotocol first, as some servers don't support it
-      const ws = new WebSocket(wsUrl)
+      // The admin GraphQL server uses graphql-transport-ws. Negotiate it
+      // explicitly so gateways don't close the socket with 4406.
+      const ws = new WebSocket(wsUrl, "graphql-transport-ws")
       console.log("[useTripSnapshot] Attempting WebSocket connection to:", wsUrl)
 
       ws.onopen = () => {
@@ -258,6 +259,11 @@ export function useTripSnapshot({
             if (onError) onError(err)
           } else if (message.type === "complete") {
             console.log("[useTripSnapshot] Subscription completed")
+          } else if (message.type === "ping") {
+            // graphql-transport-ws keepalive
+            ws.send(JSON.stringify({ type: "pong", payload: message.payload ?? {} }))
+          } else if (message.type === "pong") {
+            // server acknowledged our keepalive; nothing to do
           }
         } catch (err) {
           console.error("[useTripSnapshot] Error parsing message:", err)

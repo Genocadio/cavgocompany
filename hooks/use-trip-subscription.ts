@@ -143,7 +143,9 @@ export function useTripSubscription({
     isConnectingRef.current = true
 
     try {
-      const ws = new WebSocket(wsUrl)
+      // Negotiate the subprotocol the graphql-ws server expects; a bare socket
+      // is closed with 4406 by gateways that require it.
+      const ws = new WebSocket(wsUrl, "graphql-transport-ws")
       console.log("[TripSubscription] Attempting WebSocket connection to:", wsUrl)
       wsRef.current = ws
       shouldReconnectRef.current = true
@@ -216,6 +218,13 @@ export function useTripSubscription({
 
             case "complete":
               console.log("[TripSubscription] Subscription completed")
+              break
+
+            // graphql-transport-ws keepalive
+            case "ping":
+              ws.send(JSON.stringify({ type: "pong", payload: message.payload ?? {} }))
+              break
+            case "pong":
               break
 
             default:

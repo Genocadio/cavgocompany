@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { type Car } from "@/lib/data"
 import MapView from "@/components/map-view"
@@ -26,7 +26,12 @@ import {
 import { useCompanyCars, type CarWithTripId } from "@/hooks/use-company-cars"
 import { useTripDetails } from "@/hooks/use-trip-details"
 import { useToast } from "@/hooks/use-toast"
-import { useTripSubscriptionsManager, TripSubscriptionManager } from "@/hooks/use-trip-subscriptions-manager"
+import { useActiveCompanyTrips } from "@/hooks/use-active-company-trips"
+import {
+  applyLiveTripsToCars,
+  applyTripOverrides,
+  type TripViewOverride,
+} from "@/hooks/use-trip-subscriptions-manager"
 import { formatSpeed, reverseGeocode } from "@/lib/utils"
 
 export default function FleetDashboard() {
@@ -38,9 +43,25 @@ export default function FleetDashboard() {
     offset: 0,
   })
   
-  // Apply real-time trip subscriptions
-  const cars = useTripSubscriptionsManager(fetchedCars)
-  const [carsView, setCarsView] = useState<Car[]>(cars)
+  // Company-wide live trips: the backend pushes every active trip (including
+  // ones started after the last carsByCompany fetch) and removes ended ones.
+  const { trips: liveTrips, isReady: liveTripsReady } = useActiveCompanyTrips(companyId)
+
+  // Single authoritative car list: fetched cars + live trip overlay.
+  const cars = useMemo(
+    () => applyLiveTripsToCars(fetchedCars, liveTrips, liveTripsReady),
+    [fetchedCars, liveTrips, liveTripsReady]
+  )
+
+  // One override map for focused-map polling and the trip dialog. Keeping all
+  // refinements here (keyed by trip id) prevents the previous race where several
+  // independent `setCarsView` writers overwrote each other.
+  const [tripOverrides, setTripOverrides] = useState<Map<string, TripViewOverride>>(new Map())
+  const carsView = useMemo(
+    () => applyTripOverrides(cars, tripOverrides),
+    [cars, tripOverrides]
+  )
+
   const [selectedCar, setSelectedCar] = useState<Car | null>(null)
   const [mapFocusId, setMapFocusId] = useState<string | undefined>(undefined)
   const [activeTab, setActiveTab] = useState("management")
@@ -56,48 +77,57 @@ export default function FleetDashboard() {
   const { toast } = useToast()
   const { refetchById: fetchTripById } = useTripDetails({ tripId: undefined, enabled: false })
 
-  // Keep displayed cars in sync with subscription manager output
-  useEffect(() => {
-    setCarsView(cars)
-  }, [cars])
+  // Convert a REST/GraphQL trip payload into a single override entry. Only
+  // fields that exist on the view model are kept; `...car.currentTrip` is never
+  // spread last here, so fresh values always win.
+  const tripDataToOverride = useCallback((tripData: any): TripViewOverride | null => {
+    if (!tripData?.id) return null
+    const destinations: any[] = tripData.destinations ?? []
+    const finalDestination = destinations[destinations.length - 1]
+    const override: TripViewOverride = {
+      id: tripData.id,
+      ...(tripData.status ? { status: tripData.status } : {}),
+      ...(tripData.createdAt ? { createdAt: tripData.createdAt } : {}),
+      ...(tripData.totalDistance
+        ? { totalDistanceKm: Math.round((tripData.totalDistance / 1000) * 10) / 10 }
+        : {}),
+      ...(tripData.origin?.addres ? { originName: tripData.origin.addres } : {}),
+      ...(finalDestination?.addres ? { destinationName: finalDestination.addres } : {}),
+    }
+    if (destinations.length) {
+      override.destinations = destinations.map((d) => ({
+        id: String(d.id ?? Math.random().toString(36).slice(2)),
+        addres: d.addres,
+        remainingDistance: d.remainingDistance,
+        isPassed: d.isPassed === true || d.isPassed === "true",
+        index: d.index,
+      }))
+      override.nextStopName = destinations.find((d) => !(d.isPassed === true || d.isPassed === "true"))?.addres
+        || finalDestination?.addres
+    }
+    return override
+  }, [])
 
-  // Handler for subscription manager updates
-  const handleSubscriptionManagerUpdate = useCallback((updatedCars: CarWithTripId[]) => {
-    setCarsView(updatedCars)
+  const setTripOverride = useCallback((override: TripViewOverride) => {
+    setTripOverrides((prev) => {
+      const next = new Map(prev)
+      next.set(String(override.id), { ...next.get(String(override.id)), ...override })
+      return next
+    })
   }, [])
 
   // Handler for focused car trip updates from MapView polling
-  const handleFocusedCarTripUpdate = useCallback((carId: string, tripData: any) => {
-    setCarsView((prev) =>
-      prev.map((car) => {
-        if (car.id !== carId || !car.currentTrip || String(car.currentTrip.id) !== String(tripData.id)) {
-          return car
-        }
-        // Silently update focused car's trip data from polling
-        return {
-          ...car,
-          currentTrip: {
-            id: tripData.id,
-            status: tripData.status,
-            totalDistance: tripData.totalDistance,
-            createdAt: tripData.createdAt,
-            origin: tripData.origin,
-            destinations: tripData.destinations,
-            originName: tripData.origin?.addres || car.currentTrip.originName,
-            destinationName: tripData.destinations?.[tripData.destinations.length - 1]?.addres || car.currentTrip.destinationName,
-            ...car.currentTrip,
-          }
-        }
-      })
-    )
-  }, [])
+  const handleFocusedCarTripUpdate = useCallback((_carId: string, tripData: any) => {
+    const override = tripDataToOverride(tripData)
+    if (override) setTripOverride(override)
+  }, [tripDataToOverride, setTripOverride])
 
-  // Silent background polling every minute; pause when a car is focused or a trip dialog is open
-  const pollingPaused = !!mapFocusId || (!!viewingTrip && !!viewingTripCar)
+  // Silent background polling every minute. It must NOT pause when a car is
+  // focused or a trip dialog is open — those states used to freeze car speed,
+  // position and trip status until the user closed the overlay.
   useEffect(() => {
-    if (!companyId || pollingPaused) return
+    if (!companyId) return
 
-    // Initial refresh on resume
     refetchCars().catch((err) => console.error('[FleetDashboard] background refetch error', err))
 
     const interval = setInterval(() => {
@@ -105,51 +135,28 @@ export default function FleetDashboard() {
     }, 60000)
 
     return () => clearInterval(interval)
-  }, [companyId, pollingPaused, refetchCars])
+  }, [companyId, refetchCars])
 
-  // Handler to update car's trip data when subscription receives new data
+  // Handler to update car's trip data when the trip dialog subscription receives new data
   const handleTripUpdate = useCallback((tripData: any) => {
-    // Update viewing trip car if it matches - completely replace currentTrip
-    if (viewingTripCar && String(viewingTripCar.currentTrip?.id) === String(tripData.id)) {
-      const updatedCar = {
-        ...viewingTripCar,
-        currentTrip: {
-          id: tripData.id,
-          status: tripData.status,
-          totalDistance: tripData.totalDistance,
-          createdAt: tripData.createdAt,
-          updatedAt: tripData.updatedAt,
-          origin: tripData.origin,
-          destinations: tripData.destinations,
-          originName: tripData.origin?.addres || '',
-          destinationName: tripData.destinations?.[tripData.destinations.length - 1]?.addres || '',
-        }
-      }
-      setViewingTripCar(updatedCar)
-    }
+    const override = tripDataToOverride(tripData)
+    if (!override) return
 
-    // Also update the cars list so badges and cards stay fresh
-    setCarsView((prev) =>
-      prev.map((car) => {
-        if (!car.currentTrip || String(car.currentTrip.id) !== String(tripData.id)) return car
-
-        return {
-          ...car,
-          currentTrip: {
-            id: tripData.id,
-            status: tripData.status,
-            totalDistance: tripData.totalDistance,
-            createdAt: tripData.createdAt,
-            updatedAt: tripData.updatedAt,
-            origin: tripData.origin,
-            destinations: tripData.destinations,
-            originName: tripData.origin?.addres || '',
-            destinationName: tripData.destinations?.[tripData.destinations.length - 1]?.addres || '',
-          }
-        }
-      })
+    // Keep the open dialog's trip in sync without closing over a stale `viewingTripCar`.
+    setViewingTripCar((prev) =>
+      prev && String(prev.currentTrip?.id) === String(tripData.id)
+        ? { ...prev, currentTrip: { ...prev.currentTrip, ...override } as NonNullable<Car["currentTrip"]> }
+        : prev
     )
-  }, [viewingTripCar])
+    setViewingTrip((prev) =>
+      prev && String(prev.id) === String(tripData.id)
+        ? { ...prev, ...override }
+        : prev
+    )
+
+    // Feed the same override into the authoritative car list.
+    setTripOverride(override)
+  }, [tripDataToOverride, setTripOverride])
 
   useEffect(() => {
     setMounted(true)
@@ -305,12 +312,6 @@ export default function FleetDashboard() {
 
   return (
     <main className="flex h-screen w-full bg-background flex-col">
-      {/* Subscription manager for real-time trip updates */}
-      <TripSubscriptionManager
-        cars={fetchedCars}
-        onCarsUpdate={handleSubscriptionManagerUpdate}
-      />
-
       <div className="flex-1 flex flex-col overflow-hidden">
         <AppHeader activeTab={activeTab} onToggleView={toggleView} showViewSwitcher={true} />
 
@@ -330,7 +331,12 @@ export default function FleetDashboard() {
               </TabsContent>
 
               <TabsContent value="map" className="m-0 h-full p-4">
-                <MapView cars={carsView} focusedCarId={mapFocusId} onFocusCar={handleFocusFromMap} />
+                <MapView
+                  cars={carsView}
+                  focusedCarId={mapFocusId}
+                  onFocusCar={handleFocusFromMap}
+                  onFocusedCarTripUpdate={handleFocusedCarTripUpdate}
+                />
               </TabsContent>
             </Tabs>
           )}

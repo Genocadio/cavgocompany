@@ -83,6 +83,12 @@ type ApiTrip = {
   }
 }
 
+type ApiDriver = {
+  id?: string | number
+  name?: string
+  phoneNumber?: string
+}
+
 type ApiCar = {
   id?: string | number
   plate?: string
@@ -90,6 +96,7 @@ type ApiCar = {
   serviceType?: Car["serviceType"]
   isOnline?: boolean
   status?: string
+  currentDriver?: ApiDriver | null
   currentLocation?: {
     bearing?: number
     speed?: number
@@ -110,6 +117,7 @@ interface UseCompanyCarsOptions {
 
 export interface CarWithTripId extends Car {
   activeTripId?: string
+  currentDriver?: { id: string; name: string; phoneNumber?: string }
 }
 
 interface UseCompanyCarsResult {
@@ -196,6 +204,13 @@ export function useCompanyCars({ companyId, limit = 50, offset = 0 }: UseCompany
         currentTrip,
         tripHistory: [],
         activeTripId: tripId,
+        currentDriver: item.currentDriver?.id
+          ? {
+              id: String(item.currentDriver.id),
+              name: item.currentDriver.name || "Unknown driver",
+              phoneNumber: item.currentDriver.phoneNumber,
+            }
+          : undefined,
       }
     })
   }, [])

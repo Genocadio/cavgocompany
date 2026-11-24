@@ -38,8 +38,16 @@ export function useTripDetails({
       return null
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_NAVIGATION_API_URL || "http://localhost:8080"
-    const endpoint = `${apiUrl}/api/trips/${effectiveTripId}?render=true`
+    // No localhost fallback: in production that silently fetches the operator's
+    // own machine and leaves the focused trip without a route/live location.
+    const apiUrl = process.env.NEXT_PUBLIC_NAVIGATION_API_URL || process.env.NEXT_PUBLIC_API_URL
+    if (!apiUrl) {
+      const message = "NEXT_PUBLIC_NAVIGATION_API_URL is not configured"
+      setError(message)
+      setIsLoading(false)
+      return null
+    }
+    const endpoint = `${apiUrl.replace(/\/$/, "")}/api/trips/${effectiveTripId}?render=true`
 
     setIsLoading(true)
     setError(null)
